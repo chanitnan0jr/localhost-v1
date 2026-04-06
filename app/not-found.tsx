@@ -73,6 +73,7 @@ const COMMANDS: Record<string, (args: string[]) => string[]> = {
     '  ls            List available routes',
     '  cat README    Read about this system',
     '  uname -a      System information',
+    '  stats         Show unique visitor stats',
     '  GET /         Navigate to home',
     '  GET /projects Navigate to projects',
     '  clear         Clear terminal',
@@ -117,7 +118,8 @@ const COMMANDS: Record<string, (args: string[]) => string[]> = {
 
 const ALL_COMMANDS = [
   'help', 'whoami', 'ls', 'ls -la', 'cat README',
-  'uname -a', 'uname', 'GET /', 'GET /home', 'GET /projects',
+  'uname -a', 'uname', 'stats',
+  'GET /', 'GET /home', 'GET /projects',
   'cd /home', 'cd /', 'home', 'clear', 'exit',
 ]
 
@@ -204,6 +206,34 @@ export default function NotFound() {
 
     if (cmdLower === 'clear') {
       setHistory([])
+      return
+    }
+
+    if (cmdLower === 'stats') {
+      setHistory([...newHistory, { type: 'output', text: 'Fetching visitor stats...' }])
+      fetch('/api/visitors')
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.error) {
+            setHistory((h) => [...h, { type: 'error', text: `Error: ${data.error}` }])
+            return
+          }
+          const lines: HistoryLine[] = [
+            { type: 'success', text: `Total unique visitors: ${data.total}` },
+            { type: 'output', text: '' },
+            { type: 'output', text: 'Breakdown by OS:' },
+            ...Object.entries(data.byOs as Record<string, number>)
+              .sort(([, a], [, b]) => b - a)
+              .map(([os, count]) => ({
+                type: 'output' as const,
+                text: `  ${os.padEnd(18)} ${count} visitor${count !== 1 ? 's' : ''}`,
+              })),
+          ]
+          setHistory((h) => [...h.slice(0, -1), ...lines])
+        })
+        .catch(() => {
+          setHistory((h) => [...h.slice(0, -1), { type: 'error', text: 'Failed to fetch stats.' }])
+        })
       return
     }
 
