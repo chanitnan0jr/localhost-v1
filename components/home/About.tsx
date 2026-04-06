@@ -6,10 +6,14 @@ function VisitorBadge() {
   const [count, setCount] = useState<number | null>(null)
 
   useEffect(() => {
-    fetch('/api/visitors')
-      .then((r) => r.json())
-      .then((data) => { if (typeof data.total === 'number') setCount(data.total) })
+    fetch('/api/track', { method: 'POST' })
       .catch(() => {})
+      .finally(() => {
+        fetch('/api/visitors')
+          .then((r) => r.json())
+          .then((data) => { if (typeof data.total === 'number') setCount(data.total) })
+          .catch(() => {})
+      })
   }, [])
 
   if (count === null) return null
