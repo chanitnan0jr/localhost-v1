@@ -5,7 +5,7 @@ import { ModalProvider } from '@/context/ModalContext'
 import Navbar from '@/components/layout/Navbar'
 import ImageModal from '@/components/ui/ImageModal'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'], weight: ['400', '700', '900'] })
 
 export const metadata: Metadata = {
   title: 'Chanitnan Kitnantakhun — Backend / Systems',
@@ -20,10 +20,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
         />
       </head>
       <body className={`${inter.className} antialiased selection:bg-primary selection:text-on-primary`}>

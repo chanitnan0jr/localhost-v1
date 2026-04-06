@@ -45,8 +45,8 @@ export default function Navbar() {
         <Link className={linkClass('/projects')} href="/projects">
           Works
         </Link>
-        <Link className={linkClass('/#experience')} href="/#experience">
-          Services
+        <Link className={linkClass('/dev/null')} href="/dev/null">
+          /dev/null
         </Link>
       </div>
     </nav>
