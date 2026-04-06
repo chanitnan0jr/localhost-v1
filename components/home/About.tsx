@@ -1,3 +1,29 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+
+function VisitorBadge() {
+  const [count, setCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch('/api/visitors')
+      .then((r) => r.json())
+      .then((data) => { if (typeof data.total === 'number') setCount(data.total) })
+      .catch(() => {})
+  }, [])
+
+  if (count === null) return null
+
+  return (
+    <div className="flex items-center gap-2 text-neutral-500 group-hover:text-neutral-400 transition-colors">
+      <span className="material-symbols-outlined text-lg">visibility</span>
+      <span className="text-xs font-black tracking-widest uppercase">
+        Visit ({count.toLocaleString()})
+      </span>
+    </div>
+  )
+}
+
 export default function About() {
   return (
     <section className="px-6 md:px-12 max-w-7xl mx-auto mb-20" id="about-detailed">
@@ -5,9 +31,12 @@ export default function About() {
         <div className="absolute right-0 top-0 p-10 opacity-5 group-hover:opacity-[0.02] transition-opacity duration-700 pointer-events-none">
           <span className="material-symbols-outlined text-[15rem]">fingerprint</span>
         </div>
-        <div className="mb-10">
-          <h2 className="text-4xl font-black text-white uppercase tracking-tighter mb-2">ABOUT</h2>
-          <p className="text-accent-green text-sm tracking-[0.2em] uppercase font-bold">The Core</p>
+        <div className="mb-10 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-4xl font-black text-white uppercase tracking-tighter mb-2">ABOUT</h2>
+            <p className="text-accent-green text-sm tracking-[0.2em] uppercase font-bold">The Core</p>
+          </div>
+          <VisitorBadge />
         </div>
         <div className="max-w-3xl space-y-6 text-neutral-400 text-lg leading-relaxed font-bold">
           <p>
