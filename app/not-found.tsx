@@ -71,9 +71,14 @@ const COMMANDS: Record<string, (args: string[]) => string[]> = {
     '  help          Show this message',
     '  whoami        Display current user',
     '  ls            List available routes',
+    '  cd <dir>      Change directory',
     '  cat README    Read about this system',
     '  uname -a      System information',
+    '  neofetch      Fetch system information',
     '  stats         Show unique visitor stats',
+    '  ping <host>   Send ICMP ECHO_REQUEST to network hosts',
+    '  curl <url>    Transfer a URL',
+    '  sudo <cmd>    Execute a command as superuser',
     '  GET /         Navigate to home',
     '  GET /projects Navigate to projects',
     '  clear         Clear terminal',
@@ -120,7 +125,7 @@ const COMMANDS: Record<string, (args: string[]) => string[]> = {
 const ALL_COMMANDS = [
   'help', 'whoami', 'ls', 'ls -la', 'cat README',
   'uname -a', 'uname', 'stats', 'neofetch', 'fastfetch',
-  'ping github.com', 'curl api.github.com/users/chanitnan', 'sudo su',
+  'ping', 'ping github.com', 'curl', 'curl api.github.com/users/chanitnan', 'sudo', 'sudo su',
   'GET /', 'GET /home', 'GET /projects',
   'cd /home', 'cd /', 'cd /projects', 'home', 'clear', 'exit',
 ]
