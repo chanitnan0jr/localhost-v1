@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 
 const WORKFLOW_ITEMS = [
   {
@@ -88,13 +89,14 @@ export default function Workflow() {
         </div>
 
         {/* Dynamic Image Right */}
-        <div className="lg:col-span-6 hidden lg:block h-full w-full rounded-[2rem] overflow-hidden border border-white/5 grayscale hover:grayscale-0 transition-all duration-1000">
+        <div className="lg:col-span-6 hidden lg:block h-full w-full rounded-[2rem] overflow-hidden border border-white/5 grayscale hover:grayscale-0 transition-all duration-1000 relative">
           <div className="absolute inset-0 bg-gradient-to-t from-[#131313] via-transparent to-transparent z-10" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#131313]/50 to-transparent z-10" />
-          <img
+          <Image
             src="/images/workflow_bg.png"
             alt="Workflow"
-            className="w-full h-full object-cover object-center transition-all duration-500"
+            fill
+            className="object-cover object-center transition-all duration-500"
           />
         </div>
 

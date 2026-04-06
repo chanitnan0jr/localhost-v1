@@ -113,14 +113,16 @@ const COMMANDS: Record<string, (args: string[]) => string[]> = {
   'GET /projects': () => ['301 Moved Permanently → /projects'],
   'cd /home': () => ['301 Moved Permanently → /'],
   'cd /': () => ['301 Moved Permanently → /'],
+  'cd /projects': () => ['301 Moved Permanently → /projects'],
   home: () => ['301 Moved Permanently → /'],
 }
 
 const ALL_COMMANDS = [
   'help', 'whoami', 'ls', 'ls -la', 'cat README',
-  'uname -a', 'uname', 'stats',
+  'uname -a', 'uname', 'stats', 'neofetch', 'fastfetch',
+  'ping github.com', 'curl api.github.com/users/chanitnan', 'sudo su',
   'GET /', 'GET /home', 'GET /projects',
-  'cd /home', 'cd /', 'home', 'clear', 'exit',
+  'cd /home', 'cd /', 'cd /projects', 'home', 'clear', 'exit',
 ]
 
 const NAVIGATE: Record<string, string> = {
@@ -129,6 +131,7 @@ const NAVIGATE: Record<string, string> = {
   'GET /home': '/',
   'cd /home': '/',
   'cd /': '/',
+  'cd /projects': '/projects',
   home: '/',
   'GET /projects': '/projects',
 }
@@ -242,6 +245,89 @@ export default function NotFound() {
         ? readme.split('\n').slice(0, 40)
         : ['README.md: file not found']
       setHistory([...newHistory, ...lines.map((text) => ({ type: 'output' as const, text: text || '\u00A0' }))])
+      return
+    }
+
+    if (cmdLower === 'neofetch' || cmdLower === 'fastfetch') {
+      const nav = navigator as any
+      const os = detectOS(navigator.userAgent)
+      const browser = detectBrowser(navigator.userAgent)
+      const cores = navigator.hardwareConcurrency ?? 1
+      const ram = nav.deviceMemory ? `${nav.deviceMemory} GB` : 'unknown'
+      const screen = `${window.screen.width}x${window.screen.height}`
+
+      const ascii = [
+        `      ::::::::      `,
+        `    ::::::::::::    `,
+        `  ::::::    ::::::  `,
+        ` :::::        ::::: `,
+        ` :::::        ::::: `,
+        ` :::::        ::::: `,
+        `  ::::::    ::::::  `,
+        `    ::::::::::::    `,
+        `      ::::::::      `,
+      ]
+
+      const info = [
+        `visitor@localhost-v1`,
+        `--------------------`,
+        `OS: ${os}`,
+        `Host: Web Terminal`,
+        `Kernel: 6.8.0-localhost`,
+        `Uptime: ${Math.floor(performance.now() / 60000)} mins`,
+        `Packages: 404 (dpkg)`,
+        `Shell: bash 5.1.16`,
+        `Resolution: ${screen}`,
+        `Environment: ${browser}`,
+        `CPU: ${cores} Cores`,
+        `Memory: ${ram}`,
+      ]
+
+      const maxLen = Math.max(ascii.length, info.length)
+      const outLines = []
+      for (let i = 0; i < maxLen; i++) {
+        const a = ascii[i] || '                    '
+        const b = info[i] || ''
+        outLines.push({ type: 'output' as const, text: `${a}  ${b}` })
+      }
+      setHistory([...newHistory, ...outLines])
+      return
+    }
+
+    if (cmdLower.startsWith('sudo')) {
+      setHistory([
+        ...newHistory,
+        { type: 'output', text: `[sudo] password for visitor:` },
+        { type: 'error', text: `visitor is not in the sudoers file. This incident will be reported.` }
+      ])
+      return
+    }
+
+    if (cmdLower.startsWith('ping')) {
+      const target = cmdLower.split(' ')[1] || 'github.com'
+      setHistory([
+        ...newHistory,
+        { type: 'output', text: `PING ${target} (140.82.112.4) 56(84) bytes of data.` },
+        { type: 'output', text: `64 bytes from ${target}: icmp_seq=1 ttl=52 time=14.2 ms` },
+        { type: 'output', text: `64 bytes from ${target}: icmp_seq=2 ttl=52 time=13.5 ms` },
+        { type: 'output', text: `64 bytes from ${target}: icmp_seq=3 ttl=52 time=14.0 ms` },
+        { type: 'output', text: `--- ${target} ping statistics ---` },
+        { type: 'output', text: `3 packets transmitted, 3 received, 0% packet loss, time 2003ms` },
+      ])
+      return
+    }
+
+    if (cmdLower.startsWith('curl')) {
+      setHistory([
+        ...newHistory,
+        { type: 'output', text: `HTTP/2 200 ` },
+        { type: 'output', text: `content-type: application/json` },
+        { type: 'output', text: `{` },
+        { type: 'output', text: `  "login": "chanitnan",` },
+        { type: 'output', text: `  "type": "User",` },
+        { type: 'output', text: `  "bio": "Backend / Systems Engineer"` },
+        { type: 'output', text: `}` },
+      ])
       return
     }
 
