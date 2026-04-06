@@ -72,6 +72,7 @@ const config: Config = {
         surface: '#131313',
         'surface-dim': '#131313',
         'accent-green': '#BBF7D0',
+        'accent-blue': '#7DD3FC',
       },
       borderRadius: {
         DEFAULT: '0.5rem',
