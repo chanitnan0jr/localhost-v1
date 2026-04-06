@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+body {
+    background-color: #131313;
+    color: #e5e2e1;
+    font-family: 'Inter', sans-serif;
+}
+.text-glow-green {
+    text-shadow: 0 0 15px rgba(187, 247, 208, 0.3);
+}
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+.blink-fast {
+    animation: blink 0.8s step-start infinite;
+}
