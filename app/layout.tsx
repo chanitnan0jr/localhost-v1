@@ -8,7 +8,7 @@ import ImageModal from '@/components/ui/ImageModal'
 const inter = Inter({ subsets: ['latin'], weight: ['400', '700', '900'] })
 
 export const metadata: Metadata = {
-  title: 'Chanitnan Kitnantakhun — Backend / Systems',
+  title: 'My-Website',
   description: 'Backend & Systems Engineer portfolio',
 }
 

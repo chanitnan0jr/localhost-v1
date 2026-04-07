@@ -10,6 +10,7 @@ export interface Project {
   icon: string
   type: 'opensource' | 'personal'
   badge?: string
+  liveUrl?: string
 }
 
 export const OPENSOURCE_PROJECTS: Project[] = [
@@ -64,5 +65,18 @@ export const PERSONAL_PROJECTS: Project[] = [
     tags: ['Django', 'React · TS', 'AWS'],
     icon: 'biotech',
     type: 'personal',
+  },
+  {
+    id: 'specbot',
+    name: 'SpecBot',
+    category: 'AI & RAG Systems',
+    description: 'Thai smartphone spec assistant powered by RAG — scrapes real spec data and answers natural language queries in Thai.',
+    achievement: 'Built a full-stack RAG pipeline that scrapes Specphone.com, stores specs with vector embeddings in MongoDB Atlas, and answers Thai-language queries via a Next.js chat UI.',
+    technicalEdge: 'Implemented multi-query expansion with Typhoon LLM and a neural Cross-Encoder reranker (ms-marco-MiniLM-L-6-v2) for high-precision retrieval. Engineered backend-first chat persistence with fire-and-forget DB writes, keeping response latency unaffected. Deployed on Azure App Service (backend) and Vercel (frontend) with automated monthly re-scraping via GitHub Actions.',
+    metric: 'Full RAG pipeline with neural reranking deployed to production.',
+    tags: ['Node.js · TS', 'Next.js', 'MongoDB Atlas'],
+    icon: 'smart_toy',
+    type: 'personal',
+    liveUrl: 'https://spec-bot-steel.vercel.app/doc',
   },
 ]

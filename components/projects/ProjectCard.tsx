@@ -77,9 +77,23 @@ export default function ProjectCard({ project, index = 0, accent = 'green' }: Pr
 
       {/* Name + Tags */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-        <h2 className={`text-4xl md:text-5xl font-black tracking-tighter text-white uppercase leading-none transition-colors duration-500 ${a.nameHover}`}>
-          {project.name}
-        </h2>
+        <div className="flex items-center gap-4 flex-wrap">
+          <h2 className={`text-4xl md:text-5xl font-black tracking-tighter text-white uppercase leading-none transition-colors duration-500 ${a.nameHover}`}>
+            {project.name}
+          </h2>
+          {project.liveUrl && (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-full border border-white/20 text-neutral-400 hover:border-white/50 hover:text-white transition-all duration-300 shrink-0"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="material-symbols-outlined text-sm leading-none">open_in_new</span>
+              Live Demo
+            </a>
+          )}
+        </div>
         <div className="flex flex-wrap gap-2 md:justify-end">
           {project.tags.map((tag) => (
             <span
