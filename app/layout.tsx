@@ -8,8 +8,14 @@ import ImageModal from '@/components/ui/ImageModal'
 const inter = Inter({ subsets: ['latin'], weight: ['400', '700', '900'] })
 
 export const metadata: Metadata = {
-  title: 'My-Website',
+  title: {
+    default: 'Localhost-v1',
+    template: 'Localhost-v1',
+  },
   description: 'Backend & Systems Engineer portfolio',
+  icons: {
+    icon: '/images/TabPicture.png?v=3',
+  },
 }
 
 export default function RootLayout({
