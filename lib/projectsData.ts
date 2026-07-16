@@ -11,21 +11,23 @@ export interface Project {
   type: 'opensource' | 'personal'
   badge?: string
   liveUrl?: string
+  repoUrl?: string
 }
 
 export const OPENSOURCE_PROJECTS: Project[] = [
   {
     id: 'pythainlp',
     name: 'PyThaiNLP',
-    category: 'Open Source Contributions',
-    description: 'Optimized performance-critical NLP routines by implementing Cython C-extensions.',
-    achievement: 'Optimized performance-critical NLP routines by implementing Cython C-extensions (PR #1394).',
-    technicalEdge: 'Achieved a 3–5x throughput increase by migrating Python loops to C. Engineered the extension with strict behavioral parity and type-safe boundaries, ensuring seamless integration with pure-Python fallbacks for legacy compatibility.',
-    metric: '3.5x average speedup in character processing routines.',
-    tags: ['Cython', 'C Extensions', 'Python'],
-    icon: 'speed',
+    category: 'Open Source Security',
+    description: 'Fixed a CodeQL-flagged ReDoS vulnerability in PyThaiNLP’s ULMFiT URL parser.',
+    achievement: 'Resolved a regular-expression denial-of-service vulnerability in the ULMFiT preprocessing pipeline (PR #1400).',
+    technicalEdge: 'Removed nested greedy quantification from URL matching to eliminate catastrophic backtracking while preserving the intended matching behavior.',
+    metric: 'Linear-time worst-case URL matching after the security fix.',
+    tags: ['Python', 'Security', 'CodeQL'],
+    icon: 'security',
     type: 'opensource',
-    badge: 'Open Source · PR #1394',
+    badge: 'Merged · PR #1400',
+    repoUrl: 'https://github.com/PyThaiNLP/pythainlp/pull/1400',
   },
 ]
 
@@ -41,6 +43,7 @@ export const PERSONAL_PROJECTS: Project[] = [
     tags: ['C · POSIX', 'TCP/IP', 'RESP Protocol'],
     icon: 'memory',
     type: 'personal',
+    repoUrl: 'https://github.com/chanitnan0jr/Mini-Redis',
   },
   {
     id: 'tpsystem',
@@ -68,7 +71,7 @@ export const PERSONAL_PROJECTS: Project[] = [
   },
   {
     id: 'specbot',
-    name: 'SpecBot',
+    name: 'SPEX-Shop',
     category: 'AI & RAG Systems',
     description: 'Thai smartphone spec assistant powered by RAG — scrapes real spec data and answers natural language queries in Thai.',
     achievement: 'Built a full-stack RAG pipeline that scrapes Specphone.com, stores specs with vector embeddings in MongoDB Atlas, and answers Thai-language queries via a Next.js chat UI.',
@@ -78,5 +81,18 @@ export const PERSONAL_PROJECTS: Project[] = [
     icon: 'smart_toy',
     type: 'personal',
     liveUrl: 'https://spec-bot-steel.vercel.app/doc',
+    repoUrl: 'https://github.com/chanitnan0jr/SPEX-Shop',
+  },
+  {
+    id: 'agriscan-monitor',
+    name: 'AgriScan Monitor',
+    category: 'Infrastructure & Observability',
+    description: 'Production infrastructure dashboard and real-time control panel for AgriScan Pro’s AWS services.',
+    achievement: 'Built an infrastructure dashboard for RDS, Elastic Beanstalk, and ElastiCache with Google OAuth access control.',
+    technicalEdge: 'Enforced least-privilege IAM with an email allowlist for Server Actions. Wired Grafana and CloudWatch for P90/P99 latency, CPU saturation, memory, and FinOps cost tracking, then instrumented the system with OpenTelemetry.',
+    metric: 'Production AWS monitoring with real-time control and health smoke tests.',
+    tags: ['Next.js · TS', 'AWS', 'Grafana · OpenTelemetry'],
+    icon: 'monitoring',
+    type: 'personal',
   },
 ]

@@ -56,7 +56,7 @@ export const STACK_CATEGORIES: StackCategory[] = [
     items: [
       { name: 'PostgreSQL', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg' },
       { name: 'MongoDB', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongodb/mongodb-original.svg' },
-      { name: 'Redis', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/redis/redis-original.svg' },
+      { name: 'Redis', iconUrl: 'https://cdn.simpleicons.org/redis' },
       { name: 'SQLite', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg' },
       { name: 'RDS', iconUrl: 'https://api.iconify.design/logos/aws-rds.svg' },
       { name: 'ElastiCache', iconUrl: 'https://api.iconify.design/logos/aws-elasticache.svg' },

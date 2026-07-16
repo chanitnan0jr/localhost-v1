@@ -24,39 +24,6 @@ export default function Certifications() {
       </div>
       <div className="space-y-8">
 
-        {/* AWS Academy */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start group bg-surface-container border border-white/5 rounded-[2rem] p-8 md:p-10 hover:border-white/20 transition-colors">
-          <div className="md:col-span-4">
-            <span className="text-accent-green font-bold text-sm tracking-widest uppercase mb-2 block">
-              2026 – Present
-            </span>
-            <h3 className="text-3xl font-black text-white uppercase tracking-tight group-hover:translate-x-2 transition-transform duration-300">
-              AWS Academy
-            </h3>
-          </div>
-          <div className="md:col-span-8 border-l border-neutral-800 pl-8">
-            <p className="text-on-surface-variant text-sm uppercase tracking-widest font-bold mb-6">
-              Cloud Developing · In Progress
-            </p>
-            <ul className="space-y-6 text-on-surface-variant text-lg">
-              <li className="flex gap-4">
-                <span className="text-accent-green mt-1">•</span>
-                <span>
-                  Studying AWS Cloud Developing track covering S3, DynamoDB, Lambda, and API Gateway for serverless and
-                  cloud-native architectures.
-                </span>
-              </li>
-              <li className="flex gap-4">
-                <span className="text-accent-green mt-1">•</span>
-                <span>
-                  Supplementary DataCamp certifications: Supervised Learning (scikit-learn), FastAPI, NumPy, and pandas
-                  data engineering.
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
         {/* DataCamp */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start group bg-surface-container border border-white/5 rounded-[2rem] p-8 md:p-10 hover:border-white/20 transition-colors">
           <div className="md:col-span-4">
@@ -64,7 +31,14 @@ export default function Certifications() {
               2025 – 2026
             </span>
             <h3 className="text-3xl font-black text-white uppercase tracking-tight group-hover:translate-x-2 transition-transform duration-300">
-              DataCamp
+              <a
+                href="https://app.datacamp.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-accent-green transition-colors"
+              >
+                DataCamp
+              </a>
             </h3>
             <p className="text-on-surface-variant text-sm mt-3 font-bold uppercase tracking-widest">22 Total Hours</p>
           </div>

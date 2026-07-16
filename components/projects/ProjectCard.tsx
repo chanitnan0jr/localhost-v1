@@ -79,7 +79,19 @@ export default function ProjectCard({ project, index = 0, accent = 'green' }: Pr
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
         <div className="flex items-center gap-4 flex-wrap">
           <h2 className={`text-4xl md:text-5xl font-black tracking-tighter text-white uppercase leading-none transition-colors duration-500 ${a.nameHover}`}>
-            {project.name}
+            {project.repoUrl ? (
+              <a
+                href={project.repoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-white/30 underline-offset-8 hover:text-accent-green hover:decoration-accent-green transition-colors"
+              >
+                {project.name}
+                <span className="material-symbols-outlined ml-2 align-middle text-[0.55em] opacity-50" aria-hidden="true">
+                  open_in_new
+                </span>
+              </a>
+            ) : project.name}
           </h2>
           {project.liveUrl && (
             <a
@@ -89,8 +101,8 @@ export default function ProjectCard({ project, index = 0, accent = 'green' }: Pr
               className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-full border border-white/20 text-neutral-400 hover:border-white/50 hover:text-white transition-all duration-300 shrink-0"
               onClick={(e) => e.stopPropagation()}
             >
-              <span className="material-symbols-outlined text-sm leading-none">open_in_new</span>
               Live Demo
+              <span className="material-symbols-outlined text-sm leading-none">open_in_new</span>
             </a>
           )}
         </div>
@@ -104,6 +116,16 @@ export default function ProjectCard({ project, index = 0, accent = 'green' }: Pr
             </span>
           ))}
         </div>
+      </div>
+
+      {/* Description */}
+      <div className="max-w-3xl mb-10">
+        <p className="text-[10px] uppercase tracking-[0.25em] font-black text-neutral-600 mb-3">
+          Description
+        </p>
+        <p className="text-lg text-neutral-400 leading-relaxed">
+          {project.description}
+        </p>
       </div>
 
       {/* 3-column content grid */}

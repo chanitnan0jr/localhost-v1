@@ -20,7 +20,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[90%] md:w-[800px] z-50 bg-[#131313]/50 backdrop-blur-xl border border-white/10 rounded-full flex justify-between items-center px-6 py-4 shadow-2xl">
+    <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[90%] md:w-[1000px] z-50 bg-[#131313]/50 backdrop-blur-xl border border-white/10 rounded-full flex justify-between items-center px-6 py-4 shadow-2xl">
       <div className="flex items-center gap-3 cursor-default">
         <Image
           src="/images/Mascot.png"
