@@ -56,6 +56,7 @@ export const PERSONAL_PROJECTS: Project[] = [
     tags: ['Spring Boot', 'PostgreSQL', 'Redis'],
     icon: 'account_balance',
     type: 'personal',
+    repoUrl: 'https://github.com/chanitnan0jr/TPSystem',
   },
   {
     id: 'agriscanpro',
@@ -68,6 +69,7 @@ export const PERSONAL_PROJECTS: Project[] = [
     tags: ['Django', 'React · TS', 'AWS'],
     icon: 'biotech',
     type: 'personal',
+    repoUrl: 'https://github.com/GearJP2/agriscan-pro',
   },
   {
     id: 'specbot',
@@ -94,5 +96,6 @@ export const PERSONAL_PROJECTS: Project[] = [
     tags: ['Next.js · TS', 'AWS', 'Grafana · OpenTelemetry'],
     icon: 'monitoring',
     type: 'personal',
+    repoUrl: 'https://github.com/chanitnan0jr/agriscan-monitor',
   },
 ]
