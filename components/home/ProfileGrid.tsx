@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import ProfileCarousel from './ProfileCarousel'
 
 export default function ProfileGrid() {
   return (
@@ -6,16 +6,7 @@ export default function ProfileGrid() {
 
       {/* Left Column: Portrait Card */}
       <div className="md:col-span-7 bg-surface-container border border-white/5 rounded-[2rem] p-0 relative overflow-hidden flex flex-col min-h-[400px] md:min-h-[500px]">
-        <div className="absolute inset-0 w-full h-full z-0">
-          <Image
-            src="/images/Profilepic.jpg"
-            fill
-            className="object-cover object-center filter drop-shadow-2xl"
-            alt="Chanitnan Profile"
-          />
-        </div>
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 pointer-events-none"></div>
+        <ProfileCarousel />
         {/* Overlay */}
         <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 z-20">
           <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter">
