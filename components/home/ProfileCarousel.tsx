@@ -4,10 +4,10 @@ import { useState } from 'react'
 import Image from 'next/image'
 
 const PROFILE_IMAGES = [
-  { src: '/images/Profilepic.png', alt: 'CSTU Spark Camp in AI group photo' },
+  { src: '/images/CSTUSPARK/AWARD.jpg', alt: 'CSTU Spark Camp Best Creative and Engaging Pitch Award' },
+  { src: '/images/ICPC2026/Main.jpg', alt: 'ICPC Thailand Central Region group photo' },
+  { src: '/images/PRAGMA41/PRAGMA1.jpg', alt: 'PRAGMA 41 hackathon team presentation photo' },
   { src: '/images/Profilepic.jpg', alt: 'Chanitnan working with teammates in a computer lab' },
-  { src: '/images/Profilepic-2.png', alt: 'CSTU Spark Camp welcome group photo' },
-  { src: '/images/Profilepic-3.png', alt: 'Chanitnan with teammates at a university event' },
 ]
 
 export default function ProfileCarousel() {
