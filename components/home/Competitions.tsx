@@ -101,30 +101,13 @@ export default function Competitions() {
             </h3>
           </div>
           <div className="md:col-span-8 border-l border-neutral-800 pl-8">
-            <div className="flex items-center gap-4 opacity-90 hover:opacity-100 transition-opacity w-fit mb-8">
-              <span className="text-2xl" aria-hidden="true">🏆</span>
-              <button
-                type="button"
-                onClick={toggleCstu}
-                aria-expanded={cstuOpen}
-                aria-controls="cstu-spark-camp-photo"
-                className="flex items-center gap-2 focus:outline-none group cursor-pointer"
-              >
-                <span className="text-accent-green font-bold tracking-widest uppercase text-sm group-hover:text-white transition-colors">
-                  {cstuOpen ? 'Hide Award' : '3rd Place'}
-                </span>
-                <span
-                  className="material-symbols-outlined text-accent-green group-hover:text-white transition-colors duration-300 transform"
-                  style={{ transform: cstuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                >
-                  expand_more
-                </span>
-              </button>
-            </div>
+            <h4 className="text-xl md:text-2xl font-black text-accent-green uppercase tracking-tight mb-2">
+              3rd Place
+            </h4>
             <p className="text-on-surface-variant text-sm uppercase tracking-widest font-bold mb-6">
               AI-Assisted Academic Workflow
             </p>
-            <ul className="space-y-6 text-on-surface-variant text-lg">
+            <ul className="space-y-6 text-on-surface-variant text-lg mb-6">
               <li className="flex gap-4">
                 <span className="text-accent-green mt-1">•</span>
                 <span>Built an AI-assisted academic portal for TQF3 drafting, CLO generation, curriculum mapping, and document export.</span>
@@ -138,8 +121,23 @@ export default function Competitions() {
                 <span>Placed 3rd and received the Best Creative and Engaging Pitch Award.</span>
               </li>
             </ul>
+            <button
+              type="button"
+              onClick={toggleCstu}
+              aria-expanded={cstuOpen}
+              aria-controls="cstu-spark-camp-photo"
+              className="flex items-center gap-2 text-accent-green hover:text-white transition-colors font-bold uppercase tracking-widest text-sm focus:outline-none cursor-pointer"
+            >
+              <span
+                className="material-symbols-outlined transition-transform duration-300"
+                style={{ transform: cstuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              >
+                expand_more
+              </span>
+              <span>{cstuOpen ? 'Hide Photos' : 'View Photos'}</span>
+            </button>
             {cstuOpen && (
-              <div id="cstu-spark-camp-photo" className="mt-8 pt-6 border-t border-white/10">
+              <div id="cstu-spark-camp-photo" className="mt-6 border-t border-white/10 pt-6">
                 <StaticPhotoStrip photos={CSTU_PHOTOS} onOpen={openModal} />
               </div>
             )}
@@ -155,30 +153,13 @@ export default function Competitions() {
             </h3>
           </div>
           <div className="md:col-span-8 border-l border-neutral-800 pl-8">
-            <div className="flex items-center gap-4 opacity-90 hover:opacity-100 transition-opacity w-fit mb-8">
-              <span className="text-2xl" aria-hidden="true">↗</span>
-              <button
-                type="button"
-                onClick={toggleIcpc}
-                aria-expanded={icpcOpen}
-                aria-controls="icpc-qualifier-photo"
-                className="flex items-center gap-2 focus:outline-none group cursor-pointer"
-              >
-                <span className="text-accent-green font-bold tracking-widest uppercase text-sm group-hover:text-white transition-colors">
-                  {icpcOpen ? 'Hide Photo' : 'Qualified for National Round'}
-                </span>
-                <span
-                  className="material-symbols-outlined text-accent-green group-hover:text-white transition-colors duration-300 transform"
-                  style={{ transform: icpcOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                >
-                  expand_more
-                </span>
-              </button>
-            </div>
+            <h4 className="text-xl md:text-2xl font-black text-accent-green uppercase tracking-tight mb-2">
+              Qualified for National Round
+            </h4>
             <p className="text-on-surface-variant text-sm uppercase tracking-widest font-bold mb-6">
               Central &amp; Western Regional Qualifier
             </p>
-            <ul className="space-y-6 text-on-surface-variant text-lg">
+            <ul className="space-y-6 text-on-surface-variant text-lg mb-6">
               <li className="flex gap-4">
                 <span className="text-accent-green mt-1">•</span>
                 <span>Ranked 18th out of 52 university teams in the regional qualifier hosted by Chulalongkorn University.</span>
@@ -192,8 +173,23 @@ export default function Competitions() {
                 <span>Applied algorithm design, data structures, and collaborative problem solving under contest time constraints.</span>
               </li>
             </ul>
+            <button
+              type="button"
+              onClick={toggleIcpc}
+              aria-expanded={icpcOpen}
+              aria-controls="icpc-qualifier-photo"
+              className="flex items-center gap-2 text-accent-green hover:text-white transition-colors font-bold uppercase tracking-widest text-sm focus:outline-none cursor-pointer"
+            >
+              <span
+                className="material-symbols-outlined transition-transform duration-300"
+                style={{ transform: icpcOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              >
+                expand_more
+              </span>
+              <span>{icpcOpen ? 'Hide Photos' : 'View Photos'}</span>
+            </button>
             {icpcOpen && (
-              <div id="icpc-qualifier-photo" className="mt-8 pt-6 border-t border-white/10">
+              <div id="icpc-qualifier-photo" className="mt-6 border-t border-white/10 pt-6">
                 <StaticPhotoStrip photos={ICPC_PHOTOS} onOpen={openModal} />
               </div>
             )}
@@ -216,27 +212,13 @@ export default function Competitions() {
             </h3>
           </div>
           <div className="md:col-span-8 border-l border-neutral-800 pl-8">
-            <div className="flex items-center gap-4 opacity-90 hover:opacity-100 transition-opacity w-fit mb-8">
-              <span className="text-2xl" aria-hidden="true">🏆</span>
-              <button
-                onClick={togglePragma}
-                className="flex items-center gap-2 focus:outline-none group cursor-pointer"
-              >
-                <span className="text-accent-green font-bold tracking-widest uppercase text-sm group-hover:text-white transition-colors">
-                  {pragmaOpen ? 'Hide Certificate' : 'Excellent Teamwork Award'}
-                </span>
-                <span
-                  className="material-symbols-outlined text-accent-green group-hover:text-white transition-colors duration-300 transform"
-                  style={{ transform: pragmaOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                >
-                  expand_more
-                </span>
-              </button>
-            </div>
+            <h4 className="text-xl md:text-2xl font-black text-accent-green uppercase tracking-tight mb-2">
+              Excellent Teamwork Award
+            </h4>
             <p className="text-on-surface-variant text-sm uppercase tracking-widest font-bold mb-6">
               SEAIP Collaborative Action
             </p>
-            <ul className="space-y-6 text-on-surface-variant text-lg">
+            <ul className="space-y-6 text-on-surface-variant text-lg mb-6">
               <li className="flex gap-4">
                 <span className="text-accent-green mt-1">•</span>
                 <span>
@@ -251,14 +233,26 @@ export default function Competitions() {
                 </span>
               </li>
             </ul>
-
-            <div className="mt-8 pt-6 border-t border-white/10 flex flex-col gap-4">
-              {pragmaOpen && (
-                <div className="w-full transition-all duration-500">
-                  <StaticPhotoStrip photos={PRAGMA_PHOTOS} onOpen={openModal} />
-                </div>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={togglePragma}
+              aria-expanded={pragmaOpen}
+              aria-controls="pragma-photo"
+              className="flex items-center gap-2 text-accent-green hover:text-white transition-colors font-bold uppercase tracking-widest text-sm focus:outline-none cursor-pointer"
+            >
+              <span
+                className="material-symbols-outlined transition-transform duration-300"
+                style={{ transform: pragmaOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              >
+                expand_more
+              </span>
+              <span>{pragmaOpen ? 'Hide Photos' : 'View Photos'}</span>
+            </button>
+            {pragmaOpen && (
+              <div id="pragma-photo" className="mt-6 border-t border-white/10 pt-6">
+                <StaticPhotoStrip photos={PRAGMA_PHOTOS} onOpen={openModal} />
+              </div>
+            )}
           </div>
         </div>
 

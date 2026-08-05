@@ -100,8 +100,11 @@ export default function Certifications() {
 
             {/* Dropdown Button */}
             <button
+              type="button"
               onClick={toggleDatacamp}
-              className="flex items-center gap-2 text-accent-green hover:text-white transition-colors font-bold uppercase tracking-widest text-sm mb-6 focus:outline-none cursor-pointer"
+              aria-expanded={datacampOpen}
+              aria-controls="datacamp-certificates"
+              className="flex items-center gap-2 text-accent-green hover:text-white transition-colors font-bold uppercase tracking-widest text-sm focus:outline-none cursor-pointer"
             >
               <span
                 className="material-symbols-outlined transition-transform duration-300"
@@ -114,37 +117,39 @@ export default function Certifications() {
 
             {/* Infinite Scroll Carousel */}
             {datacampOpen && (
-              <div className="w-full relative h-[140px] rounded-xl bg-[#131313] border border-white/5 box-border overflow-hidden">
-                {/* Left/Right Fades */}
-                <div className="absolute left-0 top-0 w-16 h-full bg-gradient-to-r from-[#131313] to-transparent z-10 pointer-events-none"></div>
-                <div className="absolute right-0 top-0 w-16 h-full bg-gradient-to-l from-[#131313] to-transparent z-10 pointer-events-none"></div>
+              <div id="datacamp-certificates" className="mt-6 border-t border-white/10 pt-6">
+                <div className="w-full relative h-[140px] rounded-xl bg-[#131313] border border-white/5 box-border overflow-hidden">
+                  {/* Left/Right Fades */}
+                  <div className="absolute left-0 top-0 w-16 h-full bg-gradient-to-r from-[#131313] to-transparent z-10 pointer-events-none"></div>
+                  <div className="absolute right-0 top-0 w-16 h-full bg-gradient-to-l from-[#131313] to-transparent z-10 pointer-events-none"></div>
 
-                <div className="flex items-center h-full w-max animate-datacamp-scroll hover:cursor-pointer">
-                  {/* Group 1 */}
-                  <div className="flex items-center gap-4 pr-4">
-                    {DATACAMP_CERTS.map((cert) => (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        key={cert.src + '-1'}
-                        src={cert.src}
-                        className="h-[140px] w-auto rounded-lg object-contain border border-white/10 hover:border-white/40 transition-colors"
-                        alt={cert.alt}
-                        onClick={() => openModal(cert.src)}
-                      />
-                    ))}
-                  </div>
-                  {/* Group 2 (duplicate for loop) */}
-                  <div className="flex items-center gap-4 pr-4">
-                    {DATACAMP_CERTS.map((cert) => (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        key={cert.src + '-2'}
-                        src={cert.src}
-                        className="h-[140px] w-auto rounded-lg object-contain border border-white/10 hover:border-white/40 transition-colors"
-                        alt={cert.alt}
-                        onClick={() => openModal(cert.src)}
-                      />
-                    ))}
+                  <div className="flex items-center h-full w-max animate-datacamp-scroll hover:cursor-pointer">
+                    {/* Group 1 */}
+                    <div className="flex items-center gap-4 pr-4">
+                      {DATACAMP_CERTS.map((cert) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={cert.src + '-1'}
+                          src={cert.src}
+                          className="h-[140px] w-auto rounded-lg object-contain border border-white/10 hover:border-white/40 transition-colors"
+                          alt={cert.alt}
+                          onClick={() => openModal(cert.src)}
+                        />
+                      ))}
+                    </div>
+                    {/* Group 2 (duplicate for loop) */}
+                    <div className="flex items-center gap-4 pr-4">
+                      {DATACAMP_CERTS.map((cert) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={cert.src + '-2'}
+                          src={cert.src}
+                          className="h-[140px] w-auto rounded-lg object-contain border border-white/10 hover:border-white/40 transition-colors"
+                          alt={cert.alt}
+                          onClick={() => openModal(cert.src)}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
