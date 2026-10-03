@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const redis = getRedis()
 
@@ -8,10 +10,15 @@ export async function GET() {
     return NextResponse.json({ error: 'Redis not configured' }, { status: 503 })
   }
 
-  const [total, byOs] = await Promise.all([
-    redis.scard('visitors:unique'),
-    redis.hgetall('visitors:by_os'),
-  ])
-
-  return NextResponse.json({ total: total ?? 0, byOs: byOs ?? {} })
+  try {
+    const [total, byOs] = await Promise.all([
+      redis.scard('visitors:unique'),
+      redis.hgetall('visitors:by_os'),
+    ])
+    return NextResponse.json({ total: total ?? 0, byOs: byOs ?? {} }, {
+      headers: { 'Cache-Control': 'no-store' },
+    })
+  } catch {
+    return NextResponse.json({ error: 'Visitor stats unavailable' }, { status: 503 })
+  }
 }

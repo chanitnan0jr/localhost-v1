@@ -13,16 +13,10 @@ const ModalContext = createContext<ModalContextValue | null>(null)
 export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [modalSrc, setModalSrc] = useState<string | null>(null)
 
-  const openModal = useCallback((src: string) => {
-    setModalSrc(src)
-  }, [])
-
-  const closeModal = useCallback(() => {
-    setModalSrc(null)
-  }, [])
+  const closeModal = useCallback(() => setModalSrc(null), [])
 
   return (
-    <ModalContext.Provider value={{ modalSrc, openModal, closeModal }}>
+    <ModalContext.Provider value={{ modalSrc, openModal: setModalSrc, closeModal }}>
       {children}
     </ModalContext.Provider>
   )

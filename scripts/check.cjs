@@ -1,0 +1,129 @@
+const assert = require('node:assert/strict')
+const { readFileSync } = require('node:fs')
+const { join } = require('node:path')
+const { runInThisContext } = require('node:vm')
+const ts = require('typescript')
+
+// ponytail: use the installed TypeScript compiler and Node assertions, no test framework.
+function load(file, imports) {
+  const { outputText } = ts.transpileModule(readFileSync(join(__dirname, '..', file), 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
+  })
+  const exports = {}
+  runInThisContext(`(function(exports, require, console) { ${outputText}\n})`, { filename: file })(
+    exports,
+    (id) => imports[id] ?? require(id),
+    { error() {} },
+  )
+  return exports
+}
+
+async function check() {
+  const { createElement } = require('react')
+  const { renderToStaticMarkup } = require('react-dom/server')
+  const projects = load('lib/projectsData.ts', {})
+  const card = load('components/projects/ProjectCard.tsx', {})
+  const sections = load('components/projects/ProjectsContent.tsx', {
+    '@/lib/projectsData': projects, '@/components/projects/ProjectCard': card,
+  })
+  const projectHTML = renderToStaticMarkup(createElement(sections.default))
+  const allProjects = [...projects.OPENSOURCE_PROJECTS, ...projects.PERSONAL_PROJECTS]
+  assert.equal((projectHTML.match(/<article\b/g) ?? []).length, allProjects.length)
+  assert.equal((projectHTML.match(/aria-expanded="true"/g) ?? []).length, 2)
+  for (const project of allProjects) {
+    assert.ok(projectHTML.includes(project.name))
+    if (project.repoUrl) assert.ok(projectHTML.includes(`href="${project.repoUrl}"`))
+    if (project.liveUrl) assert.ok(projectHTML.includes(`href="${project.liveUrl}"`))
+  }
+  const competitions = load('components/home/Competitions.tsx', {
+    '@/hooks/useToggle': load('hooks/useToggle.ts', {}),
+    '@/context/ModalContext': { useModalContext: () => ({ openModal() {} }) },
+  })
+  const competitionHTML = renderToStaticMarkup(createElement(competitions.default))
+  assert.equal((competitionHTML.match(/<h3\b/g) ?? []).length, 4)
+  for (const id of ['cstu-spark-camp-photo', 'icpc-qualifier-photo', 'pragma-photo']) {
+    assert.ok(competitionHTML.includes(`aria-controls="${id}"`))
+  }
+  assert.ok(competitionHTML.includes('Super AI Engineer Season 6'))
+  assert.ok(competitionHTML.includes('View Submitted Code'))
+
+  let redis = null
+  const redisModule = { getRedis: () => redis }
+  const visitors = load('lib/visitors.ts', { './redis': redisModule })
+  const headers = (ua, ip = '203.0.113.10') => new Headers({ 'user-agent': ua, 'x-forwarded-for': ip })
+  for (const [ua, os] of [
+    ['Windows NT 10.0', 'Windows 10/11'], ['Windows NT 6.3', 'Windows 8.1'],
+    ['Windows NT 6.1', 'Windows 7'], ['Linux; Android 14', 'Android 14'],
+    ['iPhone; CPU iPhone OS 17 like Mac OS X', 'iOS'], ['Mac OS X 14_0', 'macOS'],
+    ['Linux x86_64', 'Linux'], ['', 'Unknown'],
+  ]) {
+    assert.deepEqual(visitors.getVisitor(headers(ua)), { ip: '203.0.113.10', os })
+  }
+  assert.equal(visitors.getVisitor(headers('', ' 203.0.113.10 , 192.0.2.1')).ip, '203.0.113.10')
+  assert.equal(visitors.getVisitor(headers('', '2001:db8::1')).ip, '2001:db8::1')
+  assert.equal(visitors.getVisitor(headers('', 'not-an-ip')).ip, '127.0.0.1')
+  assert.equal(visitors.getVisitor(new Headers({ 'x-real-ip': '192.0.2.8' })).ip, '192.0.2.8')
+  assert.equal(visitors.getVisitor(new Headers()).ip, '127.0.0.1')
+
+  const visitor = visitors.getVisitor(headers('Linux'))
+  await visitors.trackVisitor(visitor) // Missing Redis is safe for local development.
+  const unique = new Set()
+  const counts = new Map()
+  redis = {
+    async sadd(key, value) {
+      const isNew = !unique.has(value)
+      unique.add(value)
+      return Number(isNew)
+    },
+    async hincrby(key, field, amount) {
+      await new Promise(setImmediate)
+      const id = `${key}:${field}`
+      counts.set(id, (counts.get(id) ?? 0) + amount)
+    },
+    async scard() { return unique.size },
+    async hgetall() { return { Linux: counts.get('visitors:by_os:Linux') ?? 0 } },
+  }
+  await Promise.all(Array.from({ length: 20 }, () => visitors.trackVisitor(visitor)))
+  assert.equal(unique.size, 1)
+  assert.equal(counts.get('visitors:by_os:Linux'), 1)
+  assert.equal(counts.get('visitors:by_ip:203.0.113.10'), 1)
+  await visitors.trackVisitor({ ip: '127.0.0.1', os: 'Linux' })
+  await visitors.trackVisitor({ ip: '::1', os: 'Linux' })
+  assert.equal(unique.size, 1)
+
+  const track = load('app/api/track/route.ts', { '@/lib/visitors': visitors })
+  const stats = load('app/api/visitors/route.ts', { '@/lib/redis': redisModule })
+  const sysinfo = load('app/api/sysinfo/route.ts', { '@/lib/visitors': visitors })
+  const request = new Request('http://localhost/api/track', { headers: headers('Linux') })
+  assert.deepEqual(await (await track.POST(request)).json(), { ok: true })
+  assert.equal(stats.dynamic, 'force-dynamic')
+  const response = await stats.GET()
+  assert.equal(response.headers.get('cache-control'), 'no-store')
+  assert.deepEqual(await response.json(), { total: 1, byOs: { Linux: 1 } })
+  await visitors.trackVisitor({ ip: '192.0.2.8', os: 'Linux' })
+  assert.equal((await (await stats.GET()).json()).total, 2)
+
+  redis = null
+  assert.equal((await stats.GET()).status, 503)
+  assert.equal((await track.POST(request)).status, 200)
+  redis = {
+    async sadd() { throw new Error('offline') },
+    async scard() { throw new Error('offline') },
+    async hgetall() { throw new Error('offline') },
+  }
+  await assert.rejects(visitors.trackVisitor(visitor), /offline/)
+  assert.equal((await track.POST(request)).status, 503)
+  assert.equal((await stats.GET()).status, 503)
+  const info = await sysinfo.GET(request)
+  assert.equal(info.status, 200)
+  assert.equal(info.headers.get('cache-control'), 'no-store')
+  assert.equal((await info.json()).ip, visitor.ip)
+  const missingReadme = load('app/api/sysinfo/route.ts', {
+    '@/lib/visitors': visitors,
+    'node:fs/promises': { async readFile() { throw new Error('missing README') } },
+  })
+  assert.equal((await (await missingReadme.GET(request)).json()).readme, '')
+  console.log('Section/card rendering, visitor identity, deduplication, awaited writes, live API responses, and failure fallbacks passed.')
+}
+
+check().catch((error) => { console.error(error); process.exitCode = 1 })

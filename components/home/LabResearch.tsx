@@ -98,14 +98,20 @@ export default function LabResearch() {
             </button>
             {botnoiOpen && (
               <div id="botnoi-certificate" className="mt-6 border-t border-white/10 pt-6">
-                <Image
-                  src="/images/Botnoi/BOTNOI-CERT.png"
-                  alt="Botnoi Trainee 2026 DevOps Engineer certificate"
-                  width={800}
-                  height={579}
-                  className="w-full h-auto rounded-xl border border-white/10 shadow-lg cursor-pointer"
+                <button
+                  type="button"
+                  aria-label="View Botnoi certificate"
+                  className="w-full"
                   onClick={() => openModal('/images/Botnoi/BOTNOI-CERT.png')}
-                />
+                >
+                  <Image
+                    src="/images/Botnoi/BOTNOI-CERT.png"
+                    alt="Botnoi Trainee 2026 DevOps Engineer certificate"
+                    width={800}
+                    height={579}
+                    className="w-full h-auto rounded-xl border border-white/10 shadow-lg"
+                  />
+                </button>
               </div>
             )}
           </div>

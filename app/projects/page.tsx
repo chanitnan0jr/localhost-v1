@@ -13,7 +13,7 @@ export default function ProjectsPage() {
     <main className="pt-32 pb-20">
       <ProjectsHeader />
       <ProjectsContent />
-      <Footer variant="full" />
+      <Footer />
     </main>
   )
 }

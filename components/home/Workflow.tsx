@@ -1,6 +1,3 @@
-'use client'
-
-import { useState } from 'react'
 import Image from 'next/image'
 
 const WORKFLOW_ITEMS = [
@@ -39,10 +36,6 @@ const WORKFLOW_ITEMS = [
 ]
 
 export default function Workflow() {
-  const [openIds, setOpenIds] = useState<number[]>([])
-
-  const toggle = (id: number) => setOpenIds(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id])
-
   return (
     <section className="px-6 md:px-12 max-w-7xl mx-auto mb-20" id="workflow">
       <div className="flex justify-center mb-12">
@@ -56,13 +49,12 @@ export default function Workflow() {
         {/* Accordions Left */}
         <div className="lg:col-span-6 space-y-4 w-full">
           {WORKFLOW_ITEMS.map(item => (
-            <div
+            <details
               key={item.id}
-              className="border border-white/10 rounded-2xl bg-surface-container overflow-hidden transition-all duration-500 hover:border-white/20"
+              className="group border border-white/10 rounded-2xl bg-surface-container overflow-hidden transition-all duration-500 hover:border-white/20"
             >
-              <button
-                className="w-full text-left p-8 flex justify-between items-start focus:outline-none cursor-pointer group"
-                onClick={() => toggle(item.id)}
+              <summary
+                className="w-full text-left p-8 flex justify-between items-start cursor-pointer list-none [&::-webkit-details-marker]:hidden"
               >
                 <div>
                   <span className="text-2xl font-black text-white/20 mb-2 block tracking-widest group-hover:text-accent-green transition-colors">
@@ -72,19 +64,14 @@ export default function Workflow() {
                     {item.title}
                   </h3>
                 </div>
-                <span className={`material-symbols-outlined text-4xl transition-all duration-300 group-hover:text-accent-green ${openIds.includes(item.id) ? 'text-accent-green -rotate-45' : 'text-white/20'}`}>
+                <span className="material-symbols-outlined text-4xl transition-all duration-300 text-white/20 group-hover:text-accent-green group-open:text-accent-green group-open:-rotate-45">
                   {item.icon}
                 </span>
-              </button>
-
-              <div className={`grid transition-[grid-template-rows,opacity] duration-500 ease-in-out ${openIds.includes(item.id) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-                <div className="overflow-hidden">
-                  <div className="px-8 pb-8 text-neutral-400 text-lg leading-relaxed border-t border-white/5 pt-6 mt-2">
-                    {item.content}
-                  </div>
-                </div>
+              </summary>
+              <div className="px-8 pb-8 text-neutral-400 text-lg leading-relaxed border-t border-white/5 pt-6 mt-2">
+                {item.content}
               </div>
-            </div>
+            </details>
           ))}
         </div>
 

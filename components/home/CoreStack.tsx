@@ -2,8 +2,8 @@
 
 import { useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useStackCarousel } from '@/hooks/useStackCarousel'
-import { STACK_CATEGORIES } from '@/lib/stackData'
+import { useStackCarousel, type ViewMode } from '@/hooks/useStackCarousel'
+import { STACK_CATEGORIES, type TechItem } from '@/lib/stackData'
 
 const iconVariants = {
   hidden: { opacity: 0, y: 16 },
@@ -12,6 +12,26 @@ const iconVariants = {
     y: 0,
     transition: { duration: 0.3, delay: i * 0.04, ease: 'easeOut' },
   }),
+}
+
+function StackIcon({ item, order }: { item: TechItem; order: number }) {
+  return (
+    <motion.div
+      custom={order}
+      variants={iconVariants}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-col items-center gap-3 group cursor-default"
+    >
+      <div className="w-16 h-16 bg-surface-container-high rounded-xl flex items-center justify-center group-hover:bg-surface-container-highest transition-colors">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={item.iconUrl} className={`w-10 h-10${item.filter ? ` ${item.filter}` : ''}`} alt={item.name} />
+      </div>
+      <span className="text-xs uppercase tracking-widest text-neutral-500 group-hover:text-white transition-colors">
+        {item.name}
+      </span>
+    </motion.div>
+  )
 }
 
 export default function CoreStack() {
@@ -35,26 +55,16 @@ export default function CoreStack() {
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center bg-surface-container-high rounded-full p-1 border border-outline-variant/30">
-              <button
-                className={
-                  viewMode === 'carousel'
-                    ? 'bg-surface-variant px-4 py-1.5 rounded-full text-xs font-bold text-white shadow-sm transition-all'
-                    : 'px-4 py-1.5 rounded-full text-xs text-neutral-500 font-bold hover:text-white transition-all'
-                }
-                onClick={() => setMode('carousel')}
-              >
-                Carousel
-              </button>
-              <button
-                className={
-                  viewMode === 'showall'
-                    ? 'bg-surface-variant px-4 py-1.5 rounded-full text-xs font-bold text-white shadow-sm transition-all'
-                    : 'px-4 py-1.5 rounded-full text-xs text-neutral-500 font-bold hover:text-white transition-all'
-                }
-                onClick={() => setMode('showall')}
-              >
-                Show All
-              </button>
+              {(['carousel', 'showall'] satisfies ViewMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  aria-pressed={viewMode === mode}
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === mode ? 'bg-surface-variant text-white shadow-sm' : 'text-neutral-500 hover:text-white'}`}
+                  onClick={() => setMode(mode)}
+                >
+                  {mode === 'carousel' ? 'Carousel' : 'Show All'}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -73,6 +83,7 @@ export default function CoreStack() {
               {/* Carousel nav */}
               <div className="border-t border-outline-variant/20 px-12 py-6 flex flex-row items-center justify-between bg-surface-container-low">
                 <button
+                  aria-label="Previous stack category"
                   onClick={handlePrev}
                   className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high hover:bg-surface-container-highest transition-colors"
                 >
@@ -91,6 +102,7 @@ export default function CoreStack() {
                   </motion.h3>
                 </AnimatePresence>
                 <button
+                  aria-label="Next stack category"
                   onClick={handleNext}
                   className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high hover:bg-surface-container-highest transition-colors"
                 >
@@ -110,22 +122,7 @@ export default function CoreStack() {
                     className="absolute top-0 left-0 w-full h-full px-12 py-10 flex flex-wrap gap-6 items-start"
                   >
                     {STACK_CATEGORIES[currentIdx].items.map((item, i) => (
-                      <motion.div
-                        key={item.name}
-                        custom={i}
-                        variants={iconVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="flex flex-col items-center gap-3 group cursor-default"
-                      >
-                        <div className="w-16 h-16 bg-surface-container-high rounded-xl flex items-center justify-center group-hover:bg-surface-container-highest transition-colors">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={item.iconUrl} className={`w-10 h-10${item.filter ? ` ${item.filter}` : ''}`} alt={item.name} />
-                        </div>
-                        <span className="text-xs uppercase tracking-widest text-neutral-500 group-hover:text-white transition-colors">
-                          {item.name}
-                        </span>
-                      </motion.div>
+                      <StackIcon key={item.name} item={item} order={i} />
                     ))}
                   </motion.div>
                 </AnimatePresence>
@@ -148,22 +145,7 @@ export default function CoreStack() {
                     {cat.title}
                   </h4>
                   {cat.items.map((item, i) => (
-                    <motion.div
-                      key={item.name}
-                      custom={catIdx * 4 + i}
-                      variants={iconVariants}
-                      initial="hidden"
-                      animate="visible"
-                      className="flex flex-col items-center gap-3 group cursor-default"
-                    >
-                      <div className="w-16 h-16 bg-surface-container-high rounded-xl flex items-center justify-center group-hover:bg-surface-container-highest transition-colors">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={item.iconUrl} className={`w-10 h-10${item.filter ? ` ${item.filter}` : ''}`} alt={item.name} />
-                      </div>
-                      <span className="text-xs uppercase tracking-widest text-neutral-500 group-hover:text-white transition-colors">
-                        {item.name}
-                      </span>
-                    </motion.div>
+                    <StackIcon key={item.name} item={item} order={catIdx * 4 + i} />
                   ))}
                 </div>
               ))}

@@ -1,19 +1,26 @@
 "use client"
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ProjectCard from '@/components/projects/ProjectCard'
 import { OPENSOURCE_PROJECTS, PERSONAL_PROJECTS } from '@/lib/projectsData'
 
-type Accent = 'green' | 'blue' | 'white'
+type Accent = 'blue' | 'white'
+
+// ponytail: both existing sections share this rendering path.
+const SECTIONS = [
+  {
+    id: 'opensource', label: 'Active contributions to the community', category: 'Open Source Contributions',
+    icon: 'my_location', description: 'Passionate about architecting resilient, high-volume scalable systems.',
+    projects: OPENSOURCE_PROJECTS, accent: 'blue', offset: 0,
+  },
+  {
+    id: 'personal', label: 'Systems, products & explorations', category: 'Personal Projects',
+    icon: 'folder_open', description: 'Showcasing system design explorations and production-grade builds.',
+    projects: PERSONAL_PROJECTS, accent: 'white', offset: OPENSOURCE_PROJECTS.length,
+  },
+] as const
 
 const HEADER_ACCENT = {
-  green: {
-    glow: 'bg-accent-green/5',
-    iconWrap: 'bg-accent-green/10 border-accent-green/20 text-accent-green',
-    pulse: 'bg-accent-green/20',
-    badge: 'bg-accent-green/10 text-accent-green border-accent-green/20',
-    toggle: 'group-hover:text-accent-green',
-  },
   blue: {
     glow: 'bg-accent-blue/5',
     iconWrap: 'bg-accent-blue/10 border-accent-blue/20 text-accent-blue',
@@ -53,6 +60,7 @@ function SectionHeader({ label, category, icon, description, count, isOpen, onTo
       className="px-6 md:px-12 max-w-7xl mx-auto"
     >
       <button
+        aria-expanded={isOpen}
         onClick={onToggle}
         className="w-full group relative bg-surface-container border border-white/5 rounded-[2rem] p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 hover:border-white/20 transition-all duration-300 overflow-hidden cursor-pointer text-left"
       >
@@ -110,86 +118,41 @@ function SectionHeader({ label, category, icon, description, count, isOpen, onTo
 export default function ProjectsContent() {
   const [openSections, setOpenSections] = useState({ opensource: true, personal: true })
 
-  const toggle = (key: 'opensource' | 'personal') =>
+  const toggle = (key: typeof SECTIONS[number]['id']) =>
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }))
 
   return (
     <div className="space-y-4">
-      {/* Open Source Section */}
-      <section className="mb-6">
-        <SectionHeader
-          label="Active contributions to the community"
-          category="Open Source Contributions"
-          icon="my_location"
-          description="Passionate about architecting resilient, high-volume scalable systems."
-          count={OPENSOURCE_PROJECTS.length}
-          isOpen={openSections.opensource}
-          onToggle={() => toggle('opensource')}
-          accent="blue"
-        />
-
-        <AnimatePresence initial={false}>
-          {openSections.opensource && (
-            <motion.div
-              key="opensource-content"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-              className="overflow-hidden"
-            >
-              <div className="px-6 md:px-12 max-w-7xl mx-auto pt-2 pb-8">
-                {OPENSOURCE_PROJECTS.map((project, index) => (
-                  <ProjectCard key={project.id} project={project} index={index} accent="blue" />
-                ))}
-              </div>
-            </motion.div>
+      {SECTIONS.map(({ id, projects, offset, ...header }, sectionIndex) => (
+        <Fragment key={id}>
+          {sectionIndex > 0 && (
+            <div className="px-6 md:px-12 max-w-7xl mx-auto py-2">
+              <div className="border-t border-white/5" />
+            </div>
           )}
-        </AnimatePresence>
-      </section>
-
-      {/* Divider */}
-      <div className="px-6 md:px-12 max-w-7xl mx-auto py-2">
-        <div className="border-t border-white/5" />
-      </div>
-
-      {/* Personal Projects Section */}
-      <section className="mb-6">
-        <SectionHeader
-          label="Systems, products & explorations"
-          category="Personal Projects"
-          icon="folder_open"
-          description="Showcasing system design explorations and production-grade builds."
-          count={PERSONAL_PROJECTS.length}
-          isOpen={openSections.personal}
-          onToggle={() => toggle('personal')}
-          accent="white"
-        />
-
-        <AnimatePresence initial={false}>
-          {openSections.personal && (
-            <motion.div
-              key="personal-content"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-              className="overflow-hidden"
-            >
-              <div className="px-6 md:px-12 max-w-7xl mx-auto pt-2 pb-8">
-                {PERSONAL_PROJECTS.map((project, index) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    index={index + OPENSOURCE_PROJECTS.length}
-                    accent="white"
-                  />
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </section>
+          <section className="mb-6">
+            <SectionHeader {...header} count={projects.length} isOpen={openSections[id]} onToggle={() => toggle(id)} />
+            <AnimatePresence initial={false}>
+              {openSections[id] && (
+                <motion.div
+                  key={`${id}-content`}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-6 md:px-12 max-w-7xl mx-auto pt-2 pb-8">
+                    {projects.map((project, index) => (
+                      <ProjectCard key={project.id} project={project} index={index + offset} accent={header.accent} />
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </section>
+        </Fragment>
+      ))}
     </div>
   )
 }

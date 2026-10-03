@@ -7,6 +7,11 @@ interface HistoryLine {
   text: string
 }
 
+type BrowserNavigator = Navigator & {
+  deviceMemory?: number
+  connection?: { effectiveType?: string }
+}
+
 function detectOS(ua: string): string {
   if (/Windows NT 10\.0/.test(ua)) return 'Windows 10/11 x86_64'
   if (/Windows NT 6\.3/.test(ua)) return 'Windows 8.1 x86_64'
@@ -65,7 +70,7 @@ function buildBootSequence(info: {
   ]
 }
 
-const COMMANDS: Record<string, (args: string[]) => string[]> = {
+const COMMANDS: Record<string, () => string[]> = {
   help: () => [
     'Available commands:',
     '  help          Show this message',
@@ -96,30 +101,12 @@ const COMMANDS: Record<string, (args: string[]) => string[]> = {
     'drwxr-xr-x  /projects   → /projects',
     '-rw-r--r--  README      404 bytes',
   ],
-  'ls -la': () => COMMANDS['ls']([]),
-  'cat README': () => [
-    '# chanitnan.dev',
-    '',
-    'Backend engineer. C, Java, Python, TypeScript.',
-    'Obsessed with internals: allocators, schedulers, lock-free structures.',
-    'Currently: Tonkit Lab @ Thammasat University.',
-    '',
-    'Open for internship — 2026.',
-  ],
+  'ls -la': () => COMMANDS.ls(),
   'uname -a': () => [
     'Linux localhost-v1 6.8.0 #1 SMP ' + new Date().toUTCString(),
     'x86_64 x86_64 x86_64 GNU/Linux',
   ],
-  'uname': () => COMMANDS['uname -a']([]),
-  clear: () => [],
-  exit: () => ['Redirecting to /home...'],
-  'GET /': () => ['301 Moved Permanently → /'],
-  'GET /home': () => ['301 Moved Permanently → /'],
-  'GET /projects': () => ['301 Moved Permanently → /projects'],
-  'cd /home': () => ['301 Moved Permanently → /'],
-  'cd /': () => ['301 Moved Permanently → /'],
-  'cd /projects': () => ['301 Moved Permanently → /projects'],
-  home: () => ['301 Moved Permanently → /'],
+  uname: () => COMMANDS['uname -a'](),
 }
 
 const ALL_COMMANDS = [
@@ -132,13 +119,13 @@ const ALL_COMMANDS = [
 
 const NAVIGATE: Record<string, string> = {
   exit: '/',
-  'GET /': '/',
-  'GET /home': '/',
+  'get /': '/',
+  'get /home': '/',
   'cd /home': '/',
   'cd /': '/',
   'cd /projects': '/projects',
   home: '/',
-  'GET /projects': '/projects',
+  'get /projects': '/projects',
 }
 
 export default function NotFound() {
@@ -152,18 +139,22 @@ export default function NotFound() {
   const [readme, setReadme] = useState<string>('')
   const inputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Boot sequence typewriter
   useEffect(() => {
-    const nav = navigator as Navigator & {
-      deviceMemory?: number
-      connection?: { effectiveType?: string }
-    }
+    const nav = navigator as BrowserNavigator
+    const controller = new AbortController()
+    let interval: ReturnType<typeof setInterval> | undefined
 
-    fetch('/api/sysinfo')
-      .then((r) => r.json())
+    fetch('/api/sysinfo', { signal: controller.signal, cache: 'no-store' })
+      .then((r) => {
+        if (!r.ok) throw new Error('System info unavailable')
+        return r.json()
+      })
       .catch(() => ({ ip: '127.0.0.1', readme: '' }))
       .then(({ ip, readme }) => {
+        if (controller.signal.aborted) return
         setReadme(readme)
         const sequence = buildBootSequence({
           ip,
@@ -178,7 +169,7 @@ export default function NotFound() {
 
         let i = 0
         const lines: HistoryLine[] = []
-        const interval = setInterval(() => {
+        interval = setInterval(() => {
           if (i < sequence.length) {
             lines.push({ type: 'output', text: sequence[i] })
             setHistory([...lines])
@@ -186,10 +177,14 @@ export default function NotFound() {
           } else {
             clearInterval(interval)
             setBooted(true)
-            setTimeout(() => inputRef.current?.focus(), 100)
           }
         }, 60)
       })
+    return () => {
+      controller.abort()
+      clearInterval(interval)
+      if (navigationTimer.current !== null) clearTimeout(navigationTimer.current)
+    }
   }, [])
 
   useEffect(() => {
@@ -205,10 +200,14 @@ export default function NotFound() {
       ...history,
       { type: 'input', text: cmd },
     ]
+    const reply = (lines: string[]) => setHistory([
+      ...newHistory, ...lines.map((text) => ({ type: 'output' as const, text })),
+    ])
 
     setCmdHistory((prev) => [cmd, ...prev])
     setCmdIndex(-1)
     setInput('')
+    setHints([])
 
     const cmdLower = cmd.toLowerCase()
 
@@ -217,13 +216,22 @@ export default function NotFound() {
       return
     }
 
+    const route = Object.hasOwn(NAVIGATE, cmdLower) ? NAVIGATE[cmdLower] : undefined
+    if (route) {
+      setHistory([...newHistory, { type: 'success', text: `301 Moved Permanently → ${route}` }])
+      if (navigationTimer.current !== null) clearTimeout(navigationTimer.current)
+      navigationTimer.current = setTimeout(() => router.push(route), 600)
+      return
+    }
+
     if (cmdLower === 'stats') {
-      setHistory([...newHistory, { type: 'output', text: 'Fetching visitor stats...' }])
-      fetch('/api/visitors')
+      const loadingLine: HistoryLine = { type: 'output', text: 'Fetching visitor stats...' }
+      setHistory([...newHistory, loadingLine])
+      fetch('/api/visitors', { cache: 'no-store' })
         .then((r) => r.json())
         .then((data) => {
           if (data.error) {
-            setHistory((h) => [...h, { type: 'error', text: `Error: ${data.error}` }])
+            setHistory((h) => [...h.filter((line) => line !== loadingLine), { type: 'error', text: `Error: ${data.error}` }])
             return
           }
           const lines: HistoryLine[] = [
@@ -237,10 +245,10 @@ export default function NotFound() {
                 text: `  ${os.padEnd(18)} ${count} visitor${count !== 1 ? 's' : ''}`,
               })),
           ]
-          setHistory((h) => [...h.slice(0, -1), ...lines])
+          setHistory((h) => [...h.filter((line) => line !== loadingLine), ...lines])
         })
         .catch(() => {
-          setHistory((h) => [...h.slice(0, -1), { type: 'error', text: 'Failed to fetch stats.' }])
+          setHistory((h) => [...h.filter((line) => line !== loadingLine), { type: 'error', text: 'Failed to fetch stats.' }])
         })
       return
     }
@@ -249,12 +257,12 @@ export default function NotFound() {
       const lines = readme
         ? readme.split('\n').slice(0, 40)
         : ['README.md: file not found']
-      setHistory([...newHistory, ...lines.map((text) => ({ type: 'output' as const, text: text || '\u00A0' }))])
+      reply(lines)
       return
     }
 
     if (cmdLower === 'neofetch' || cmdLower === 'fastfetch') {
-      const nav = navigator as any
+      const nav = navigator as BrowserNavigator
       const os = detectOS(navigator.userAgent)
       const browser = detectBrowser(navigator.userAgent)
       const cores = navigator.hardwareConcurrency ?? 1
@@ -288,14 +296,9 @@ export default function NotFound() {
         `Memory: ${ram}`,
       ]
 
-      const maxLen = Math.max(ascii.length, info.length)
-      const outLines = []
-      for (let i = 0; i < maxLen; i++) {
-        const a = ascii[i] || '                    '
-        const b = info[i] || ''
-        outLines.push({ type: 'output' as const, text: `${a}  ${b}` })
-      }
-      setHistory([...newHistory, ...outLines])
+      reply(Array.from({ length: Math.max(ascii.length, info.length) }, (_, i) =>
+        `${ascii[i] || '                    '}  ${info[i] || ''}`,
+      ))
       return
     }
 
@@ -310,44 +313,29 @@ export default function NotFound() {
 
     if (cmdLower.startsWith('ping')) {
       const target = cmdLower.split(' ')[1] || 'github.com'
-      setHistory([
-        ...newHistory,
-        { type: 'output', text: `PING ${target} (140.82.112.4) 56(84) bytes of data.` },
-        { type: 'output', text: `64 bytes from ${target}: icmp_seq=1 ttl=52 time=14.2 ms` },
-        { type: 'output', text: `64 bytes from ${target}: icmp_seq=2 ttl=52 time=13.5 ms` },
-        { type: 'output', text: `64 bytes from ${target}: icmp_seq=3 ttl=52 time=14.0 ms` },
-        { type: 'output', text: `--- ${target} ping statistics ---` },
-        { type: 'output', text: `3 packets transmitted, 3 received, 0% packet loss, time 2003ms` },
+      reply([
+        `PING ${target} (140.82.112.4) 56(84) bytes of data.`,
+        `64 bytes from ${target}: icmp_seq=1 ttl=52 time=14.2 ms`,
+        `64 bytes from ${target}: icmp_seq=2 ttl=52 time=13.5 ms`,
+        `64 bytes from ${target}: icmp_seq=3 ttl=52 time=14.0 ms`,
+        `--- ${target} ping statistics ---`,
+        '3 packets transmitted, 3 received, 0% packet loss, time 2003ms',
       ])
       return
     }
 
     if (cmdLower.startsWith('curl')) {
-      setHistory([
-        ...newHistory,
-        { type: 'output', text: `HTTP/2 200 ` },
-        { type: 'output', text: `content-type: application/json` },
-        { type: 'output', text: `{` },
-        { type: 'output', text: `  "login": "chanitnan",` },
-        { type: 'output', text: `  "type": "User",` },
-        { type: 'output', text: `  "bio": "Backend / Systems Engineer"` },
-        { type: 'output', text: `}` },
+      reply([
+        'HTTP/2 200 ', 'content-type: application/json', '{',
+        '  "login": "chanitnan",', '  "type": "User",',
+        '  "bio": "Backend / Systems Engineer"', '}',
       ])
       return
     }
 
-    const handler = COMMANDS[cmdLower] || COMMANDS[cmd]
+    const handler = Object.hasOwn(COMMANDS, cmdLower) ? COMMANDS[cmdLower] : undefined
     if (handler) {
-      const output = handler([])
-      const outputLines: HistoryLine[] = output.map((line) => ({
-        type: line.startsWith('301') ? 'success' : 'output',
-        text: line,
-      }))
-      setHistory([...newHistory, ...outputLines])
-
-      if (NAVIGATE[cmdLower] || NAVIGATE[cmd]) {
-        setTimeout(() => router.push(NAVIGATE[cmdLower] || NAVIGATE[cmd]), 600)
-      }
+      reply(handler())
     } else {
       setHistory([
         ...newHistory,
@@ -360,7 +348,7 @@ export default function NotFound() {
 
   const handleInputChange = useCallback((val: string) => {
     setInput(val)
-    setHints(val.trim() ? ALL_COMMANDS.filter(c => c.startsWith(val.trim().toLowerCase())) : [])
+    setHints(val.trim() ? ALL_COMMANDS.filter(c => c.toLowerCase().startsWith(val.trim().toLowerCase())) : [])
   }, [])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -370,17 +358,13 @@ export default function NotFound() {
         setInput(hints[0])
         setHints([])
       }
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       e.preventDefault()
-      const next = Math.min(cmdIndex + 1, cmdHistory.length - 1)
+      const next = e.key === 'ArrowUp'
+        ? Math.min(cmdIndex + 1, cmdHistory.length - 1)
+        : Math.max(cmdIndex - 1, -1)
       setCmdIndex(next)
       setInput(cmdHistory[next] ?? '')
-      setHints([])
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      const next = Math.max(cmdIndex - 1, -1)
-      setCmdIndex(next)
-      setInput(next === -1 ? '' : cmdHistory[next])
       setHints([])
     } else if (e.key === 'Escape') {
       setHints([])
@@ -441,6 +425,8 @@ export default function NotFound() {
               <span className="text-accent-green/40 shrink-0 select-none text-sm">$</span>
               <div className="relative flex-1 flex items-center">
                 <input
+                  aria-label="Terminal command"
+                  autoFocus
                   ref={inputRef}
                   value={input}
                   onChange={(e) => handleInputChange(e.target.value)}
@@ -456,7 +442,7 @@ export default function NotFound() {
                   className="absolute top-0 text-sm text-accent-green select-none"
                   style={{ left: `${input.length}ch` }}
                 >
-                  <span className="blink-fast inline-block w-[0.55em] h-[1.1em] bg-accent-green align-middle" />
+                  <span className="animate-blink inline-block w-[0.55em] h-[1.1em] bg-accent-green align-middle" />
                 </span>
               </div>
             </form>

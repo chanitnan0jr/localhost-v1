@@ -1,6 +1,6 @@
 "use client"
 import { motion } from 'framer-motion'
-import { Project } from '@/lib/projectsData'
+import type { Project } from '@/lib/projectsData'
 
 interface ProjectCardProps {
   project: Project
@@ -16,10 +16,6 @@ const ACCENT = {
     metric: 'text-accent-green',
     icon: 'text-accent-green/10 group-hover:text-accent-green/20',
     line: 'bg-accent-green/40',
-    glow: 'bg-accent-green/5',
-    pulse: 'bg-accent-green/20',
-    iconBorder: 'bg-accent-green/10 border-accent-green/20 text-accent-green',
-    countBadge: 'bg-accent-green/10 text-accent-green border-accent-green/20',
   },
   blue: {
     badge: 'bg-accent-blue/10 text-accent-blue border-accent-blue/20',
@@ -28,10 +24,6 @@ const ACCENT = {
     metric: 'text-accent-blue',
     icon: 'text-accent-blue/10 group-hover:text-accent-blue/20',
     line: 'bg-accent-blue/40',
-    glow: 'bg-accent-blue/5',
-    pulse: 'bg-accent-blue/20',
-    iconBorder: 'bg-accent-blue/10 border-accent-blue/20 text-accent-blue',
-    countBadge: 'bg-accent-blue/10 text-accent-blue border-accent-blue/20',
   },
   white: {
     badge: 'bg-white/10 text-white border-white/20',
@@ -40,10 +32,6 @@ const ACCENT = {
     metric: 'text-white',
     icon: 'text-white/10 group-hover:text-white/20',
     line: 'bg-white/20',
-    glow: 'bg-white/5',
-    pulse: 'bg-white/10',
-    iconBorder: 'bg-white/10 border-white/20 text-white',
-    countBadge: 'bg-white/10 text-white border-white/20',
   },
 }
 
@@ -99,7 +87,6 @@ export default function ProjectCard({ project, index = 0, accent = 'green' }: Pr
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-full border border-white/20 text-neutral-400 hover:border-white/50 hover:text-white transition-all duration-300 shrink-0"
-              onClick={(e) => e.stopPropagation()}
             >
               Live Demo
               <span className="material-symbols-outlined text-sm leading-none">open_in_new</span>
@@ -131,38 +118,21 @@ export default function ProjectCard({ project, index = 0, accent = 'green' }: Pr
       {/* 3-column content grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:divide-x md:divide-white/10">
 
-        {/* Core Achievement */}
-        <div className="md:pr-8 pb-8 md:pb-0">
-          <p className="text-[10px] uppercase tracking-[0.25em] font-black text-neutral-600 mb-3">
-            Core Achievement
-          </p>
-          <p className="text-sm text-neutral-400 leading-relaxed">
-            {project.achievement}
-          </p>
-        </div>
-
-        {/* Technical Edge */}
-        <div className="md:px-8 py-8 md:py-0 border-t border-white/10 md:border-t-0">
-          <p className="text-[10px] uppercase tracking-[0.25em] font-black text-neutral-600 mb-3">
-            Technical Edge
-          </p>
-          <p className="text-sm text-neutral-400 leading-relaxed">
-            {project.technicalEdge}
-          </p>
-        </div>
-
-        {/* Metric */}
-        <div className="md:pl-8 pt-8 md:pt-0 border-t border-white/10 md:border-t-0">
-          <p className="text-[10px] uppercase tracking-[0.25em] font-black text-neutral-600 mb-3">
-            Metric
-          </p>
-          <p className={`text-sm font-bold leading-relaxed ${a.metric}`}>
-            {project.metric}
-          </p>
-          <div className={`mt-6 transition-colors duration-500 ${a.icon}`}>
-            <span className="material-symbols-outlined text-[4rem]">{project.icon}</span>
+        {[
+          { label: 'Core Achievement', text: project.achievement, className: 'md:pr-8 pb-8 md:pb-0' },
+          { label: 'Technical Edge', text: project.technicalEdge, className: 'md:px-8 py-8 md:py-0 border-t border-white/10 md:border-t-0' },
+          { label: 'Metric', text: project.metric, className: 'md:pl-8 pt-8 md:pt-0 border-t border-white/10 md:border-t-0' },
+        ].map(({ label, text, className }, column) => (
+          <div key={label} className={className}>
+            <p className="text-[10px] uppercase tracking-[0.25em] font-black text-neutral-600 mb-3">{label}</p>
+            <p className={`text-sm ${column === 2 ? `font-bold leading-relaxed ${a.metric}` : 'text-neutral-400 leading-relaxed'}`}>{text}</p>
+            {column === 2 && (
+              <div className={`mt-6 transition-colors duration-500 ${a.icon}`}>
+                <span className="material-symbols-outlined text-[4rem]">{project.icon}</span>
+              </div>
+            )}
           </div>
-        </div>
+        ))}
       </div>
 
       {/* Bottom line */}

@@ -10,9 +10,10 @@ export default function Navbar() {
   const time = useClock()
 
   const linkClass = (href: string) => {
-    const isActive = pathname === href || (href !== '/' && pathname.startsWith(href))
+    const route = href.split('#')[0]
+    const isActive = pathname === route || (route !== '/' && pathname.startsWith(`${route}/`))
     return [
-      "font-['Inter'] tracking-tighter uppercase font-bold text-xs md:text-sm transition-all hover:scale-105",
+      "font-body tracking-tighter uppercase font-bold text-xs md:text-sm transition-all hover:scale-105",
       isActive
         ? 'text-white'
         : 'text-neutral-400 hover:text-white',
@@ -30,7 +31,7 @@ export default function Navbar() {
           className="w-8 h-8 rounded-full border border-white/20 object-contain bg-surface-container"
         />
         <div className="text-lg md:text-xl font-black tracking-tighter text-white">
-          Chanitnan<span className="blink-fast hidden md:inline">_</span>
+          Chanitnan<span className="animate-blink hidden md:inline">_</span>
         </div>
       </div>
 

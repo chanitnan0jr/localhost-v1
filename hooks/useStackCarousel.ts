@@ -1,42 +1,27 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
+import { STACK_CATEGORIES } from '@/lib/stackData'
 
 export type ViewMode = 'carousel' | 'showall'
 
-interface UseStackCarouselReturn {
-  currentIdx: number
-  isAnimating: boolean
-  viewMode: ViewMode
-  next: () => void
-  prev: () => void
-  setMode: (mode: ViewMode) => void
-}
-
-const TOTAL_CATEGORIES = 6
-
-export function useStackCarousel(): UseStackCarouselReturn {
+export function useStackCarousel() {
   const [currentIdx, setCurrentIdx] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('carousel')
 
-  const next = useCallback(() => {
+  useEffect(() => {
+    if (!isAnimating) return
+    const timeout = setTimeout(() => setIsAnimating(false), 500)
+    return () => clearTimeout(timeout)
+  }, [isAnimating])
+
+  function move(step: number) {
     if (isAnimating || viewMode === 'showall') return
     setIsAnimating(true)
-    setCurrentIdx((prev) => (prev + 1) % TOTAL_CATEGORIES)
-    setTimeout(() => setIsAnimating(false), 500)
-  }, [isAnimating, viewMode])
+    const total = STACK_CATEGORIES.length
+    setCurrentIdx((prev) => (prev + step + total) % total)
+  }
 
-  const prev = useCallback(() => {
-    if (isAnimating || viewMode === 'showall') return
-    setIsAnimating(true)
-    setCurrentIdx((prev) => (prev - 1 + TOTAL_CATEGORIES) % TOTAL_CATEGORIES)
-    setTimeout(() => setIsAnimating(false), 500)
-  }, [isAnimating, viewMode])
-
-  const setMode = useCallback((mode: ViewMode) => {
-    setViewMode(mode)
-  }, [])
-
-  return { currentIdx, isAnimating, viewMode, next, prev, setMode }
+  return { currentIdx, isAnimating, viewMode, next: () => move(1), prev: () => move(-1), setMode: setViewMode }
 }

@@ -123,33 +123,22 @@ export default function Certifications() {
                   <div className="absolute left-0 top-0 w-16 h-full bg-gradient-to-r from-[#131313] to-transparent z-10 pointer-events-none"></div>
                   <div className="absolute right-0 top-0 w-16 h-full bg-gradient-to-l from-[#131313] to-transparent z-10 pointer-events-none"></div>
 
-                  <div className="flex items-center h-full w-max animate-datacamp-scroll hover:cursor-pointer">
-                    {/* Group 1 */}
-                    <div className="flex items-center gap-4 pr-4">
-                      {DATACAMP_CERTS.map((cert) => (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          key={cert.src + '-1'}
-                          src={cert.src}
-                          className="h-[140px] w-auto rounded-lg object-contain border border-white/10 hover:border-white/40 transition-colors"
-                          alt={cert.alt}
-                          onClick={() => openModal(cert.src)}
-                        />
-                      ))}
-                    </div>
-                    {/* Group 2 (duplicate for loop) */}
-                    <div className="flex items-center gap-4 pr-4">
-                      {DATACAMP_CERTS.map((cert) => (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          key={cert.src + '-2'}
-                          src={cert.src}
-                          className="h-[140px] w-auto rounded-lg object-contain border border-white/10 hover:border-white/40 transition-colors"
-                          alt={cert.alt}
-                          onClick={() => openModal(cert.src)}
-                        />
-                      ))}
-                    </div>
+                  <div className="flex items-center h-full w-max animate-datacamp-scroll hover:[animation-play-state:paused] focus-within:[animation-play-state:paused]">
+                    {/* ponytail: render the same group twice for a seamless CSS loop. */}
+                    {[0, 1].map((group) => (
+                      <div key={group} className="flex items-center gap-4 pr-4">
+                        {DATACAMP_CERTS.map((cert) => (
+                          <button key={cert.src} type="button" onClick={() => openModal(cert.src)} aria-label={`View ${cert.alt} certificate`}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={cert.src}
+                              className="h-[140px] w-auto rounded-lg object-contain border border-white/10 hover:border-white/40 transition-colors"
+                              alt={cert.alt}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

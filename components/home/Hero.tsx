@@ -6,10 +6,7 @@ export default function Hero() {
   const [dateStr, setDateStr] = useState<string>('')
 
   useEffect(() => {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-    const mos = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    const now = new Date()
-    setDateStr(`${days[now.getDay()]}, ${mos[now.getMonth()]} ${String(now.getDate()).padStart(2, '0')}`)
+    setDateStr(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: '2-digit' }))
   }, [])
 
   return (

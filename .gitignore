@@ -2,5 +2,7 @@ node_modules
 .next
 .env*
 *.local
-docs/summaries/
+/docs/
+/agent.md
+/AGENTS.md
 *.tsbuildinfo

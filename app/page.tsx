@@ -21,7 +21,7 @@ export default function HomePage() {
       <Competitions />
       <Certifications />
       <GetInTouch />
-      <Footer variant="full" />
+      <Footer />
     </main>
   )
 }

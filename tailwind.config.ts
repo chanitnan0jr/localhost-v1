@@ -81,9 +81,9 @@ const config: Config = {
         full: '9999px',
       },
       fontFamily: {
-        headline: ['Inter'],
-        body: ['Inter'],
-        label: ['Inter'],
+        headline: ['var(--font-inter)', 'sans-serif'],
+        body: ['var(--font-inter)', 'sans-serif'],
+        label: ['var(--font-inter)', 'sans-serif'],
       },
     },
   },

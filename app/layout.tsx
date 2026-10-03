@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 import { ModalProvider } from '@/context/ModalContext'
 import Navbar from '@/components/layout/Navbar'
 import ImageModal from '@/components/ui/ImageModal'
 
-const inter = Inter({ subsets: ['latin'], weight: ['400', '700', '900'] })
+const inter = localFont({ src: './fonts/Inter-latin.woff2', weight: '100 900', variable: '--font-inter', display: 'swap' })
 
 export const metadata: Metadata = {
   title: {
@@ -34,7 +34,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         />
       </head>
-      <body className={`${inter.className} antialiased selection:bg-primary selection:text-on-primary`}>
+      <body className={`${inter.variable} antialiased selection:bg-primary selection:text-on-primary`}>
         <ModalProvider>
           <Navbar />
           {children}
