@@ -5,12 +5,38 @@ import { ModalProvider } from '@/context/ModalContext'
 import Navbar from '@/components/layout/Navbar'
 import ImageModal from '@/components/ui/ImageModal'
 
-const inter = localFont({ src: './fonts/Inter-latin.woff2', weight: '100 900', variable: '--font-inter', display: 'swap' })
+const inter = localFont({
+  src: './fonts/Inter-Latin.woff2',
+  weight: '100 900',
+  variable: '--font-sans',
+  display: 'swap',
+})
+const editorial = localFont({
+  src: [
+    {
+      path: './fonts/Cormorant-Latin.woff2',
+      weight: '300 700',
+      style: 'normal',
+    },
+    {
+      path: './fonts/Cormorant-Latin-Italic.woff2',
+      weight: '300 700',
+      style: 'italic',
+    },
+  ],
+  variable: '--font-editorial',
+  display: 'swap',
+})
+const symbols = localFont({
+  src: './fonts/Material-Symbols.woff2',
+  variable: '--font-symbols',
+  display: 'block',
+})
 
 export const metadata: Metadata = {
   title: {
-    default: 'Localhost-v1',
-    template: 'Localhost-v1',
+    default: 'Chanitnan — Follow the clues',
+    template: '%s · Chanitnan',
   },
   description: 'Backend & Systems Engineer portfolio',
   icons: {
@@ -25,16 +51,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
-        />
-      </head>
-      <body className={`${inter.variable} antialiased selection:bg-primary selection:text-on-primary`}>
+      <body
+        className={`${inter.className} ${inter.variable} ${editorial.variable} ${symbols.variable} antialiased selection:bg-primary selection:text-on-primary`}
+      >
         <ModalProvider>
           <Navbar />
           {children}

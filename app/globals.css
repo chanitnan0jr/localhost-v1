@@ -1,14 +1,25 @@
+@import './detective.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 .material-symbols-outlined {
+    font-family: var(--font-symbols), sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    display: inline-block;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    font-feature-settings: 'liga';
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 body {
-    background-color: #131313;
-    color: #e5e2e1;
-    font-family: var(--font-inter), sans-serif;
+    background-color: #0c0b0a;
+    color: #eee9db;
+    font-family: var(--font-sans), sans-serif;
 }
 .text-glow-green {
     text-shadow: 0 0 15px rgba(187, 247, 208, 0.3);

@@ -8,19 +8,27 @@ import Competitions from '@/components/home/Competitions'
 import Certifications from '@/components/home/Certifications'
 import GetInTouch from '@/components/home/GetInTouch'
 import Footer from '@/components/layout/Footer'
+import EntryScene from '@/components/detective/EntryScene'
+import PortfolioTerminal from '@/components/detective/PortfolioTerminal'
 
 export default function HomePage() {
   return (
-    <main className="pt-[140px] pb-20">
+    <main className="home-portfolio pb-20">
+      <EntryScene />
       <Hero />
-      <ProfileGrid />
-      <About />
-      <LabResearch />
-      <CoreStack />
-      <Workflow />
-      <Competitions />
-      <Certifications />
-      <GetInTouch />
+      <PortfolioTerminal />
+      <div className="portfolio-continuation">
+        <ProfileGrid />
+        <About />
+        <div id="work">
+          <LabResearch />
+        </div>
+        <CoreStack />
+        <Workflow />
+        <Competitions />
+        <Certifications />
+        <GetInTouch />
+      </div>
       <Footer />
     </main>
   )

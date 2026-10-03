@@ -22,6 +22,39 @@ async function check() {
   const { createElement } = require('react')
   const { renderToStaticMarkup } = require('react-dom/server')
   const projects = load('lib/projectsData.ts', {})
+  const deck = load('lib/cardDeck.ts', {})
+  const terminal = load('lib/terminalCommands.ts', { './cardDeck': deck, './projectsData': projects })
+  assert.equal(deck.FULL_DECK.length, 52)
+  assert.equal(new Set(deck.FULL_DECK.map((card) => card.id)).size, 52)
+  const destinations = {
+    Home: '/#home', Projects: '/projects', Work: '/#work',
+    About: '/#about-detailed', Terminal: '/#terminal', Contact: '/#contact',
+  }
+  const originalHand = deck.DESTINATIONS.map((card) => card.id)
+  for (let index = 0; index < 10; index++) {
+    const hand = deck.shuffleHand()
+    assert.deepEqual(hand.map((card) => card.id).sort(), [...originalHand].sort())
+    for (const card of hand) assert.equal(card.href, destinations[card.label])
+  }
+  assert.deepEqual(deck.DESTINATIONS.map((card) => card.id), originalHand)
+  for (const [label, href] of Object.entries(destinations)) {
+    for (const verb of ['open', 'cd', 'goto']) {
+      assert.equal(terminal.runTerminalCommand(`  ${verb.toUpperCase()}   /${label}  `, []).navigate, href)
+    }
+  }
+  for (const command of ['constructor', 'open __proto__', 'goto javascript:alert(1)', 'open https://example.com']) {
+    const result = terminal.runTerminalCommand(command, [])
+    assert.equal(result.kind, 'error')
+    assert.equal(result.navigate, undefined)
+  }
+  assert.ok(terminal.TERMINAL_COMMANDS.includes('open terminal'))
+  assert.equal(terminal.runTerminalCommand('clear', []).clear, true)
+  assert.deepEqual(terminal.runTerminalCommand('history', ['ls', 'whoami']).lines, ['  1  ls', '  2  whoami'])
+  const projectOutput = terminal.runTerminalCommand('cat projects', []).lines.join('\n')
+  for (const project of [...projects.OPENSOURCE_PROJECTS, ...projects.PERSONAL_PROJECTS]) {
+    assert.ok(projectOutput.includes(project.name))
+    assert.ok(projectOutput.includes(project.description))
+  }
   const card = load('components/projects/ProjectCard.tsx', {})
   const sections = load('components/projects/ProjectsContent.tsx', {
     '@/lib/projectsData': projects, '@/components/projects/ProjectCard': card,
@@ -123,7 +156,7 @@ async function check() {
     'node:fs/promises': { async readFile() { throw new Error('missing README') } },
   })
   assert.equal((await (await missingReadme.GET(request)).json()).readme, '')
-  console.log('Section/card rendering, visitor identity, deduplication, awaited writes, live API responses, and failure fallbacks passed.')
+  console.log('Rendering, 52-card deck, terminal commands/navigation, visitor tracking, live APIs, and failure fallbacks passed.')
 }
 
 check().catch((error) => { console.error(error); process.exitCode = 1 })
