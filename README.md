@@ -4,22 +4,48 @@ Personal portfolio website of **Chanitnan Kitnantakhun** — Backend / Systems E
 
 Built with Next.js 14 App Router, React 18, TypeScript, and Tailwind CSS. Migrated from a static HTML/CDN setup to a fully component-based architecture.
 
-Live at: [vercel deployment URL]
+## Detective theme
+
+The homepage opens with a short push-in toward a laptop on a detective's desk, then reveals a noir hero with 52 unique playing cards orbiting a black detective silhouette. Scroll or select **Deal the cards** to shuffle six navigation cards. Each card keeps a fixed destination:
+
+| Card | Destination                |
+| ---- | -------------------------- |
+| A♠   | Home — `/#home`            |
+| K♠   | Projects — `/projects`     |
+| Q♦   | Work — `/#work`            |
+| J♣   | About — `/#about-detailed` |
+| 10♠  | Terminal — `/#terminal`    |
+| A♥   | Contact — `/#contact`      |
+
+The scene uses layered 2.5D artwork and CSS transforms; it does not yet contain a WebGL character or a walkable cafe. The original portfolio sections follow the new terminal. Generated artwork is stored in `public/images/detective/`.
+
+The intro appears once per browser session, can be skipped with its button or Escape, and is skipped for reduced motion and direct section links. Card animation can be paused, respects reduced motion, and stops when the hero or browser tab is not visible.
+
+### Interactive terminal
+
+The homepage terminal is a client-side portfolio command interface. Commands are allowlisted and do not execute a system shell:
+
+- `help`, `whoami`, `ls`, `deck`, `history`, `date`, `clear`
+- `cat about`, `cat projects`, `cat contact`
+- `open home|projects|work|about|terminal|contact` (also `cd` and `goto`)
+- Up/Down recall command history; Tab completes commands; Escape clears the input.
+
+Project output comes from `lib/projectsData.ts`, and navigation uses the same card destinations.
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 14 (App Router) |
-| UI Library | React 18 |
-| Language | TypeScript 5 |
-| Styling | Tailwind CSS 3 + custom Material Design 3 tokens |
-| Package Manager | Bun |
-| Dev Bundler | Turbopack |
-| Linting | ESLint (next/core-web-vitals) |
-| Deployment | Vercel |
+| Layer           | Technology                                       |
+| --------------- | ------------------------------------------------ |
+| Framework       | Next.js 14 (App Router)                          |
+| UI Library      | React 18                                         |
+| Language        | TypeScript 5                                     |
+| Styling         | Tailwind CSS 3 + custom Material Design 3 tokens |
+| Package Manager | Bun                                              |
+| Dev Bundler     | Turbopack                                        |
+| Linting         | ESLint (next/core-web-vitals)                    |
+| Deployment      | Vercel                                           |
 
 ---
 
@@ -36,7 +62,7 @@ localhost-v1/
 │
 ├── components/
 │   ├── home/                   # Section components used in app/page.tsx
-│   │   ├── Hero.tsx            # Full-bleed hero banner with rotating text ring
+│   │   ├── Hero.tsx            # Detective hero entry point
 │   │   ├── ProfileGrid.tsx     # Profile image + engineering philosophy + social links
 │   │   ├── About.tsx           # About me section
 │   │   ├── LabResearch.tsx     # Tonkit Lab @ Thammasat University
@@ -50,7 +76,7 @@ localhost-v1/
 │   │   ├── ProjectCard.tsx     # Reusable card for each project
 │   │   └── OpensourceCallout.tsx # Open source contribution callout
 │   ├── layout/                 # Shared layout components
-│   │   ├── Navbar.tsx          # Floating nav bar with live clock
+│   │   ├── Navbar.tsx          # Noir brand and primary navigation
 │   │   └── Footer.tsx          # Footer (accepts variant prop: "full" | "minimal")
 │   └── ui/                     # Reusable UI primitives
 │       └── ImageModal.tsx      # Fullscreen image modal with animations
@@ -89,8 +115,10 @@ localhost-v1/
 ## Pages
 
 ### `/` — Home
+
 Sections in order:
-1. **Hero** — Full-bleed mountain background, animated "Open for Internship 2026" badge, rotating SVG text ring
+
+1. **Entry + Hero + Terminal** — Detective desk opening, 52-card orbit, shuffled navigation hand, and interactive command prompt
 2. **ProfileGrid** — 7/5 column split: profile photo with gradient overlay, philosophy card, social links (GitHub, LinkedIn, Discord)
 3. **About** — Background and motivation
 4. **Lab Research** — Tonkit Lab @ Thammasat University (2025–Present)
@@ -101,29 +129,32 @@ Sections in order:
 9. **Get In Touch** — Contact CTA
 
 ### `/projects` — Projects
+
 Grid of case studies split into:
-- **Open Source** — PyThaiNLP (Cython C-extensions, PR #1394)
+
+- **Open Source** — PyThaiNLP (ReDoS vulnerability fix, PR #1400)
 - **Personal** — Mini-Redis (C), TPSystem (Spring Boot), AgriscanPro (Django + React)
 
 ---
 
 ## Design System
 
-Uses **Material Design 3 dark theme** color tokens mapped to Tailwind custom colors.
+Uses a noir palette with editorial typography for the new hero and terminal. The existing Material Design tokens remain available to the portfolio sections.
 
 Key tokens:
 
-| Token | Value | Usage |
-|---|---|---|
-| `background` | `#131313` | Page background |
-| `surface-container` | `#201f1f` | Card backgrounds |
-| `accent-green` | `#BBF7D0` | Highlight color, hover states |
-| `on-surface` | `#e5e2e1` | Primary text |
-| `outline-variant` | `#474747` | Borders |
+| Token               | Value     | Usage                             |
+| ------------------- | --------- | --------------------------------- |
+| `background`        | `#0c0b0a` | Page background                   |
+| `surface-container` | `#181613` | Card backgrounds                  |
+| `accent-green`      | `#bca88c` | Champagne highlight, hover states |
+| `on-surface`        | `#e5e2e1` | Primary text                      |
+| `outline-variant`   | `#474747` | Borders                           |
 
-Font: **Inter** (Google Fonts) — headline, body, and label all use Inter.
+Fonts are self-hosted in `app/fonts/`: **Cormorant Garamond** for editorial headings and navigation, **Inter** for body content, and **Material Symbols Outlined** for existing icons. Files come from Fontsource packages with their license texts included. The terminal uses the system monospace stack; font loading does not require Google Fonts.
 
 Custom animations:
+
 - `datacamp-scroll` — infinite horizontal scroll for certificate images
 - `blink` — cursor blink effect
 
@@ -131,11 +162,11 @@ Custom animations:
 
 ## Custom Hooks
 
-| Hook | Returns | Description |
-|---|---|---|
-| `useClock` | `string` | Live HH:MM:SS updated every second via `setInterval` |
-| `useStackCarousel` | `{ activeIndex, next, prev }` | Carousel state and navigation for CoreStack |
-| `useToggle` | `[boolean, () => void]` | Simple boolean toggle |
+| Hook               | Returns                       | Description                                          |
+| ------------------ | ----------------------------- | ---------------------------------------------------- |
+| `useClock`         | `string`                      | Live HH:MM:SS updated every second via `setInterval` |
+| `useStackCarousel` | `{ activeIndex, next, prev }` | Carousel state and navigation for CoreStack          |
+| `useToggle`        | `[boolean, () => void]`       | Simple boolean toggle                                |
 
 ---
 
@@ -153,14 +184,17 @@ Adding a new project or stack item requires only editing the data file, no compo
 ## Getting Started
 
 ### Prerequisites
+
 - [Bun](https://bun.sh) installed
 
 ### Install dependencies
+
 ```bash
 bun install
 ```
 
 ### Run development server
+
 ```bash
 bun run dev
 ```
@@ -168,6 +202,7 @@ bun run dev
 Opens at [http://localhost:4000](http://localhost:4000) with Turbopack.
 
 ### Build for production
+
 ```bash
 bun run build
 bun run start
@@ -190,6 +225,7 @@ Remote images from `cdn.jsdelivr.net` (DevIcons) are already whitelisted in `nex
 ## Ignored Files
 
 **`.gitignore`**
+
 ```
 node_modules
 ```
