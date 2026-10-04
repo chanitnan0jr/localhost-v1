@@ -5,4 +5,5 @@ node_modules
 /docs/
 /agent.md
 /AGENTS.md
+/webgl-storytelling-codex-prompt.md
 *.tsbuildinfo
