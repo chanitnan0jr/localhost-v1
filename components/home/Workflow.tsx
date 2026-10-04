@@ -51,6 +51,7 @@ export default function Workflow() {
           {WORKFLOW_ITEMS.map(item => (
             <details
               key={item.id}
+              name="workflow"
               className="group border border-white/10 rounded-2xl bg-surface-container overflow-hidden transition-all duration-500 hover:border-white/20"
             >
               <summary

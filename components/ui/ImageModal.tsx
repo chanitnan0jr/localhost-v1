@@ -13,10 +13,10 @@ export default function ImageModal() {
     const dialog = dialogRef.current
     const overflow = document.body.style.overflow
     // ponytail: native dialog handles the focus trap, Escape, and focus restoration.
-    dialog?.showModal()
+    if (dialog && !dialog.open) dialog.showModal()
     document.body.style.overflow = 'hidden'
     return () => {
-      dialog?.close()
+      if (dialog && dialog.open) dialog.close()
       document.body.style.overflow = overflow
     }
   }, [isOpen])

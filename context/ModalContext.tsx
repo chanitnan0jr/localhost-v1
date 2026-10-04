@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useCallback } from 'react'
+import { MotionConfig } from 'framer-motion'
 
 interface ModalContextValue {
   modalSrc: string | null
@@ -16,9 +17,11 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   const closeModal = useCallback(() => setModalSrc(null), [])
 
   return (
-    <ModalContext.Provider value={{ modalSrc, openModal: setModalSrc, closeModal }}>
-      {children}
-    </ModalContext.Provider>
+    <MotionConfig reducedMotion="user">
+      <ModalContext.Provider value={{ modalSrc, openModal: setModalSrc, closeModal }}>
+        {children}
+      </ModalContext.Provider>
+    </MotionConfig>
   )
 }
 
