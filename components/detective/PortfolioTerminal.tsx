@@ -78,8 +78,8 @@ export default function PortfolioTerminal() {
       aria-labelledby="terminal-heading"
     >
       <div className="terminal-intro">
-        <h2 id="terminal-heading">A direct line.</h2>
-        <p>Prefer a prompt? The terminal is yours.</p>
+        <h2 id="terminal-heading">Behind<br />the trick.</h2>
+        <p>No illusions. Just system internals.<br />The terminal is yours.</p>
         <button
           className="terminal-shortcut"
           type="button"

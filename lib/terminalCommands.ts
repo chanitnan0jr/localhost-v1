@@ -37,7 +37,7 @@ export function runTerminalCommand(
         '  whoami             Meet the engineer',
         '  ls                 List portfolio destinations',
         '  cat about          Read the profile',
-        '  cat projects       Browse the case files',
+        '  cat projects       Browse the projects',
         '  cat contact        Get in touch',
         '  open <destination> Navigate to a section or page',
         '  deck               Read the card directory',
