@@ -1,4 +1,4 @@
-.moment-gallery { width: min(1320px, calc(100% - 96px)); margin-inline: auto; }
+.moment-gallery, .noir-about { width: min(1320px, calc(100% - 96px)); margin-inline: auto; }
 .moment-gallery { padding: 50px 0 65px; }
 .gallery-heading { position: relative; padding: 0 0 28px 190px; min-height: 190px; }
 .gallery-camera { position: absolute; width: 170px; left: 0; top: 0; transform: rotate(-12deg); transition: transform .2s; }
@@ -57,8 +57,47 @@
 .gallery-tools p { font-size: 12px; line-height: 1.6; color: #c8c3b8; }
 .gallery-tools > button { min-height: 44px; flex-shrink: 0; font: 700 18px var(--font-display), sans-serif; text-transform: uppercase; border-bottom: 2px solid #e12637; }
 .gallery-tools > button:hover { color: #ff5262; }
+.noir-about { margin-bottom: 90px; }
+.about-divider { display: flex; align-items: center; gap: 20px; color: #eee9db; }
+.about-divider::before, .about-divider::after { content: ''; flex: 1; height: 2px; background: #e12637; }
+.about-divider span { font: 30px Georgia, serif; }
+.about-transition { margin: 0 0 28px; text-align: center; color: #d7d2c8; font: 14px/1.6 ui-monospace, monospace; }
+.about-label-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 22px; }
+.about-label { padding: 5px 14px; background: #eee9db; color: #0c0b0a; font: 900 23px var(--font-display), sans-serif; text-transform: uppercase; transform: rotate(-5deg); box-shadow: 4px 5px 0 #000; }
+.portfolio-continuation .noir-about h2 { margin: 16px 22px 38px; font-size: clamp(52px, 7.6vw, 106px); line-height: .9; }
+.noir-about h2 em { display: inline-block; background: #e12637; padding: 0 10px 7px; font-style: normal; transform: rotate(-6deg); box-shadow: 8px 9px 0 #000; }
+.about-columns { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.45fr); gap: 42px; padding: 0 22px; align-items: center; }
+.about-identity { position: relative; isolation: isolate; min-width: 0; padding: 26px 28px 24px; transform: rotate(-1.2deg); }
+.about-identity::before, .about-philosophy::before { content: ''; position: absolute; inset: -9px -8px; z-index: -2; background: #e12637; transform: rotate(3deg); box-shadow: 9px 10px 0 #000; }
+.about-identity::after { content: ''; position: absolute; inset: 0; z-index: -1; border: 4px solid #eee9db; background: linear-gradient(to top, #0c0b0a 45%, transparent), linear-gradient(to right, #0c0b0a 42%, transparent), radial-gradient(circle, #e12637 1.4px, transparent 1.8px) 0 0 / 7px 7px, #0c0b0a; }
+.about-mask { width: 158px; height: 60px; margin-bottom: 14px; color: #eee9db; }
+.about-identity h3 { font: 900 clamp(32px, 3.7vw, 56px)/1 var(--font-display), sans-serif; overflow-wrap: anywhere; }
+.about-role { color: #eee9db; margin: 12px 0 22px; font: 400 clamp(17px, 1.7vw, 24px)/1.5 var(--font-sans), sans-serif; }
+.about-role span, .about-connect-label span { color: #ff5262; margin-inline: 5px; font-weight: 700; }
+.about-values { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 9px 12px; border-top: 2px solid #eee9db; padding: 18px 0 0; font: 12px/1.6 ui-monospace, monospace; text-transform: uppercase; list-style: none; }
+.about-values li + li::before { content: '/'; margin-right: 10px; color: #ff5262; font-weight: 800; }
+.about-copy { border-left: 2px solid #e12637; padding-left: 30px; color: #d7d2c8; font-size: clamp(16px, 1.6vw, 23px); line-height: 1.6; }
+.about-copy p + p { margin-top: 28px; }
+.about-copy strong { font-weight: 700; color: #eee9db; text-decoration: underline; text-decoration-color: #e12637; text-decoration-thickness: 2px; text-underline-offset: 7px; }
+.about-philosophy { position: relative; isolation: isolate; margin-top: 42px; padding: 30px 40px 26px; color: #0c0b0a; transform: rotate(.3deg); }
+.about-philosophy::before { transform: rotate(-1.8deg); }
+.about-philosophy::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, #eee9db 65%, transparent), linear-gradient(to right, #eee9db 65%, transparent), radial-gradient(circle, #e1263780 1.3px, transparent 1.7px) 0 0 / 7px 7px, #eee9db; }
+.about-philosophy-label { color: #ad3b36; font: 900 21px var(--font-display), sans-serif; text-transform: uppercase; letter-spacing: .06em; }
+.about-philosophy h3 { font-size: clamp(42px, 6.1vw, 84px); line-height: 1.05; margin: 4px 0 18px; }
+.about-philosophy h3 span, .about-connect h3 span { color: #e12637; }
+.about-philosophy blockquote p { font: 400 clamp(19px, 2vw, 28px)/1.45 var(--font-sans), sans-serif; }
+.about-philosophy blockquote footer { margin-top: 12px; font: 17px/1.5 ui-monospace, monospace; }
+.about-principles { margin-top: 20px; padding-top: 18px; border-top: 2px solid #0c0b0a; font-size: 17px; line-height: 1.6; }
+.about-connect { margin: 42px 22px 0; }
+.about-connect-label { font: 13px/1.5 ui-monospace, monospace; text-transform: uppercase; }
+.about-connect h3 { margin: 5px 0 17px; font-size: clamp(34px, 4.5vw, 64px); line-height: 1.05; }
+.about-socials { display: flex; flex-wrap: wrap; gap: 18px; }
+.about-socials a { position: relative; isolation: isolate; display: inline-flex; justify-content: center; align-items: center; gap: 15px; min-width: 190px; min-height: 50px; padding: 8px 20px; border: 2px solid #eee9db; font: 800 24px var(--font-display), sans-serif; }
+.about-socials a::before { content: ''; position: absolute; inset: 0; z-index: -1; background: #c91c2c; transform: scaleX(0); transform-origin: left; transition: transform .18s; }
+.about-socials a:first-child::before, .about-socials a:hover::before, .about-socials a:focus-visible::before { transform: scaleX(1); }
+.about-socials a:first-child { box-shadow: 5px 5px 0 #e12637; }
 @media (max-width: 1100px) {
-  .moment-gallery { width: calc(100% - 56px); }
+  .moment-gallery, .noir-about { width: calc(100% - 56px); }
   .gallery-table { grid-template-columns: minmax(0, 1fr) 270px; gap: 24px; }
   .gallery-heading { padding-left: 150px; }
   .gallery-camera { width: 135px; }
@@ -68,9 +107,12 @@
   .gallery-photo { --photo-width: 42%; --photo-height: 195px; }
   .gallery-photo.is-selected { --photo-width: 55%; --photo-height: 280px; }
   .photo-caption { font-size: 14px; }
+  .about-columns { gap: 28px; padding-inline: 10px; }
+  .about-identity { padding: 24px 20px; }
+  .about-copy { padding-left: 24px; }
 }
 @media (max-width: 760px) {
-  .moment-gallery { width: calc(100% - 40px); }
+  .moment-gallery, .noir-about { width: calc(100% - 40px); }
   .moment-gallery { padding-top: 20px; }
   .gallery-heading { padding: 0 0 24px 90px; min-height: 0; }
   .gallery-camera { width: 88px; left: -5px; top: 18px; }
@@ -96,9 +138,30 @@
   .gallery-tools { align-items: flex-start; margin-top: 24px; gap: 15px; }
   .gallery-tools p { font-size: 11px; }
   .gallery-tools > button { font-size: 15px; }
+  .about-transition { font-size: 12px; margin-bottom: 24px; }
+  .about-label-row { margin-inline: 5px; }
+  .about-label { font-size: 19px; padding-inline: 10px; }
+  .portfolio-continuation .noir-about h2 { margin: 18px 5px 35px; font-size: clamp(44px, 10.8vw, 78px); line-height: .95; }
+  .noir-about h2 em { padding: 0 7px 3px; transform: rotate(-4deg); box-shadow: 5px 6px 0 #000; }
+  .about-columns { grid-template-columns: 1fr; gap: 30px; padding-inline: 5px; }
+  .about-identity { padding: 24px; }
+  .about-identity h3 { font-size: clamp(32px, 9vw, 54px); }
+  .about-copy { padding-left: 18px; font-size: 16px; }
+  .about-philosophy { margin-top: 32px; padding: 22px; transform: none; }
+  .about-philosophy::before { inset: -8px -4px; transform: rotate(-1deg); }
+  .about-philosophy-label { font-size: 18px; }
+  .about-philosophy h3 { font-size: clamp(38px, 8vw, 54px); }
+  .about-philosophy blockquote p { font-size: 19px; }
+  .about-philosophy blockquote footer { font-size: 14px; }
+  .about-principles { font-size: 15px; }
+  .about-connect { margin: 35px 5px 0; }
+}
+@media (max-width: 480px) {
+  .about-socials { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .about-socials a { min-width: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .moment-gallery * { animation: none !important; transition: none !important; }
+  .moment-gallery *, .noir-about * { animation: none !important; transition: none !important; }
   .photo-board { scroll-behavior: auto; }
   .photo-wipe { display: none; }
 }

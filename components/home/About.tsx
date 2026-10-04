@@ -34,32 +34,45 @@ function VisitorBadge() {
 
 export default function About() {
   return (
-    <section className="px-6 md:px-12 max-w-7xl mx-auto mb-20" id="about-detailed">
-      <div className="bg-surface-container border border-white/5 rounded-[2rem] p-8 md:p-12 hover:border-white/20 transition-colors relative overflow-hidden group">
-        <div className="absolute right-0 top-0 p-10 opacity-5 group-hover:opacity-[0.02] transition-opacity duration-700 pointer-events-none">
-          <span className="material-symbols-outlined text-[15rem]">fingerprint</span>
+    <section className="noir-about" id="about-detailed" aria-labelledby="about-heading">
+      <div className="about-divider" aria-hidden="true"><span>♠</span></div>
+      <p className="about-transition">You&apos;ve seen the work. Here&apos;s how I think.</p>
+      <div className="about-label-row"><p className="about-label">About me</p><VisitorBadge /></div>
+      <h2 id="about-heading">The mind<br />behind the <em>mask.</em></h2>
+      <div className="about-columns">
+        <div className="about-identity">
+          <svg className="about-mask" viewBox="0 0 200 76" aria-hidden="true" focusable="false">
+            <path d="m7 7 50 9 43 25 43-25 50-9-23 47-28 15-42-7-42 7-28-15Z" fill="currentColor" />
+            <path d="m34 30 28 6 20 17-31-5Zm132 0-28 6-20 17 31-5Z" fill="#0c0b0a" />
+          </svg>
+          <h3>Chanitnan<br />Kitnantakhun</h3>
+          <p className="about-role">Backend <span>/</span> Systems Engineer</p>
+          <ul className="about-values" aria-label="Engineering focus">
+            <li>Internals</li><li>Performance</li><li>Reliability</li>
+          </ul>
         </div>
-        <div className="mb-10 flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-4xl font-black text-white uppercase tracking-tighter mb-2">ABOUT</h2>
-            <p className="text-accent-green text-sm tracking-[0.2em] uppercase font-bold">The Core</p>
-          </div>
-          <VisitorBadge />
+        <div className="about-copy">
+          <p>I&apos;m fascinated by what happens in the gap between high-level abstractions and raw hardware. My approach is simple: <strong>understand the internals before using the tool.</strong></p>
+          <p>I focus on the architecture of performance and reliability—whether it&apos;s manual memory management, I/O multiplexing, or ensuring data durability in distributed environments. I design systems that are <strong>predictable, fault-tolerant,</strong> and built to scale from the ground up.</p>
         </div>
-        <div className="max-w-3xl space-y-6 text-neutral-400 text-lg leading-relaxed font-bold">
-          <p>
-            I&apos;m fascinated by what happens in the gap between high-level abstractions and raw hardware. My approach
-            is simple:{' '}
-            <span className="text-white">understand the internals before using the tool.</span>
-          </p>
-          <p>
-            I focus on the architecture of performance and reliability—whether it&apos;s manual memory management, I/O
-            multiplexing, or ensuring data durability in distributed environments. I don&apos;t just write code;{' '}
-            <span className="text-white">
-              I design systems that are predictable, fault-tolerant, and built to scale from the ground up.
-            </span>
-          </p>
-        </div>
+      </div>
+      <div className="about-philosophy">
+        <p className="about-philosophy-label">Philosophy</p>
+        <h3>Clarity over cleverness<span>.</span></h3>
+        <blockquote>
+          <p>“Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.”</p>
+          <footer>— Brian Kernighan</footer>
+        </blockquote>
+        <p className="about-principles">Building from first principles. A deep understanding of system internals is how I approach reliable software.</p>
+      </div>
+      <div className="about-connect">
+        <p className="about-connect-label">Social <span>/</span> Connect</p>
+        <h3>Let&apos;s build something reliable<span>.</span></h3>
+        <nav className="about-socials" aria-label="Social profiles">
+          <a href="https://github.com/chanitnan0jr" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a>
+          <a href="https://www.linkedin.com/in/chanitnan-kitnantakhun-96a692391/" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a>
+          <a href="https://discordapp.com/users/792394993817092126" target="_blank" rel="noopener noreferrer">Discord <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a>
+        </nav>
       </div>
     </section>
   )
