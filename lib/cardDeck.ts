@@ -50,7 +50,7 @@ export const DESTINATIONS: Destination[] = [
     suit: 'spades',
     label: 'Projects',
     href: '/projects',
-    description: 'Open the case files',
+    description: 'See what I have built',
   },
   {
     id: 'Q-diamonds',

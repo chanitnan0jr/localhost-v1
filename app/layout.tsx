@@ -11,6 +11,12 @@ const inter = localFont({
   variable: '--font-sans',
   display: 'swap',
 })
+const display = localFont({
+  src: './fonts/RobotoCondensed-Latin.woff2',
+  weight: '100 900',
+  variable: '--font-display',
+  display: 'swap',
+})
 const editorial = localFont({
   src: [
     {
@@ -35,7 +41,7 @@ const symbols = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Chanitnan — Follow the clues',
+    default: 'Chanitnan — Every card tells a story',
     template: '%s · Chanitnan',
   },
   description: 'Backend & Systems Engineer portfolio',
@@ -52,7 +58,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${inter.className} ${inter.variable} ${editorial.variable} ${symbols.variable} antialiased selection:bg-primary selection:text-on-primary`}
+        className={`${inter.className} ${inter.variable} ${display.variable} ${editorial.variable} ${symbols.variable} antialiased selection:bg-primary selection:text-on-primary`}
       >
         <ModalProvider>
           <Navbar />

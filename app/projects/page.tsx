@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ProjectsPage() {
   return (
-    <main className="pt-32 pb-20">
+    <main className="projects-portfolio pt-32 pb-20">
       <ProjectsHeader />
       <ProjectsContent />
       <Footer />

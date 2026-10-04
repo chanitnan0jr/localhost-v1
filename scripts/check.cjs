@@ -26,6 +26,12 @@ async function check() {
   const terminal = load('lib/terminalCommands.ts', { './cardDeck': deck, './projectsData': projects })
   assert.equal(deck.FULL_DECK.length, 52)
   assert.equal(new Set(deck.FULL_DECK.map((card) => card.id)).size, 52)
+  const playingCard = load('components/detective/PlayingCard.tsx', { '@/lib/cardDeck': deck })
+  const orbit = load('components/detective/CardOrbit.tsx', { '@/lib/cardDeck': deck, './PlayingCard': playingCard, 'next/image': { default: () => null } })
+  const orbitHTML = renderToStaticMarkup(createElement(orbit.default, { dealt: false, paused: false, reducedMotion: true }))
+  assert.equal((orbitHTML.match(/data-orbit-card=/g) ?? []).length, 52)
+  const initialPositions = [...orbitHTML.matchAll(/class="orbit-card" style="left:([^;]+);top:([^;]+)/g)].map((match) => `${match[1]}:${match[2]}`)
+  assert.equal(new Set(initialPositions).size, 52, 'Cards must form a ring before client effects run')
   const destinations = {
     Home: '/#home', Projects: '/projects', Work: '/#work',
     About: '/#about-detailed', Terminal: '/#terminal', Contact: '/#contact',

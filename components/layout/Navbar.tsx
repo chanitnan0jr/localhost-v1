@@ -15,7 +15,7 @@ export default function Navbar() {
   return (
     <header className="noir-header">
       <Link className="noir-brand" href="/#home" aria-label="Chanitnan, home">
-        <span aria-hidden="true">♠</span> CHANITNAN
+        <svg viewBox="0 0 52 28" aria-hidden="true"><path d="m2 3 24 6L50 3l-5 20-12 3-7-8-7 8-12-3Z" fill="currentColor" /><path d="m10 11 10 3-8 4Zm32 0-10 3 8 4Z" fill="#0c0b0a" /></svg> CHANITNAN
       </Link>
       <nav aria-label="Main navigation">
         {LINKS.map((link) => (

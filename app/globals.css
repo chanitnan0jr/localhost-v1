@@ -22,5 +22,5 @@ body {
     font-family: var(--font-sans), sans-serif;
 }
 .text-glow-green {
-    text-shadow: 0 0 15px rgba(187, 247, 208, 0.3);
+    text-shadow: 0 0 15px rgba(225, 38, 55, 0.3);
 }

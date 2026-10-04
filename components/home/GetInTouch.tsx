@@ -8,18 +8,18 @@ export default function GetInTouch() {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
         {/* Big CTA card */}
-        <div className="md:col-span-12 bg-surface-container rounded-2xl p-12 flex flex-col justify-between min-h-[320px] relative overflow-hidden group">
+        <div className="md:col-span-12 bg-surface-container rounded-2xl p-6 md:p-12 flex flex-col justify-between min-h-[320px] relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
             <span className="material-symbols-outlined text-[10rem]">terminal</span>
           </div>
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-2 h-2 bg-accent-green rounded-full animate-pulse shadow-[0_0_8px_#BBF7D0]"></div>
+              <div className="w-2 h-2 bg-accent-green rounded-full"></div>
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-accent-green">
                 Open for Internship 2026
               </span>
             </div>
-            <h3 className="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter leading-[0.9]">
+            <h3 className="text-[clamp(2.25rem,8vw,3.75rem)] font-black text-white uppercase tracking-tighter leading-[0.9]">
               Ready to
               <br />
               Collaborate?
@@ -28,7 +28,7 @@ export default function GetInTouch() {
           <div className="flex flex-wrap gap-4 mt-8">
             <a
               href="mailto:Ch4n1tnan@gmail.com"
-              className="inline-flex items-center gap-3 bg-white text-background px-8 py-4 rounded-full font-black uppercase tracking-widest text-sm hover:scale-105 transition-transform w-fit"
+              className="inline-flex items-center gap-3 bg-white text-background px-8 py-4 rounded-none font-black uppercase tracking-widest text-sm hover:scale-105 transition-transform w-fit"
             >
               Email Me
               <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -37,7 +37,7 @@ export default function GetInTouch() {
             </a>
             <a
               href="tel:0613905655"
-              className="inline-flex items-center gap-3 border border-white/20 text-white px-8 py-4 rounded-full font-black uppercase tracking-widest text-sm hover:bg-white/10 transition-colors w-fit"
+              className="inline-flex items-center gap-3 border border-white/20 text-white px-8 py-4 rounded-none font-black uppercase tracking-widest text-sm hover:bg-white/10 transition-colors w-fit"
             >
               061-390-5655
               <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>

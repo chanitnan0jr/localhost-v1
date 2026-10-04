@@ -98,12 +98,12 @@ export default function PlayingCard({
         height="142"
         rx="5"
         fill="#eee9db"
-        stroke="#bca88c"
+        stroke="#0c0b0a"
         strokeWidth="1.4"
       />
       {back ? (
-        <g fill="none" stroke="#c9aa8e">
-          <rect x="6" y="6" width="88" height="132" rx="2" fill="#652922" />
+        <g fill="none" stroke="#eee9db">
+          <rect x="6" y="6" width="88" height="132" rx="2" fill="#e12637" />
           <rect x="11" y="11" width="78" height="122" strokeWidth=".7" />
           {[0, 1, 2, 3, 4, 5, 6].map((row) =>
             [0, 1, 2, 3, 4].map((col) => (
@@ -117,13 +117,13 @@ export default function PlayingCard({
           )}
           <path
             d="M50 41 70 72 50 103 30 72Z"
-            fill="#652922"
+            fill="#e12637"
             strokeWidth="1.4"
           />
           <text
             x="50"
             y="83"
-            fill="#d9c8a6"
+            fill="#eee9db"
             stroke="none"
             textAnchor="middle"
             fontSize="32"
@@ -136,7 +136,7 @@ export default function PlayingCard({
         <g
           fill={
             card.suit === 'hearts' || card.suit === 'diamonds'
-              ? '#a3312c'
+              ? '#d21d30'
               : '#191513'
           }
           fontFamily="Georgia,serif"

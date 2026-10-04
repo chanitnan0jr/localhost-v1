@@ -6,7 +6,6 @@ import {
   DESTINATIONS,
   Destination,
   shuffleHand,
-  SUIT_SYMBOLS,
 } from '@/lib/cardDeck'
 import CardOrbit from './CardOrbit'
 import PlayingCard from './PlayingCard'
@@ -51,12 +50,13 @@ export default function DetectiveHero() {
     >
       <div className="hero-composition">
         <div className="hero-copy">
+          <span className="hero-identity">Chanitnan / Backend &amp; Systems Engineer</span>
           <h1 id="detective-heading" tabIndex={-1}>
-            Every detail
+            Every card
             <br />
             tells a <em>story.</em>
           </h1>
-          <p>An engineer. A curious mind. Follow the clues.</p>
+          <p>An engineer. A curious mind.<br />Always one move ahead.</p>
           <button type="button" className="noir-button" onClick={deal}>
             {dealt ? 'Shuffle again' : 'Deal the cards'}
             <svg viewBox="0 0 20 20" aria-hidden="true">
@@ -111,17 +111,6 @@ export default function DetectiveHero() {
           </button>
         ) : null}
       </div>
-      <button type="button" className="draw-divider" onClick={deal}>
-        <span>{SUIT_SYMBOLS.spades}</span>
-        <span className="red-suit">{SUIT_SYMBOLS.hearts}</span>
-        <span className="draw-label">
-          {dealt
-            ? 'Pick a card. Follow your curiosity.'
-            : 'Scroll to draw your hand'}
-        </span>
-        <span className="red-suit">{SUIT_SYMBOLS.diamonds}</span>
-        <span>{SUIT_SYMBOLS.clubs}</span>
-      </button>
       <p className="sr-only" aria-live="polite">
         {dealt
           ? 'Six navigation cards have been dealt. Choose a card to navigate.'
