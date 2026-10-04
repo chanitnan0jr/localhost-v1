@@ -1,6 +1,7 @@
 import Hero from '@/components/home/Hero'
 import ProfileGrid from '@/components/home/ProfileGrid'
 import About from '@/components/home/About'
+import SelectedWork from '@/components/home/SelectedWork'
 import LabResearch from '@/components/home/LabResearch'
 import CoreStack from '@/components/home/CoreStack'
 import Workflow from '@/components/home/Workflow'
@@ -16,6 +17,7 @@ export default function HomePage() {
       <Hero />
       <PortfolioTerminal />
       <div className="portfolio-continuation">
+        <SelectedWork />
         <ProfileGrid />
         <About />
         <div id="work">

@@ -67,6 +67,22 @@ async function check() {
   })
   const projectHTML = renderToStaticMarkup(createElement(sections.default))
   const allProjects = [...projects.OPENSOURCE_PROJECTS, ...projects.PERSONAL_PROJECTS]
+  const selectedWork = load('components/home/SelectedWork.tsx', {
+    '@/lib/projectsData': projects,
+    'next/link': { default: ({ children, ...props }) => createElement('a', props, children) },
+  })
+  const featuredHTML = renderToStaticMarkup(createElement(selectedWork.default))
+  assert.equal((featuredHTML.match(/<article\b/g) ?? []).length, 3)
+  assert.ok(featuredHTML.includes('href="/projects"'))
+  for (const id of ['agriscanpro', 'mini-redis', 'pythainlp']) {
+    const project = allProjects.find((entry) => entry.id === id)
+    assert.ok(project, `Featured project ${id} must exist in the shared data`)
+    assert.ok(featuredHTML.includes(project.name))
+    assert.ok(featuredHTML.includes(project.description))
+    assert.ok(featuredHTML.includes(`href="${project.repoUrl}"`))
+    assert.ok(featuredHTML.includes(`id="work-dots-${id}"`), 'Illustration pattern IDs must be unique')
+  }
+  assert.ok(featuredHTML.includes('Merged · PR #1400'))
   assert.equal((projectHTML.match(/<article\b/g) ?? []).length, allProjects.length)
   assert.equal((projectHTML.match(/aria-expanded="true"/g) ?? []).length, 2)
   for (const project of allProjects) {
