@@ -102,6 +102,32 @@ async function check() {
   assert.ok(competitionHTML.includes('Super AI Engineer Season 6'))
   assert.ok(competitionHTML.includes('View Submitted Code'))
 
+  const photos = load('lib/photoGallery.ts', {})
+  assert.equal(new Set(photos.GALLERY_PHOTOS.map((photo) => photo.id)).size, photos.GALLERY_PHOTOS.length)
+  for (const photo of photos.GALLERY_PHOTOS) assert.ok(readFileSync(join(__dirname, '..', 'public', photo.src)).length)
+  assert.equal(photos.PHOTO_POSITIONS.length, photos.GALLERY_PHOTOS.length)
+  const originalOrder = photos.GALLERY_PHOTOS.map((photo) => photo.id)
+  assert.deepEqual(photos.swapCenterPhoto(originalOrder, 'behind'), ['behind', 'cstu', 'icpc', 'pragma'])
+  assert.deepEqual(photos.swapCenterPhoto(photos.swapCenterPhoto(originalOrder, 'behind'), 'icpc'), ['icpc', 'cstu', 'behind', 'pragma'])
+  assert.deepEqual(photos.swapCenterPhoto(originalOrder, 'missing'), originalOrder)
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const shuffled = photos.shufflePhotoOrder(originalOrder)
+    assert.deepEqual([...shuffled].sort(), [...originalOrder].sort())
+    assert.notDeepEqual(shuffled, originalOrder)
+  }
+  assert.deepEqual(originalOrder, photos.GALLERY_PHOTOS.map((photo) => photo.id))
+  assert.deepEqual(photos.clampPhotoPosition({ x: -20, y: 180, rotation: -8 }, 20, 25), { x: 20, y: 75, rotation: -8 })
+  assert.deepEqual(photos.clampPhotoPosition({ x: 80, y: 10, rotation: 0 }, 70, 80), { x: 50, y: 50, rotation: 0 })
+  const gallery = load('components/detective/PhotoGallery.tsx', { '@/lib/photoGallery': photos, 'next/image': { default: () => null } })
+  const galleryHTML = renderToStaticMarkup(createElement(gallery.default))
+  assert.equal((galleryHTML.match(/data-photo=/g) ?? []).length, 4)
+  assert.equal((galleryHTML.match(/aria-label="Read the story:/g) ?? []).length, 4)
+  assert.equal((galleryHTML.match(/aria-label="Move /g) ?? []).length, 4)
+  assert.ok(galleryHTML.includes('Reset positions'))
+  assert.ok(galleryHTML.includes('Shuffle photo arrangement'))
+  assert.ok(galleryHTML.includes('id="photo-note-title">CSTU Spark Camp'))
+  assert.equal((galleryHTML.match(/aria-expanded="true"/g) ?? []).length, 1)
+
   let redis = null
   const redisModule = { getRedis: () => redis }
   const visitors = load('lib/visitors.ts', { './redis': redisModule })
@@ -178,7 +204,7 @@ async function check() {
     'node:fs/promises': { async readFile() { throw new Error('missing README') } },
   })
   assert.equal((await (await missingReadme.GET(request)).json()).readme, '')
-  console.log('Rendering, 52-card deck, terminal commands/navigation, visitor tracking, live APIs, and failure fallbacks passed.')
+  console.log('Rendering, photo gallery/shuffle/bounds, 52-card deck, terminal commands/navigation, visitor tracking, live APIs, and failure fallbacks passed.')
 }
 
 check().catch((error) => { console.error(error); process.exitCode = 1 })

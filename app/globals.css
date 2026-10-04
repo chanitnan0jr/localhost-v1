@@ -1,4 +1,5 @@
 @import './detective.css';
+@import './gallery.css';
 
 @tailwind base;
 @tailwind components;

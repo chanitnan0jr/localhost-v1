@@ -1,5 +1,5 @@
 import Hero from '@/components/home/Hero'
-import ProfileGrid from '@/components/home/ProfileGrid'
+import PhotoGallery from '@/components/detective/PhotoGallery'
 import About from '@/components/home/About'
 import SelectedWork from '@/components/home/SelectedWork'
 import LabResearch from '@/components/home/LabResearch'
@@ -18,7 +18,7 @@ export default function HomePage() {
       <PortfolioTerminal />
       <div className="portfolio-continuation">
         <SelectedWork />
-        <ProfileGrid />
+        <PhotoGallery />
         <About />
         <div id="work">
           <LabResearch />
