@@ -17,7 +17,7 @@ export default function ProjectsHeader() {
 
   return (
     <motion.section
-      className="px-6 md:px-12 max-w-7xl mx-auto mb-20"
+      className="projects-header mb-12"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -27,7 +27,7 @@ export default function ProjectsHeader() {
       </motion.h2>
       <div className="flex flex-col md:flex-row justify-between items-end gap-6">
         <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-black tracking-tighter text-white uppercase leading-[0.9]">
-          Selected Work
+          Projects
         </motion.h1>
         <motion.p variants={itemVariants} className="text-on-surface-variant max-w-sm text-sm uppercase leading-loose font-bold text-right">
           Problem → Solution → Impact.

@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { OPENSOURCE_PROJECTS, PERSONAL_PROJECTS } from '@/lib/projectsData'
 
 const projects = [...PERSONAL_PROJECTS, ...OPENSOURCE_PROJECTS]
@@ -74,14 +73,7 @@ function ProjectArtwork({ id }: { id: string }) {
 
 export default function SelectedWork() {
   return (
-    <section id="selected-work" className="selected-work" aria-labelledby="selected-work-title">
-      <div className="selected-work-heading">
-        <div>
-          <span className="selected-work-label">Projects</span>
-          <h2 id="selected-work-title">Selected <em>work.</em></h2>
-        </div>
-        <Link href="/projects" className="selected-work-all">View all projects <span aria-hidden="true">↗</span></Link>
-      </div>
+    <section id="selected-work" className="selected-work" aria-label="Featured projects">
       <div className="selected-work-grid">
         {featured.map((project) => (
           <article key={project.id} className="selected-work-card" data-project={project.id}>
