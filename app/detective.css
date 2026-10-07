@@ -260,8 +260,7 @@ html:has(.home-portfolio) { scroll-snap-type: y proximity; scroll-padding-top: v
 @keyframes phantom-backdrop-drift { 0%, 100% { transform: translate3d(-8px, -4px, 0) scale(1.015) rotate(-.25deg); } 50% { transform: translate3d(8px, 4px, 0) scale(1.035) rotate(.25deg); } }
 @keyframes phantom-idle { 0%, 100% { transform: translate(-50%, 0) rotate(-.2deg) scale(1); } 50% { transform: translate(-50%, 5px) rotate(.2deg) scale(1.005); } }
 .hero-identity { position: absolute; z-index: 110; top: clamp(96px, 11.5vh, 125px); left: 4.6%; display: inline-block; padding: 6px 12px; background: #eee9db; color: #0c0b0a; font: 800 13.5px var(--font-display), sans-serif; text-transform: uppercase; transform: rotate(-2deg); box-shadow: 5px 5px 0 #000; white-space: nowrap; }
-.hero-copy, .hero-manifesto { position: absolute; z-index: 110; top: clamp(165px, 20vh, 230px); width: 31%; text-align: center; transform: rotate(-8deg) skew(-6deg); transition: transform .24s ease; }
-.has-hand .hero-copy, .has-hand .hero-manifesto { transform: translateY(clamp(-80px, -5.2vw, -36px)) rotate(-8deg) skew(-6deg); }
+.hero-copy, .hero-manifesto { position: absolute; z-index: 110; top: clamp(165px, 20vh, 230px); width: 31%; text-align: center; transform: rotate(-8deg) skew(-6deg); }
 .hero-copy { left: 4.6%; }
 .hero-manifesto { right: 3.8%; top: clamp(185px, 22.5vh, 255px); }
 .hero-copy h1, .hero-manifesto { color: #eee9db; font: 900 clamp(32px, 5.2vw, 88px)/.98 var(--font-display), sans-serif; letter-spacing: -.045em; text-transform: uppercase; margin: 0; }
@@ -444,7 +443,6 @@ html:has(.home-portfolio) { scroll-snap-type: y proximity; scroll-padding-top: v
   .hero-composition { height: auto; min-height: calc(100dvh - var(--noir-header-height)); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto 1fr auto; align-items: center; gap: 20px 12px; padding: 18px 20px 28px; }
   .hero-identity { position: relative; top: auto; left: auto; grid-column: 1 / -1; justify-self: start; font-size: 12px; max-width: 100%; }
   .hero-copy, .hero-manifesto { position: relative; left: auto; right: auto; top: auto; width: auto; align-self: center; }
-  .has-hand .hero-copy, .has-hand .hero-manifesto { transform: rotate(-8deg) skew(-6deg); }
   .hero-copy h1, .hero-manifesto { font-size: clamp(25px, 7.8vw, 54px); }
   .hero-copy h1 span, .hero-manifesto span { padding-inline: 3px; }
   .hero-copy h1 em, .hero-manifesto em { padding: 1px 7px 3px; box-shadow: 5px 5px 0 #08090c; }
