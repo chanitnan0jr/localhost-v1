@@ -1,14 +1,24 @@
 import { DESTINATIONS, SUIT_SYMBOLS } from './cardDeck'
-import { OPENSOURCE_PROJECTS, PERSONAL_PROJECTS } from './projectsData'
+import { OPENSOURCE_PROJECTS, PERSONAL_PROJECTS, COLLABORATIVE_PROJECTS } from './projectsData'
 export interface TerminalResult {
   lines: string[]
   kind?: 'output' | 'error'
   navigate?: string
   clear?: boolean
+  asyncAction?: 'visitors'
 }
 export const TERMINAL_COMMANDS = [
   'help',
+  'fastfetch',
+  'neofetch',
+  'viewcount',
+  'visitors',
   'whoami',
+  'skills',
+  'stack',
+  'uname',
+  'uptime',
+  'sudo',
   'ls',
   'cat about',
   'cat projects',
@@ -30,21 +40,92 @@ export function runTerminalCommand(
 ): TerminalResult {
   const command = input.trim().replace(/\s+/g, ' ').toLowerCase()
   if (command === 'clear') return { lines: [], clear: true }
+
+  if (command === 'fastfetch' || command === 'neofetch' || command === 'fetch') {
+    return {
+      lines: [
+        '      /\\_/\\          visitor@localhost',
+        '    =( °.°)~         ─────────────────',
+        '      )   (  //      OS: Phantom Linux x86_64',
+        '     (___)(//        Host: Leblanc Cafe',
+        '                     Kernel: Linux 6.8.0-noir / Next.js Turbo',
+        '                     Uptime: 24/7 (High Availability)',
+        '                     Shell: noir-sh (Copilot Auto-complete)',
+        '                     Stack: Go · Python · TypeScript · Docker · Redis',
+        '                     Status: Ready for next mission',
+      ],
+    }
+  }
+
+  if (command === 'viewcount' || command === 'visitors' || command === 'stats') {
+    return {
+      lines: ['Querying visitor telemetry from /api/visitors...'],
+      asyncAction: 'visitors',
+    }
+  }
+
+  if (command === 'uname' || command === 'uname -a') {
+    return {
+      lines: [
+        'Linux localhost 6.8.0-noir-systems #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux',
+      ],
+    }
+  }
+
+  if (command === 'uptime') {
+    return {
+      lines: [
+        ' 01:42:00 up 420 days, 13:37, 1 user, load average: 0.05, 0.03, 0.00',
+      ],
+    }
+  }
+
+  if (command === 'skills' || command === 'stack') {
+    return {
+      lines: [
+        'Core Technologies & Architecture:',
+        '  Backend:      Go, Python, TypeScript, Node.js, REST & gRPC',
+        '  Systems:      Linux, Docker, Redis, PostgreSQL, Distributed Systems',
+        '  Tools & CI:   Git, GitHub Actions, Docker, Next.js 14 Turbo Engine',
+        '  Specialty:    Low-latency services, internal tooling, reliable systems',
+      ],
+    }
+  }
+
+  if (command.startsWith('sudo')) {
+    return {
+      lines: [
+        'visitor is not in the sudoers file. This incident will be reported to the Phantom Thieves.',
+      ],
+      kind: 'error',
+    }
+  }
+
+  if (command.startsWith('echo ')) {
+    return {
+      lines: [input.trim().slice(5)],
+    }
+  }
+
   if (command === 'help')
     return {
       lines: [
         'Available commands:',
-        '  whoami             Meet the engineer',
-        '  ls                 List portfolio destinations',
-        '  cat about          Read the profile',
-        '  cat projects       Browse the projects',
-        '  cat contact        Get in touch',
-        '  open <destination> Navigate to a section or page',
-        '  deck               Read the card directory',
-        '  history / date     Command history / local time',
-        '  clear              Clear the screen',
+        '  fastfetch / neofetch  Show system & portfolio architecture',
+        '  viewcount / visitors  Display visitor telemetry & statistics',
+        '  whoami                Meet the engineer',
+        '  skills / stack        List backend & engineering capabilities',
+        '  ls                    List portfolio destinations',
+        '  cat about             Read personal background',
+        '  cat projects          Browse projects directory',
+        '  cat contact           Get contact info',
+        '  open <destination>    Navigate to a section or page',
+        '  deck                  Read the 52-card directory',
+        '  history / date        Command history / local time',
+        '  uptime / uname        Check system metrics & kernel',
+        '  clear                 Clear the console screen',
         '',
-        'Use ↑ / ↓ for history. Tab completes a matching command.',
+        'Use ↑ / ↓ for history. Tab cycles hints; Enter or → accepts. Escape clears input.',
       ],
     }
   if (
@@ -68,7 +149,7 @@ export function runTerminalCommand(
     }
   if (command === 'cat projects')
     return {
-      lines: [...OPENSOURCE_PROJECTS, ...PERSONAL_PROJECTS].flatMap(
+      lines: [...OPENSOURCE_PROJECTS, ...COLLABORATIVE_PROJECTS, ...PERSONAL_PROJECTS].flatMap(
         (project) => [
           `${project.name} — ${project.category}`,
           project.description,
