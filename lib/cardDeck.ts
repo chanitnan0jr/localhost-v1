@@ -73,7 +73,7 @@ export const DESTINATIONS: Destination[] = [
     rank: '10',
     suit: 'spades',
     label: 'Terminal',
-    href: '/#terminal',
+    href: '/terminal',
     description: 'Take the command line',
   },
   {
