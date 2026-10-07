@@ -4,6 +4,7 @@ import './globals.css'
 import { ModalProvider } from '@/context/ModalContext'
 import Navbar from '@/components/layout/Navbar'
 import ImageModal from '@/components/ui/ImageModal'
+import EvidenceNetworkBackground from '@/components/ui/EvidenceNetworkBackground'
 
 const inter = localFont({
   src: './fonts/Inter-Latin.woff2',
@@ -60,6 +61,7 @@ export default function RootLayout({
       <body
         className={`${inter.className} ${inter.variable} ${display.variable} ${editorial.variable} ${symbols.variable} antialiased selection:bg-primary selection:text-on-primary`}
       >
+        <EvidenceNetworkBackground />
         <ModalProvider>
           <Navbar />
           {children}
