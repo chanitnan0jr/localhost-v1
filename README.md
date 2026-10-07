@@ -20,7 +20,7 @@ Production: `bun run build`, then `bun run start`.
 | `app/` | Layout, home, projects, interactive terminal 404 |
 | `app/api/` | Visitor tracking, live statistics, terminal system info |
 | `components/` | Home sections, project cards, navigation/footer, image dialog |
-| `components/detective/` | 52-card hero, navigation hand, home terminal, photo table |
+| `components/detective/` | 52-card hero, navigation hand, full-screen terminal, photographic timeline/evidence |
 | `hooks/` | Local clock, boolean toggles, stack carousel state |
 | `context/` | Shared image dialog state |
 | `lib/` | Typed content, Redis client factory, visitor identity/tracking |
@@ -46,28 +46,32 @@ their order while preserving these destinations:
 | K♠ Projects | `/projects` |
 | Q♦ Work | `/#work` |
 | J♣ About | `/#about-detailed` |
-| 10♠ Terminal | `/#terminal` |
+| 10♠ Terminal | `/terminal` |
 | A♥ Contact | `/#contact` |
 
-The home terminal supports `help`, `whoami`, `ls`, `deck`, `history`, `date`, `clear`,
+The terminal page at `/terminal` is a DOM console filling the screen below the existing navbar, with only output and a prompt. It has no footer, decorative clock, or shortcut buttons. Type `help` to explore and `exit` to return home. Keyboard history, inline completion, selection/copy, and Control-L clear remain available. It supports `help`, `whoami`, `ls`, `deck`, `history`, `date`, `clear`,
 `cat about|projects|contact`, and `open home|projects|work|about|terminal|contact`.
-`cd` and `goto` are navigation aliases. Up/Down recalls history, Tab completes
-commands, and Escape clears input. Project output uses `lib/projectsData.ts`.
-The photo gallery and original portfolio sections follow the terminal.
+`cd` and `goto` are navigation aliases. Up/Down recalls history; Tab cycles
+suggestions or completes a single match. Enter accepts an incomplete suggestion
+and runs a complete command; Right Arrow at the input end also completes it.
+Escape clears input and suggestions. Quick command buttons run their fixed
+commands through the same parser. Project output uses `lib/projectsData.ts`.
+The timeline and original portfolio sections follow the hero on the home page.
 
-At `/#gallery`, photographic prints keep the original photos uncropped. Hover lifts a
-print; select one to enlarge it alongside its **Calling Card** while the other photos
-remain visible as thumbnails. The center photo's calling card appears by default.
-Close or Escape returns the desktop arrangement, including custom drag positions.
-Previous/next and Left/Right on a photo cycle within the current filter.
+At `/#gallery`, **02 / Timeline** presents **The story so far** as a photographic section with chapter copy on the left, a large event photo, and chapter controls below. Five chapters follow this order: PRAGMA 41, CSTU Spark Camp, ICPC Sub Regional, ICPC National, and Sustainovation / DAD. PRAGMA uses the landscape hackathon photo of teammates working around a table. ICPC Sub Regional is selected initially.
 
-On desktop, drag photos to rearrange the table before selecting one. A drag release
-never opens a note. Focus a grip and use arrow keys (Shift moves farther) as a keyboard
-alternative. Click the camera to shuffle; **Reset positions** restores the original
-layout. On mobile, swipe the native carousel with the calling card below; vertical
-page scrolling remains available. Reduced motion disables animated transitions.
-Photo metadata lives in `lib/photoGallery.ts`. About and the full Philosophy quote
-are a separate, stationary section below the gallery.
+Dots and previous/next arrows preview chapters; Arrow keys and Home/End work on the chapter dots. Touch users can swipe the photo to change chapters. **View evidence** opens the selected board and moves focus to its heading. Without opening Evidence, scrolling continues straight to About Me. **Back to timeline** or Escape closes the board and returns focus to the selected dot.
+
+Evidence has a Field Notes sheet, one large photo, and two smaller photos. Photo arrows cycle through all supplied images, including the four National photos. Select a smaller photo to make it the main print; activate the main print to expand it in the existing image viewer.
+Mobile stacks chapter copy and controls below the photo, and stacks evidence images and notes.
+Hero and Timeline use viewport-sized sections with native proximity scroll snapping;
+short screens and long evidence content can still scroll naturally. Reduced motion disables snapping.
+Evidence photos keep their original framing; the timeline photo uses a cover crop to match the reference; reduced motion disables transitions and smooth
+navigation. Chapter data and verified descriptions live in `lib/portfolioTimeline.ts`.
+Chapter order and emotion labels follow the owner's storyboard; no dates are inferred.
+Sustainovation photos were supplied by the owner; its description is intentionally
+limited to the team photo until more event details are provided. About and Philosophy
+remain separate sections below the timeline. The blank folder texture is generated; people and event photos are originals.
 
 The palette is black, vivid red, and ivory with angular paper strips, halftone details,
 and offset shadows. Roboto Condensed supplies bold headings and menus; Inter keeps
@@ -107,9 +111,9 @@ build info. `bun.lock` is committed for reproducible installation.
 
 ### Selected Work
 
-The home page features AgriscanPro, Mini-Redis, and PyThaiNLP between the terminal
-and gallery. The three cut-paper cards use original SVG illustrations and the same
-project data as `/projects`, with direct repository/contribution links. Cards stack
+The `/projects` page features AgriscanPro, Mini-Redis, and PyThaiNLP as featured case
+studies above the full project catalog. The three cut-paper cards use original SVG illustrations
+and the same project data as the rest of the page, with direct repository/contribution links. Cards stack
 on mobile; buttons support keyboard focus and reduced motion.
 
 ### About / Philosophy

@@ -28,13 +28,29 @@ async function check() {
   assert.equal(new Set(deck.FULL_DECK.map((card) => card.id)).size, 52)
   const playingCard = load('components/detective/PlayingCard.tsx', { '@/lib/cardDeck': deck })
   const orbit = load('components/detective/CardOrbit.tsx', { '@/lib/cardDeck': deck, './PlayingCard': playingCard, 'next/image': { default: () => null } })
-  const orbitHTML = renderToStaticMarkup(createElement(orbit.default, { dealt: false, paused: false, reducedMotion: true }))
+  const orbitHTML = renderToStaticMarkup(createElement(orbit.default, { reducedMotion: true }))
   assert.equal((orbitHTML.match(/data-orbit-card=/g) ?? []).length, 52)
   const initialPositions = [...orbitHTML.matchAll(/class="orbit-card" style="left:([^;]+);top:([^;]+)/g)].map((match) => `${match[1]}:${match[2]}`)
   assert.equal(new Set(initialPositions).size, 52, 'Cards must form a ring before client effects run')
+  const cardLayers = [...orbitHTML.matchAll(/class="orbit-card" style="[^"]*z-index:(\d+)/g)].map((match) => Number(match[1]))
+  assert.equal(cardLayers.length, 52)
+  assert.equal(new Set(cardLayers).size, 52, 'Each orbit card must have a unique layer')
+  cardLayers.forEach((layer, index) => {
+    const y = Number(initialPositions[index].split(':')[1].replace('%', ''))
+    assert.ok(y <= 52 ? layer < 50 : layer > 50, 'Return arc cards must sit behind the figure; front arc cards in front')
+  })
+  for (const front of [false, true]) {
+    const smallLayers = cardLayers.filter((layer, index) => index % 3 !== 0 && (layer > 50) === front)
+    const largeLayers = cardLayers.filter((layer, index) => index % 3 === 0 && (layer > 50) === front)
+    assert.ok(Math.max(...smallLayers) < Math.min(...largeLayers), 'Within each side of the figure, small cards must sit below large cards')
+  }
+  assert.ok(Math.max(...cardLayers) < 100, 'Cards must stay below the ground overlay')
+  const cardOpacities = [...orbitHTML.matchAll(/class="orbit-card" style="[^"]*opacity:([^;]+)/g)].map((match) => Number(match[1]))
+  assert.equal(cardOpacities.length, 52)
+  assert.ok(cardOpacities.every((opacity) => opacity === 1), 'Cards must be opaque at rest so lower layers cannot show through')
   const destinations = {
     Home: '/#home', Projects: '/projects', Work: '/#work',
-    About: '/#about-detailed', Terminal: '/#terminal', Contact: '/#contact',
+    About: '/#about-detailed', Terminal: '/terminal', Contact: '/#contact',
   }
   const originalHand = deck.DESTINATIONS.map((card) => card.id)
   for (let index = 0; index < 10; index++) {
@@ -57,7 +73,7 @@ async function check() {
   assert.equal(terminal.runTerminalCommand('clear', []).clear, true)
   assert.deepEqual(terminal.runTerminalCommand('history', ['ls', 'whoami']).lines, ['  1  ls', '  2  whoami'])
   const projectOutput = terminal.runTerminalCommand('cat projects', []).lines.join('\n')
-  for (const project of [...projects.OPENSOURCE_PROJECTS, ...projects.PERSONAL_PROJECTS]) {
+  for (const project of [...projects.OPENSOURCE_PROJECTS, ...projects.COLLABORATIVE_PROJECTS, ...projects.PERSONAL_PROJECTS]) {
     assert.ok(projectOutput.includes(project.name))
     assert.ok(projectOutput.includes(project.description))
   }
@@ -66,14 +82,13 @@ async function check() {
     '@/lib/projectsData': projects, '@/components/projects/ProjectCard': card,
   })
   const projectHTML = renderToStaticMarkup(createElement(sections.default))
-  const allProjects = [...projects.OPENSOURCE_PROJECTS, ...projects.PERSONAL_PROJECTS]
+  const allProjects = [...projects.OPENSOURCE_PROJECTS, ...projects.COLLABORATIVE_PROJECTS, ...projects.PERSONAL_PROJECTS]
   const selectedWork = load('components/home/SelectedWork.tsx', {
     '@/lib/projectsData': projects,
     'next/link': { default: ({ children, ...props }) => createElement('a', props, children) },
   })
   const featuredHTML = renderToStaticMarkup(createElement(selectedWork.default))
   assert.equal((featuredHTML.match(/<article\b/g) ?? []).length, 3)
-  assert.ok(featuredHTML.includes('href="/projects"'))
   for (const id of ['agriscanpro', 'mini-redis', 'pythainlp']) {
     const project = allProjects.find((entry) => entry.id === id)
     assert.ok(project, `Featured project ${id} must exist in the shared data`)
@@ -84,8 +99,11 @@ async function check() {
   }
   assert.ok(featuredHTML.includes('Merged · PR #1400'))
   assert.equal((projectHTML.match(/<article\b/g) ?? []).length, allProjects.length)
-  assert.equal((projectHTML.match(/aria-expanded="true"/g) ?? []).length, 2)
+  assert.equal((projectHTML.match(/aria-expanded="true"/g) ?? []).length, 3)
+  assert.ok(projectHTML.includes('Collaborative Project'))
+  assert.equal(projects.COLLABORATIVE_PROJECTS.length, 3)
   for (const project of allProjects) {
+    if (project.contribution) assert.ok(projectHTML.includes(project.contribution))
     assert.ok(projectHTML.includes(project.name))
     if (project.repoUrl) assert.ok(projectHTML.includes(`href="${project.repoUrl}"`))
     if (project.liveUrl) assert.ok(projectHTML.includes(`href="${project.liveUrl}"`))
@@ -102,31 +120,36 @@ async function check() {
   assert.ok(competitionHTML.includes('Super AI Engineer Season 6'))
   assert.ok(competitionHTML.includes('View Submitted Code'))
 
-  const photos = load('lib/photoGallery.ts', {})
-  assert.equal(new Set(photos.GALLERY_PHOTOS.map((photo) => photo.id)).size, photos.GALLERY_PHOTOS.length)
-  for (const photo of photos.GALLERY_PHOTOS) assert.ok(readFileSync(join(__dirname, '..', 'public', photo.src)).length)
-  assert.equal(photos.PHOTO_POSITIONS.length, photos.GALLERY_PHOTOS.length)
-  const originalOrder = photos.GALLERY_PHOTOS.map((photo) => photo.id)
-  assert.deepEqual(photos.swapCenterPhoto(originalOrder, 'behind'), ['behind', 'cstu', 'icpc', 'pragma'])
-  assert.deepEqual(photos.swapCenterPhoto(photos.swapCenterPhoto(originalOrder, 'behind'), 'icpc'), ['icpc', 'cstu', 'behind', 'pragma'])
-  assert.deepEqual(photos.swapCenterPhoto(originalOrder, 'missing'), originalOrder)
-  for (let attempt = 0; attempt < 20; attempt++) {
-    const shuffled = photos.shufflePhotoOrder(originalOrder)
-    assert.deepEqual([...shuffled].sort(), [...originalOrder].sort())
-    assert.notDeepEqual(shuffled, originalOrder)
+  const timeline = load('lib/portfolioTimeline.ts', {})
+  assert.equal(new Set(timeline.TIMELINE_CHAPTERS.map((chapter) => chapter.id)).size, 5)
+  assert.deepEqual(timeline.TIMELINE_CHAPTERS.map((chapter) => chapter.id), ['pragma', 'cstu', 'icpc', 'icpc-national', 'sustainovation'])
+  for (const chapter of timeline.TIMELINE_CHAPTERS) {
+    assert.equal(chapter.photos.length, chapter.id === 'icpc-national' ? 4 : 3, 'Each chapter keeps its supplied evidence images')
+    if (chapter.timelinePhoto) {
+      assert.ok(chapter.timelinePhoto.alt)
+      assert.ok(readFileSync(join(__dirname, '..', 'public', chapter.timelinePhoto.src)).length)
+    }
+    for (const photo of chapter.photos) {
+      assert.ok(photo.alt, 'Evidence needs meaningful alternative text')
+      assert.ok(readFileSync(join(__dirname, '..', 'public', photo.src)).length)
+    }
   }
-  assert.deepEqual(originalOrder, photos.GALLERY_PHOTOS.map((photo) => photo.id))
-  assert.deepEqual(photos.clampPhotoPosition({ x: -20, y: 180, rotation: -8 }, 20, 25), { x: 20, y: 75, rotation: -8 })
-  assert.deepEqual(photos.clampPhotoPosition({ x: 80, y: 10, rotation: 0 }, 70, 80), { x: 50, y: 50, rotation: 0 })
-  const gallery = load('components/detective/PhotoGallery.tsx', { '@/lib/photoGallery': photos, 'next/image': { default: () => null } })
-  const galleryHTML = renderToStaticMarkup(createElement(gallery.default))
-  assert.equal((galleryHTML.match(/data-photo=/g) ?? []).length, 4)
-  assert.equal((galleryHTML.match(/aria-label="Read the story:/g) ?? []).length, 4)
-  assert.equal((galleryHTML.match(/aria-label="Move /g) ?? []).length, 4)
-  assert.ok(galleryHTML.includes('Reset positions'))
-  assert.ok(galleryHTML.includes('Shuffle photo arrangement'))
-  assert.ok(galleryHTML.includes('id="photo-note-title">CSTU Spark Camp'))
-  assert.equal((galleryHTML.match(/aria-expanded="true"/g) ?? []).length, 1)
+  assert.ok(readFileSync(join(__dirname, '..', 'public/images/timeline/evidence-board.webp')).length)
+  assert.ok(readFileSync(join(__dirname, '..', 'public/images/timeline/chapter-folder.webp')).length)
+  const story = load('components/detective/PortfolioTimeline.tsx', { '@/lib/portfolioTimeline': timeline, 'next/image': { default: () => null }, '@/context/ModalContext': { useModalContext: () => ({ openModal() {} }) } })
+  const storyHTML = renderToStaticMarkup(createElement(story.default))
+  assert.equal((storyHTML.match(/aria-label="Go to chapter /g) ?? []).length, 5)
+  assert.ok(storyHTML.includes('data-chapter="icpc"'))
+  assert.equal(timeline.TIMELINE_CHAPTERS[0].timelinePhoto.src, '/images/PRAGMA41/PRAGMA2.jpg', 'PRAGMA Timeline must show the landscape hackathon photo')
+  assert.ok(storyHTML.includes('id="gallery"'), 'Existing gallery hashes must keep their target')
+  assert.ok(storyHTML.includes('id="timeline-evidence"'), 'Chapter controls need an evidence target')
+  assert.ok(storyHTML.includes('data-evidence="icpc"'), 'ICPC is the initial chapter')
+  assert.match(storyHTML, /<section[^>]*id="timeline-evidence"[^>]*hidden=""/, 'Evidence must be hidden initially so scrolling continues to About')
+  assert.ok(storyHTML.includes('Field notes'))
+  assert.ok(storyHTML.includes('Expand photo 01:'))
+  assert.equal((storyHTML.match(/class="evidence-print evidence-print-/g) ?? []).length, 3)
+  assert.ok(storyHTML.includes('Back to timeline'))
+  assert.ok(storyHTML.includes('Higher stakes. Sharper focus.'))
 
   let redis = null
   const redisModule = { getRedis: () => redis }
@@ -204,7 +227,7 @@ async function check() {
     'node:fs/promises': { async readFile() { throw new Error('missing README') } },
   })
   assert.equal((await (await missingReadme.GET(request)).json()).readme, '')
-  console.log('Rendering, photo gallery/shuffle/bounds, 52-card deck, terminal commands/navigation, visitor tracking, live APIs, and failure fallbacks passed.')
+  console.log('Rendering, timeline/evidence/assets, 52-card deck, terminal commands/navigation, visitor tracking, live APIs, and failure fallbacks passed.')
 }
 
 check().catch((error) => { console.error(error); process.exitCode = 1 })
