@@ -7,7 +7,7 @@ export type ViewMode = 'carousel' | 'showall'
 
 export function useStackCarousel() {
   const [currentIdx, setCurrentIdx] = useState(0)
-  const [viewMode, setViewMode] = useState<ViewMode>('carousel')
+  const [viewMode, setViewMode] = useState<ViewMode>('showall')
   const lock = useRef(false)
 
   // ponytail: throttle rapid clicks to match the 300ms Framer transition without extra state re-renders.

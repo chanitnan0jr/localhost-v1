@@ -5,7 +5,6 @@ const WORKFLOW_ITEMS = [
     id: 1,
     number: '01',
     title: 'Architecture',
-    icon: 'account_tree',
     content:
       'Whiteboarding the system design, selecting the right databases, and defining strict API contracts before writing a single line of code. Measure twice, cut once to prevent cascading technical debt.',
   },
@@ -13,7 +12,6 @@ const WORKFLOW_ITEMS = [
     id: 2,
     number: '02',
     title: 'Implementation',
-    icon: 'code_blocks',
     content:
       'Writing clean, type-safe code with robust error handling. Implementing core business logic prioritizing readability, modularity, and O(1) computational efficiency where critical.',
   },
@@ -21,7 +19,6 @@ const WORKFLOW_ITEMS = [
     id: 3,
     number: '03',
     title: 'Testing & QA',
-    icon: 'bug_report',
     content:
       'Developing exhaustive unit, integration, and end-to-end test suites. Simulating race conditions and load testing to ensure absolute reliability and integrity under highly concurrent usage.',
   },
@@ -29,7 +26,6 @@ const WORKFLOW_ITEMS = [
     id: 4,
     number: '04',
     title: 'Deployment',
-    icon: 'rocket_launch',
     content:
       'Containerizing the application with Docker and orchestrating automated CI/CD pipelines. Ensuring zero-downtime rollouts and establishing continuous monitoring and alerting systems.',
   },
@@ -37,57 +33,44 @@ const WORKFLOW_ITEMS = [
 
 export default function Workflow() {
   return (
-    <section className="px-6 md:px-12 max-w-7xl mx-auto mb-20" id="workflow">
-      <div className="flex justify-center mb-12">
-        <div className="px-8 py-3 rounded-full bg-surface-container border border-white/10 text-white font-black tracking-widest uppercase text-sm">
-          MY WORK FLOW
+    <section className="workflow-section" id="workflow" aria-labelledby="workflow-heading">
+      <div className="workflow-layout">
+        <div className="workflow-copy">
+          <header className="workflow-header stack-title-group">
+            <h2 id="workflow-heading" className="stack-title-row">
+              <span className="stack-title-slash" aria-hidden="true">/</span>
+              <span className="stack-title-core">WORK</span>
+              <span className="stack-title-badge">FLOW</span>
+            </h2>
+            <p className="stack-subtitle">ENGINEERING PROCESS</p>
+          </header>
+          <div className="workflow-steps">
+            {WORKFLOW_ITEMS.map(item => (
+              <details key={item.id} name="workflow" open={item.id === 1} className="workflow-step">
+                <summary>
+                  <span className="workflow-step-number" aria-hidden="true">{item.number}</span>
+                  <span className="workflow-step-slash" aria-hidden="true">/</span>
+                  <h3>{item.title}</h3>
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M3 12h18" />
+                    <path className="workflow-plus-stem" d="M12 3v18" />
+                  </svg>
+                </summary>
+                <div className="workflow-step-content"><p>{item.content}</p></div>
+              </details>
+            ))}
+          </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 relative items-stretch">
-
-        {/* Accordions Left */}
-        <div className="lg:col-span-6 space-y-4 w-full">
-          {WORKFLOW_ITEMS.map(item => (
-            <details
-              key={item.id}
-              name="workflow"
-              className="group border border-white/10 rounded-2xl bg-surface-container overflow-hidden transition-all duration-500 hover:border-white/20"
-            >
-              <summary
-                className="w-full text-left p-8 flex justify-between items-start cursor-pointer list-none [&::-webkit-details-marker]:hidden"
-              >
-                <div>
-                  <span className="text-2xl font-black text-white/20 mb-2 block tracking-widest group-hover:text-accent-green transition-colors">
-                    {item.number}
-                  </span>
-                  <h3 className="text-2xl font-black text-white tracking-tighter uppercase transition-transform duration-300 group-hover:translate-x-2">
-                    {item.title}
-                  </h3>
-                </div>
-                <span className="material-symbols-outlined text-4xl transition-all duration-300 text-white/20 group-hover:text-accent-green group-open:text-accent-green group-open:-rotate-45">
-                  {item.icon}
-                </span>
-              </summary>
-              <div className="px-8 pb-8 text-neutral-400 text-lg leading-relaxed border-t border-white/5 pt-6 mt-2">
-                {item.content}
-              </div>
-            </details>
-          ))}
+        <div className="workflow-art">
+          <div className="workflow-art-image">
+            <Image
+              src="/images/workflow-desk-v2.png"
+              alt="Low-poly desk with a mechanical keyboard, camera, lenses, notebook and pencil"
+              fill
+              sizes="(max-width: 900px) 100vw, 55vw"
+            />
+          </div>
         </div>
-
-        {/* Dynamic Image Right */}
-        <div className="lg:col-span-6 hidden lg:block h-full w-full rounded-[2rem] overflow-hidden border border-white/5 grayscale hover:grayscale-0 transition-all duration-1000 relative">
-          <div className="absolute inset-0 bg-gradient-to-t from-[#131313] via-transparent to-transparent z-10" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#131313]/50 to-transparent z-10" />
-          <Image
-            src="/images/workflow_bg.png"
-            alt="Workflow"
-            fill
-            className="object-cover object-center transition-all duration-500"
-          />
-        </div>
-
       </div>
     </section>
   )
