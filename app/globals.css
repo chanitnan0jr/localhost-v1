@@ -18,10 +18,8 @@
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 body {
-    background-color: #0c0b0a;
+    background-color: #0b0c0f;
     color: #eee9db;
     font-family: var(--font-sans), sans-serif;
 }
-.text-glow-green {
-    text-shadow: 0 0 15px rgba(225, 38, 55, 0.3);
-}
+
