@@ -35,7 +35,9 @@ export default function ImageModal() {
         className="absolute top-8 right-8 text-white hover:text-accent-green"
         onClick={closeModal}
       >
-        <span className="material-symbols-outlined text-4xl" aria-hidden="true">close</span>
+        <svg className="h-9 w-9" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path fill="currentColor" d="m19 6.41-1.41-1.41L12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
       </button>
       {modalSrc && (
         // eslint-disable-next-line @next/next/no-img-element

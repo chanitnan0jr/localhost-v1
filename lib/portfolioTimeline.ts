@@ -63,7 +63,8 @@ export const TIMELINE_CHAPTERS: TimelineChapter[] = [
     ],
   },
   {
-    id: 'sustainovation', title: 'Sustainovation / DAD', mood: 'Confident',
+    // The soft hyphen lets the narrow six-chapter mobile label wrap without overlapping.
+    id: 'sustainovation', title: 'Sustain\u00ADovation / DAD', mood: 'Confident',
     badgeText: 'NEW PEOPLE. NEW PROBLEMS. CAN I ADAPT?',
     caption: 'A few moments worth keeping.',
     summary: 'Team moments at Sustainovation.',
@@ -72,6 +73,23 @@ export const TIMELINE_CHAPTERS: TimelineChapter[] = [
       { src: '/images/Sustainovation/team-1.webp', alt: 'Four Sustainovation teammates posing together, one holding a box' },
       { src: '/images/Sustainovation/team-2.webp', alt: 'Sustainovation team posing together, one teammate making a peace sign' },
       { src: '/images/Sustainovation/team-3.webp', alt: 'Sustainovation teammates standing together for another group photo' },
+    ],
+  },
+  {
+    id: 'u-hackathon', title: 'U-Hackathon', mood: 'Confident',
+    badgeText: 'A BIGGER STAGE. A NEW ECOSYSTEM.',
+    caption: 'Eight steps. Start to submit.',
+    summary: 'Joined u-hackathon at FLOW Summit 2026, from the opening briefing to the u-topia public beta launch.',
+    notes: ['Eight steps, start to submit.', 'u-topia is open.'],
+    // 20261015_094636.jpg is left out: it shows mentor-consultation login details.
+    photos: [
+      { src: '/images/U-Hackathon/20261015_094657.jpg', alt: 'u-hackathon welcome screen with sponsor logos above participants arriving in the event hall' },
+      { src: '/images/U-Hackathon/20261016_113556.jpg', alt: 'Speaker on stage presenting the eight-step u-hackathon submission flow' },
+      { src: '/images/U-Hackathon/20261016_114155.jpg', alt: 'Speaker on stage presenting the u-hackathon pitch deck guide' },
+      { src: '/images/U-Hackathon/20261016_153006.jpg', alt: 'FLOW Summit 2026 panel discussion on crypto adoption in 2026' },
+      { src: '/images/U-Hackathon/20261016_170324.jpg', alt: 'Crowd watching the screen announce that u-topia was a private beta until today' },
+      { src: '/images/U-Hackathon/20261016_170405.jpg', alt: 'Crowd raising phones during the countdown to the u-topia launch' },
+      { src: '/images/U-Hackathon/20261016_170411.jpg', alt: 'Launch screen reading u-topia is open with a beta QR code above the crowd' },
     ],
   },
 ]

@@ -1,5 +1,6 @@
 import { DESTINATIONS, SUIT_SYMBOLS } from './cardDeck'
 import { OPENSOURCE_PROJECTS, PERSONAL_PROJECTS, COLLABORATIVE_PROJECTS } from './projectsData'
+import { CONTACT } from './contact'
 export interface TerminalResult {
   lines: string[]
   kind?: 'output' | 'error'
@@ -161,8 +162,8 @@ export function runTerminalCommand(
   if (command === 'cat contact')
     return {
       lines: [
-        'Email: Ch4n1tnan@gmail.com',
-        'GitHub: https://github.com/chanitnan0jr',
+        `Email: ${CONTACT.email}`,
+        `GitHub: ${CONTACT.github}`,
         'Type open contact to visit the contact section.',
       ],
     }

@@ -1,16 +1,9 @@
+import { CONTACT } from '@/lib/contact'
+
 export default function GetInTouch() {
   return (
     <section className="contact-section" id="contact" aria-labelledby="contact-heading">
       <div className="contact-container">
-        {/* Section Header */}
-        <header className="contact-header stack-title-group">
-          <h2 id="contact-heading" className="contact-title">
-            <span className="stack-title-slash" aria-hidden="true">/</span>
-            <span>GET IN TOUCH</span>
-          </h2>
-          <p className="stack-subtitle">LET&apos;S CONNECT</p>
-        </header>
-
         {/* Two-column layout: 58% invitation / 42% contact actions */}
         <div className="contact-layout">
           {/* Left Column: Invitation */}
@@ -20,12 +13,12 @@ export default function GetInTouch() {
               <span>OPEN FOR INTERNSHIP 2026</span>
             </p>
 
-            <h3 className="contact-headline">
+            <h2 id="contact-heading" className="contact-headline">
               <span className="contact-headline-line">READY TO</span>
               <span className="contact-headline-line">
                 COLLABORATE<b className="contact-question">?</b>
               </span>
-            </h3>
+            </h2>
 
             <p className="contact-description">
               Let&apos;s build the next chapter.
@@ -38,9 +31,9 @@ export default function GetInTouch() {
             <div className="contact-channel-block">
               <span className="contact-channel-label">CONTACT</span>
               <a
-                href="mailto:Ch4n1tnan@gmail.com"
+                href={`mailto:${CONTACT.email}`}
                 className="contact-email-btn"
-                aria-label="Email me at Ch4n1tnan@gmail.com"
+                aria-label={`Email me at ${CONTACT.email}`}
               >
                 <span className="contact-email-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
@@ -62,15 +55,15 @@ export default function GetInTouch() {
             <div className="contact-channel-block">
               <span className="contact-channel-label">PHONE</span>
               <a
-                href="tel:0613905655"
+                href={`tel:${CONTACT.phone.replaceAll('-', '')}`}
                 className="contact-phone-row"
-                aria-label="Call 061-390-5655"
+                aria-label={`Call ${CONTACT.phone}`}
               >
                 <div className="contact-phone-main">
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
                     <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-2.2 2.2a15.053 15.053 0 0 1-6.59-6.59l2.2-2.21a.96.96 0 0 0 .25-1.01A11.36 11.36 0 0 1 8.57 3.9c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.52c0-.55-.45-1-.99-1z" />
                   </svg>
-                  <span>061-390-5655</span>
+                  <span>{CONTACT.phone}</span>
                 </div>
                 <span className="contact-phone-arrow" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -85,7 +78,7 @@ export default function GetInTouch() {
               <span className="contact-channel-label">ELSEWHERE</span>
               <div className="contact-social-row">
                 <a
-                  href="https://github.com/chanitnan0jr"
+                  href={CONTACT.github}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="contact-social-link"
@@ -98,7 +91,7 @@ export default function GetInTouch() {
                 </a>
 
                 <a
-                  href="https://www.linkedin.com/in/chanitnan-kitnantakhun-96a692391/"
+                  href={CONTACT.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="contact-social-link"
@@ -111,7 +104,7 @@ export default function GetInTouch() {
                 </a>
 
                 <a
-                  href="https://discordapp.com/users/792394993817092126"
+                  href={CONTACT.discord}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="contact-social-link"

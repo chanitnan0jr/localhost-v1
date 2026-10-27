@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { useVisitorStats } from '@/context/VisitorContext'
 
 const LINKS = [
   { label: 'Home', href: '/#home' },
@@ -71,11 +72,11 @@ function resolveVisitorZone(): string {
 export default function Navbar() {
   const headerRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
+  const { total, loading } = useVisitorStats()
   const [time, setTime] = useState<string>('')
   const [visitorZone, setVisitorZone] = useState<string>('TH Bangkok')
-  const [visitorCount, setVisitorCount] = useState<number | null>(null)
-  const [isLiveCount, setIsLiveCount] = useState<boolean>(false)
-  const [mounted, setMounted] = useState<boolean>(false)
+  const visitorCount = total ?? 1337
+  const isLiveCount = total !== null
 
   useEffect(() => {
     const header = headerRef.current
@@ -94,7 +95,6 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
-    setMounted(true)
     setVisitorZone(resolveVisitorZone())
 
     const updateTime = () => {
@@ -107,35 +107,7 @@ export default function Navbar() {
 
     updateTime()
     const timer = setInterval(updateTime, 1000)
-
-    const controller = new AbortController()
-    fetch('/api/track', { method: 'POST', signal: controller.signal })
-      .catch(() => {})
-      .then(async () => {
-        if (controller.signal.aborted) return
-        const response = await fetch('/api/visitors', { signal: controller.signal, cache: 'no-store' })
-        if (!response.ok) {
-          setVisitorCount(1337)
-          return
-        }
-        const data = await response.json()
-        if (typeof data.total === 'number') {
-          setVisitorCount(data.total)
-          setIsLiveCount(true)
-        } else {
-          setVisitorCount(1337)
-        }
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) {
-          setVisitorCount(1337)
-        }
-      })
-
-    return () => {
-      clearInterval(timer)
-      controller.abort()
-    }
+    return () => clearInterval(timer)
   }, [])
 
   return (
@@ -149,13 +121,13 @@ export default function Navbar() {
             {visitorZone}
           </span>
           <span className="persona-clock-time" suppressHydrationWarning>
-            {mounted && time ? time : '--:--:--'}
+            {time || '--:--:--'}
           </span>
         </div>
         <div
           className="persona-header-visitor"
-          aria-label={`Visitor count: ${visitorCount !== null ? visitorCount.toLocaleString() : 'Loading'}`}
-          title={isLiveCount ? `${visitorCount?.toLocaleString()} Infiltrators / Unique Visitors` : '1,337 Infiltrators (Local Demo · Redis offline)'}
+          aria-label={`Visitor count: ${loading ? 'Loading' : visitorCount.toLocaleString()}`}
+          title={isLiveCount ? `${visitorCount.toLocaleString()} Infiltrators / Unique Visitors` : '1,337 Infiltrators (Local Demo · Redis offline)'}
         >
           <span className="persona-visitor-tag">
             <svg className="persona-visitor-icon" viewBox="0 0 24 14" aria-hidden="true" focusable="false">
@@ -166,7 +138,7 @@ export default function Navbar() {
             <span className="persona-visitor-label">VISITOR</span>
           </span>
           <span className="persona-visitor-count" suppressHydrationWarning>
-            {mounted && visitorCount !== null ? visitorCount.toLocaleString() : '--'}
+            {loading ? '--' : visitorCount.toLocaleString()}
           </span>
         </div>
       </div>

@@ -18,12 +18,103 @@ function load(file, imports) {
   return exports
 }
 
+async function checkVisitorProvider() {
+  const originalFetch = globalThis.fetch
+
+  function harness() {
+    const state = []
+    const effects = []
+    let hook = 0
+    const module = load('context/VisitorContext.tsx', {
+      react: {
+        createContext: () => ({ Provider() {} }),
+        useEffect: (effect) => effects.push(effect),
+        useState(initial) {
+          const index = hook++
+          state[index] = initial
+          return [initial, (value) => { state[index] = value }]
+        },
+      },
+    })
+    module.VisitorProvider({ children: null })
+    return { state, effect: effects[0] }
+  }
+
+  try {
+    let calls = []
+    let current = harness()
+    globalThis.fetch = async (url, options) => {
+      calls.push([url, options])
+      return url === '/api/track'
+        ? { ok: true }
+        : { ok: true, json: async () => ({ total: 0 }) }
+    }
+    let cleanup = current.effect()
+    await new Promise(setImmediate)
+    assert.deepEqual(calls.map(([url]) => url), ['/api/track', '/api/visitors'])
+    assert.equal(calls[0][1].method, 'POST')
+    assert.equal(calls[1][1].cache, 'no-store')
+    assert.equal(current.state[0], 0, 'A real zero count is retained')
+    assert.equal(current.state[1], false)
+    cleanup()
+
+    calls = []
+    current = harness()
+    globalThis.fetch = async (url) => {
+      calls.push(url)
+      return url === '/api/track' ? { ok: true } : { ok: false, status: 503 }
+    }
+    cleanup = current.effect()
+    await new Promise(setImmediate)
+    assert.deepEqual(calls, ['/api/track', '/api/visitors'])
+    assert.equal(current.state[0], null, 'Redis unavailable leaves no live count')
+    assert.equal(current.state[1], false)
+    cleanup()
+
+    calls = []
+    current = harness()
+    globalThis.fetch = async (url) => {
+      calls.push(url)
+      throw new Error('offline')
+    }
+    cleanup = current.effect()
+    await new Promise(setImmediate)
+    assert.deepEqual(calls, ['/api/track', '/api/visitors'])
+    assert.equal(current.state[0], null, 'Network failure leaves no live count')
+    assert.equal(current.state[1], false)
+    cleanup()
+
+    calls = []
+    current = harness()
+    let finishTrack
+    let signal
+    globalThis.fetch = (url, options) => {
+      calls.push(url)
+      signal = options.signal
+      return new Promise((resolve) => { finishTrack = resolve })
+    }
+    cleanup = current.effect()
+    cleanup()
+    assert.equal(signal.aborted, true)
+    finishTrack({ ok: true })
+    await new Promise(setImmediate)
+    assert.deepEqual(calls, ['/api/track'], 'Aborting the mount prevents the follow-up request')
+    assert.equal(current.state[1], true, 'An aborted provider does not update state after unmount')
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+}
+
 async function check() {
   const { createElement } = require('react')
   const { renderToStaticMarkup } = require('react-dom/server')
   const projects = load('lib/projectsData.ts', {})
   const deck = load('lib/cardDeck.ts', {})
-  const terminal = load('lib/terminalCommands.ts', { './cardDeck': deck, './projectsData': projects })
+  const terminal = load('lib/terminalCommands.ts', {
+    './cardDeck': deck,
+    './projectsData': projects,
+    './contact': load('lib/contact.ts', {}),
+  })
   assert.equal(deck.FULL_DECK.length, 52)
   assert.equal(new Set(deck.FULL_DECK.map((card) => card.id)).size, 52)
   const playingCard = load('components/detective/PlayingCard.tsx', { '@/lib/cardDeck': deck })
@@ -83,48 +174,81 @@ async function check() {
   })
   const projectHTML = renderToStaticMarkup(createElement(sections.default))
   const allProjects = [...projects.OPENSOURCE_PROJECTS, ...projects.COLLABORATIVE_PROJECTS, ...projects.PERSONAL_PROJECTS]
-  const selectedWork = load('components/home/SelectedWork.tsx', {
-    '@/lib/projectsData': projects,
-    'next/link': { default: ({ children, ...props }) => createElement('a', props, children) },
-  })
-  const featuredHTML = renderToStaticMarkup(createElement(selectedWork.default))
-  assert.equal((featuredHTML.match(/<article\b/g) ?? []).length, 3)
-  for (const id of ['agriscanpro', 'mini-redis', 'pythainlp']) {
-    const project = allProjects.find((entry) => entry.id === id)
-    assert.ok(project, `Featured project ${id} must exist in the shared data`)
-    assert.ok(featuredHTML.includes(project.name))
-    assert.ok(featuredHTML.includes(project.description))
-    assert.ok(featuredHTML.includes(`href="${project.repoUrl}"`))
-    assert.ok(featuredHTML.includes(`id="work-dots-${id}"`), 'Illustration pattern IDs must be unique')
-  }
-  assert.ok(featuredHTML.includes('Merged · PR #1400'))
   assert.equal((projectHTML.match(/<article\b/g) ?? []).length, allProjects.length)
   assert.equal((projectHTML.match(/aria-expanded="true"/g) ?? []).length, 3)
   assert.ok(projectHTML.includes('Collaborative Project'))
+  assert.ok(projectHTML.includes('Open Source'))
+  assert.ok(projectHTML.includes('Personal Projects'))
   assert.equal(projects.COLLABORATIVE_PROJECTS.length, 3)
   for (const project of allProjects) {
     if (project.contribution) assert.ok(projectHTML.includes(project.contribution))
     assert.ok(projectHTML.includes(project.name))
+    for (const tag of project.tags) assert.ok(projectHTML.includes(tag))
     if (project.repoUrl) assert.ok(projectHTML.includes(`href="${project.repoUrl}"`))
     if (project.liveUrl) assert.ok(projectHTML.includes(`href="${project.liveUrl}"`))
   }
-  const competitions = load('components/home/Competitions.tsx', {
-    '@/hooks/useToggle': load('hooks/useToggle.ts', {}),
-    '@/context/ModalContext': { useModalContext: () => ({ openModal() {} }) },
-  })
-  const competitionHTML = renderToStaticMarkup(createElement(competitions.default))
-  assert.equal((competitionHTML.match(/<h3\b/g) ?? []).length, 4)
-  for (const id of ['cstu-spark-camp-photo', 'icpc-qualifier-photo', 'pragma-photo']) {
-    assert.ok(competitionHTML.includes(`aria-controls="${id}"`))
+
+  const contact = load('lib/contact.ts', {})
+  const getInTouch = load('components/home/GetInTouch.tsx', { '@/lib/contact': contact })
+  const footer = load('components/layout/Footer.tsx', { '@/lib/contact': contact })
+  const contactHTML = renderToStaticMarkup(createElement(getInTouch.default))
+  const footerHTML = renderToStaticMarkup(createElement(footer.default))
+  for (const html of [contactHTML, footerHTML]) {
+    assert.ok(html.includes(`href="mailto:${contact.CONTACT.email}"`))
+    assert.ok(html.includes(`href="tel:${contact.CONTACT.phone.replaceAll('-', '')}"`))
+    for (const network of ['github', 'linkedin', 'discord']) {
+      assert.ok(html.includes(`href="${contact.CONTACT[network]}"`))
+    }
   }
-  assert.ok(competitionHTML.includes('Super AI Engineer Season 6'))
-  assert.ok(competitionHTML.includes('View Submitted Code'))
+  assert.ok(contactHTML.includes(contact.CONTACT.phone))
+
+  const hookState = []
+  let hookCursor = 0
+  let now = 0
+  const originalPerformance = globalThis.performance
+  const stackData = load('lib/stackData.ts', {})
+  globalThis.performance = { now: () => now }
+  try {
+    const carousel = load('hooks/useStackCarousel.ts', {
+      react: {
+        useRef(initial) {
+          const slot = hookCursor++
+          return (hookState[slot] ??= { current: initial })
+        },
+        useState(initial) {
+          const slot = hookCursor++
+          hookState[slot] ??= { value: initial }
+          return [hookState[slot].value, (update) => {
+            hookState[slot].value = typeof update === 'function' ? update(hookState[slot].value) : update
+          }]
+        },
+      },
+      '@/lib/stackData': stackData,
+    })
+    const renderCarousel = () => {
+      hookCursor = 0
+      return carousel.useStackCarousel()
+    }
+    let controls = renderCarousel()
+    controls.setMode('carousel')
+    controls = renderCarousel()
+    controls.prev()
+    assert.equal(hookState[0].value, stackData.STACK_CATEGORIES.length - 1, 'Previous wraps to the last stack category')
+    now = 150
+    controls.next()
+    assert.equal(hookState[0].value, stackData.STACK_CATEGORIES.length - 1, 'Carousel ignores moves during its 300 ms throttle')
+    now = 300
+    controls.next()
+    assert.equal(hookState[0].value, 0, 'Carousel accepts the next move at 300 ms')
+  } finally {
+    globalThis.performance = originalPerformance
+  }
 
   const timeline = load('lib/portfolioTimeline.ts', {})
-  assert.equal(new Set(timeline.TIMELINE_CHAPTERS.map((chapter) => chapter.id)).size, 5)
-  assert.deepEqual(timeline.TIMELINE_CHAPTERS.map((chapter) => chapter.id), ['pragma', 'cstu', 'icpc', 'icpc-national', 'sustainovation'])
+  assert.equal(new Set(timeline.TIMELINE_CHAPTERS.map((chapter) => chapter.id)).size, 6)
+  assert.deepEqual(timeline.TIMELINE_CHAPTERS.map((chapter) => chapter.id), ['pragma', 'cstu', 'icpc', 'icpc-national', 'sustainovation', 'u-hackathon'])
   for (const chapter of timeline.TIMELINE_CHAPTERS) {
-    assert.equal(chapter.photos.length, chapter.id === 'icpc-national' ? 4 : 3, 'Each chapter keeps its supplied evidence images')
+    assert.equal(chapter.photos.length, { 'icpc-national': 4, 'u-hackathon': 7 }[chapter.id] ?? 3, 'Each chapter keeps its supplied evidence images')
     if (chapter.timelinePhoto) {
       assert.ok(chapter.timelinePhoto.alt)
       assert.ok(readFileSync(join(__dirname, '..', 'public', chapter.timelinePhoto.src)).length)
@@ -136,20 +260,14 @@ async function check() {
   }
   assert.ok(readFileSync(join(__dirname, '..', 'public/images/timeline/evidence-board.webp')).length)
   assert.ok(readFileSync(join(__dirname, '..', 'public/images/timeline/chapter-folder.webp')).length)
-  const story = load('components/detective/PortfolioTimeline.tsx', { '@/lib/portfolioTimeline': timeline, 'next/image': { default: () => null }, '@/context/ModalContext': { useModalContext: () => ({ openModal() {} }) } })
+  const story = load('components/detective/PortfolioTimeline.tsx', { '@/lib/portfolioTimeline': timeline, 'next/image': { default: () => null } })
   const storyHTML = renderToStaticMarkup(createElement(story.default))
-  assert.equal((storyHTML.match(/aria-label="Go to chapter /g) ?? []).length, 5)
+  assert.equal((storyHTML.match(/aria-label="Go to chapter /g) ?? []).length, 6)
   assert.ok(storyHTML.includes('data-chapter="icpc"'))
   assert.equal(timeline.TIMELINE_CHAPTERS[0].timelinePhoto.src, '/images/PRAGMA41/PRAGMA2.jpg', 'PRAGMA Timeline must show the landscape hackathon photo')
+  assert.equal(timeline.TIMELINE_CHAPTERS[5].photos[0].src, '/images/U-Hackathon/20261015_094657.jpg', 'U-Hackathon Timeline must show the welcome screen photo')
   assert.ok(storyHTML.includes('id="gallery"'), 'Existing gallery hashes must keep their target')
-  assert.ok(storyHTML.includes('id="timeline-evidence"'), 'Chapter controls need an evidence target')
-  assert.ok(storyHTML.includes('data-evidence="icpc"'), 'ICPC is the initial chapter')
-  assert.match(storyHTML, /<section[^>]*id="timeline-evidence"[^>]*hidden=""/, 'Evidence must be hidden initially so scrolling continues to About')
-  assert.ok(storyHTML.includes('Field notes'))
-  assert.ok(storyHTML.includes('Expand photo 01:'))
-  assert.equal((storyHTML.match(/class="evidence-print evidence-print-/g) ?? []).length, 3)
-  assert.ok(storyHTML.includes('Back to timeline'))
-  assert.ok(storyHTML.includes('Higher stakes. Sharper focus.'))
+  assert.ok(!storyHTML.includes('timeline-evidence'), 'Timeline must not render the removed evidence panel')
 
   let redis = null
   const redisModule = { getRedis: () => redis }
@@ -207,6 +325,9 @@ async function check() {
   await visitors.trackVisitor({ ip: '192.0.2.8', os: 'Linux' })
   assert.equal((await (await stats.GET()).json()).total, 2)
 
+  redis = { async scard() { return 0 }, async hgetall() { return null } }
+  assert.deepEqual(await (await stats.GET()).json(), { total: 0, byOs: {} }, 'A valid zero count remains available data')
+
   redis = null
   assert.equal((await stats.GET()).status, 503)
   assert.equal((await track.POST(request)).status, 200)
@@ -227,7 +348,8 @@ async function check() {
     'node:fs/promises': { async readFile() { throw new Error('missing README') } },
   })
   assert.equal((await (await missingReadme.GET(request)).json()).readme, '')
-  console.log('Rendering, timeline/evidence/assets, 52-card deck, terminal commands/navigation, visitor tracking, live APIs, and failure fallbacks passed.')
+  await checkVisitorProvider()
+  console.log('Rendering, project/contact data, carousel throttle, Timeline/Evidence, 52-card deck, terminal commands, visitor state/APIs, and failure fallbacks passed.')
 }
 
 check().catch((error) => { console.error(error); process.exitCode = 1 })

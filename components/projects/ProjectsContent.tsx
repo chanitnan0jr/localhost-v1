@@ -1,42 +1,35 @@
-"use client"
+'use client'
 import { Fragment, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ProjectCard from '@/components/projects/ProjectCard'
 import { OPENSOURCE_PROJECTS, PERSONAL_PROJECTS, COLLABORATIVE_PROJECTS } from '@/lib/projectsData'
 
-type Accent = 'blue' | 'white'
-
 // All project sections share the same cards and collapse interaction.
 const SECTIONS = [
   {
     id: 'opensource', subtitle: 'Open Source', category: 'OSS Contribute',
-    label: 'Active contributions to the community',
     description: 'Passionate about architecting resilient, high-volume scalable systems.',
-    projects: OPENSOURCE_PROJECTS, accent: 'blue', offset: 0,
+    projects: OPENSOURCE_PROJECTS,
   },
   {
     id: 'collaborative', subtitle: 'Built Together', category: 'Collaborative Project',
-    label: 'My contributions within team projects',
     description: 'Course authoring, semantic video retrieval and FinOps contributions.',
-    projects: COLLABORATIVE_PROJECTS, accent: 'white', offset: OPENSOURCE_PROJECTS.length,
+    projects: COLLABORATIVE_PROJECTS,
   },
   {
     id: 'personal', subtitle: 'Case Studies', category: 'Personal Projects',
-    label: 'Systems, products & explorations',
     description: 'Showcasing system design explorations and production-grade builds.',
-    projects: PERSONAL_PROJECTS, accent: 'white', offset: OPENSOURCE_PROJECTS.length + COLLABORATIVE_PROJECTS.length,
+    projects: PERSONAL_PROJECTS,
   },
 ] as const
 
 interface SectionHeaderProps {
   subtitle: string
   category: string
-  label: string
   description: string
   count: number
   isOpen: boolean
   onToggle: () => void
-  accent: Accent
 }
 
 function SectionHeader({ subtitle, category, description, count, isOpen, onToggle }: SectionHeaderProps) {
@@ -44,8 +37,8 @@ function SectionHeader({ subtitle, category, description, count, isOpen, onToggl
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.7, ease: "easeOut" }}
+      viewport={{ once: true, margin: '-50px' }}
+      transition={{ duration: 0.7, ease: 'easeOut' }}
       className="projects-header mb-8"
     >
       <button
@@ -73,13 +66,19 @@ function SectionHeader({ subtitle, category, description, count, isOpen, onToggl
             </p>
             <div className="flex items-center gap-2 px-3.5 py-2 border border-neutral-700 bg-black/60 text-neutral-300 group-hover:border-[#c91c2c] group-hover:text-white transition-all text-xs font-bold uppercase tracking-widest ml-auto md:ml-0">
               <span>{isOpen ? 'Collapse' : 'Expand'}</span>
-              <motion.span
-                className="material-symbols-outlined text-base"
+              <motion.svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
                 animate={{ rotate: isOpen ? 180 : 0 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
               >
-                expand_more
-              </motion.span>
+                <path d="m6 9 6 6 6-6" />
+              </motion.svg>
             </div>
           </div>
         </div>
@@ -96,7 +95,7 @@ export default function ProjectsContent() {
 
   return (
     <div className="space-y-12">
-      {SECTIONS.map(({ id, projects, offset, ...header }, sectionIndex) => (
+      {SECTIONS.map(({ id, projects, ...header }, sectionIndex) => (
         <Fragment key={id}>
           {sectionIndex > 0 && (
             <div className="projects-header py-6">
@@ -117,8 +116,8 @@ export default function ProjectsContent() {
                 >
                   <div className="projects-header pt-2 pb-8">
                     <div className="selected-work-grid">
-                      {projects.map((project, index) => (
-                        <ProjectCard key={project.id} project={project} index={index + offset} accent={header.accent} />
+                      {projects.map((project) => (
+                        <ProjectCard key={project.id} project={project} />
                       ))}
                     </div>
                   </div>

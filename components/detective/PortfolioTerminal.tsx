@@ -27,6 +27,13 @@ const INITIAL_LINES: Line[] = [
   { kind: 'output', text: '' },
   { kind: 'output', text: 'Type help for commands. Type exit to return home.' },
 ]
+const VISITOR_DEMO: Line[] = [
+  { kind: 'output', text: 'Total Unique Visitors: 1,337 (Local Demo · Redis offline)' },
+  { kind: 'output', text: 'Breakdown by OS:' },
+  { kind: 'output', text: '  Linux            842 visitors' },
+  { kind: 'output', text: '  macOS            310 visitors' },
+  { kind: 'output', text: '  Windows          185 visitors' },
+]
 
 export default function PortfolioTerminal() {
   const router = useRouter()
@@ -39,6 +46,7 @@ export default function PortfolioTerminal() {
   const output = useRef<HTMLDivElement>(null)
   const field = useRef<HTMLInputElement>(null)
   const composing = useRef(false)
+  const visitorController = useRef<AbortController | null>(null)
 
   // Candidate filtering matching current input
   const query = input.trim().toLowerCase()
@@ -55,7 +63,13 @@ export default function PortfolioTerminal() {
       : ''
 
   useEffect(() => {
+    const controller = new AbortController()
+    visitorController.current = controller
     if (window.matchMedia('(pointer: fine)').matches) field.current?.focus({ preventScroll: true })
+    return () => {
+      controller.abort()
+      visitorController.current = null
+    }
   }, [])
 
   useEffect(() => {
@@ -83,19 +97,26 @@ export default function PortfolioTerminal() {
     )
     if (result.navigate) router.push(result.navigate)
     if (result.asyncAction === 'visitors') {
-      fetch('/api/visitors', { cache: 'no-store' })
-        .then((res) => res.json())
+      const signal = visitorController.current?.signal
+      const appendStats = (stats: Line[]) => {
+        if (signal?.aborted) return
+        setLines((previous) => [...previous, ...stats].slice(-160))
+      }
+      fetch('/api/visitors', { cache: 'no-store', signal })
+        .then((res) => res.ok ? res.json() : null)
         .then((data) => {
+          if (signal?.aborted) return
           if (data && typeof data.total === 'number') {
-            const byOs = data.byOs || {}
-            const osEntries = Object.entries(byOs as Record<string, number>)
+            const byOs = data.byOs && typeof data.byOs === 'object' && !Array.isArray(data.byOs)
+              ? data.byOs as Record<string, number>
+              : {}
+            const osEntries = Object.entries(byOs)
               .sort(([, a], [, b]) => b - a)
               .map(
                 ([os, count]) =>
                   `  ${os.padEnd(16)} ${count} visitor${count !== 1 ? 's' : ''}`,
               )
-            setLines((prev) => [
-              ...prev,
+            appendStats([
               { kind: 'output', text: `Total Unique Visitors: ${data.total}` },
               ...(osEntries.length > 0
                 ? [
@@ -107,31 +128,11 @@ export default function PortfolioTerminal() {
                 : []),
             ])
           } else {
-            setLines((prev) => [
-              ...prev,
-              {
-                kind: 'output',
-                text: 'Total Unique Visitors: 1,337 (Local Demo · Redis offline)',
-              },
-              { kind: 'output', text: 'Breakdown by OS:' },
-              { kind: 'output', text: '  Linux            842 visitors' },
-              { kind: 'output', text: '  macOS            310 visitors' },
-              { kind: 'output', text: '  Windows          185 visitors' },
-            ])
+            appendStats(VISITOR_DEMO)
           }
         })
         .catch(() => {
-          setLines((prev) => [
-            ...prev,
-            {
-              kind: 'output',
-              text: 'Total Unique Visitors: 1,337 (Local Demo · Redis offline)',
-            },
-            { kind: 'output', text: 'Breakdown by OS:' },
-            { kind: 'output', text: '  Linux            842 visitors' },
-            { kind: 'output', text: '  macOS            310 visitors' },
-            { kind: 'output', text: '  Windows          185 visitors' },
-          ])
+          appendStats(VISITOR_DEMO)
         })
     }
     field.current?.focus()

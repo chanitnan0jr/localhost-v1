@@ -28,7 +28,8 @@ export default function EvidenceNetworkBackground() {
     let mouse = { x: -9999, y: -9999, active: false }
     let pulse: { x: number; y: number; r: number; alpha: number } | null = null
     let raf = 0
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let reducedMotion = motion.matches
 
     function init() {
       w = canvas!.width = window.innerWidth
@@ -66,6 +67,7 @@ export default function EvidenceNetworkBackground() {
     }
 
     const onMove = (e: PointerEvent) => {
+      if (reducedMotion) return
       mouse.x = e.clientX
       mouse.y = e.clientY
       mouse.active = true
@@ -74,23 +76,18 @@ export default function EvidenceNetworkBackground() {
       mouse.active = false
     }
     const onClick = (e: MouseEvent) => {
+      if (reducedMotion) return
       pulse = { x: e.clientX, y: e.clientY, r: 0, alpha: 1 }
     }
-
-    window.addEventListener('resize', init)
-    window.addEventListener('pointermove', onMove, { passive: true })
-    window.addEventListener('pointerleave', onLeave)
-    window.addEventListener('click', onClick, { passive: true })
-    init()
 
     const maxDist = 135
     const hoverRadius = 150
 
-    function loop() {
+    function draw() {
       ctx!.clearRect(0, 0, w, h)
 
       // Animate ripple pulse
-      if (pulse) {
+      if (pulse && !reducedMotion) {
         pulse.r += 6
         pulse.alpha -= 0.02
         ctx!.beginPath()
@@ -103,7 +100,10 @@ export default function EvidenceNetworkBackground() {
 
       // Update node positions and pointer reaction
       for (const n of nodes) {
-        if (!prefersReduced) {
+        if (reducedMotion) {
+          n.x = n.ox
+          n.y = n.oy
+        } else {
           n.ox += n.vx
           n.oy += n.vy
           if (n.ox < 0 || n.ox > w) n.vx *= -1
@@ -113,7 +113,7 @@ export default function EvidenceNetworkBackground() {
         // Pointer hover repulsion & spring-back
         let targetX = n.ox
         let targetY = n.oy
-        if (mouse.active) {
+        if (!reducedMotion && mouse.active) {
           const dx = n.ox - mouse.x
           const dy = n.oy - mouse.y
           const dist = Math.hypot(dx, dy)
@@ -155,7 +155,7 @@ export default function EvidenceNetworkBackground() {
       }
 
       // Draw mouse cursor interactive connections
-      if (mouse.active) {
+      if (!reducedMotion && mouse.active) {
         for (const n of nodes) {
           const dist = Math.hypot(n.x - mouse.x, n.y - mouse.y)
           if (dist < hoverRadius) {
@@ -172,7 +172,7 @@ export default function EvidenceNetworkBackground() {
 
       // Draw nodes
       for (const n of nodes) {
-        const mouseDist = mouse.active ? Math.hypot(n.x - mouse.x, n.y - mouse.y) : 999
+        const mouseDist = !reducedMotion && mouse.active ? Math.hypot(n.x - mouse.x, n.y - mouse.y) : 999
         const isHovered = mouseDist < hoverRadius
 
         let r = n.accent ? 3.5 : 2.2
@@ -196,13 +196,57 @@ export default function EvidenceNetworkBackground() {
         ctx!.fill()
       }
 
-      raf = requestAnimationFrame(loop)
     }
 
-    raf = requestAnimationFrame(loop)
-    return () => {
+    function loop() {
+      draw()
+      if (!document.hidden && !reducedMotion) raf = requestAnimationFrame(loop)
+      else raf = 0
+    }
+
+    function start() {
+      if (!raf && !document.hidden && !reducedMotion) raf = requestAnimationFrame(loop)
+    }
+
+    function stop() {
       cancelAnimationFrame(raf)
-      window.removeEventListener('resize', init)
+      raf = 0
+    }
+
+    function onVisibilityChange() {
+      if (document.hidden) stop()
+      else start()
+    }
+
+    function onMotionChange() {
+      reducedMotion = motion.matches
+      if (reducedMotion) {
+        stop()
+        pulse = null
+        mouse.active = false
+        draw()
+      } else start()
+    }
+
+    function onResize() {
+      init()
+      if (reducedMotion) draw()
+    }
+
+    window.addEventListener('resize', onResize)
+    window.addEventListener('pointermove', onMove, { passive: true })
+    window.addEventListener('pointerleave', onLeave)
+    window.addEventListener('click', onClick, { passive: true })
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    motion.addEventListener('change', onMotionChange)
+    init()
+    draw()
+    start()
+    return () => {
+      stop()
+      motion.removeEventListener('change', onMotionChange)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('resize', onResize)
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerleave', onLeave)
       window.removeEventListener('click', onClick)

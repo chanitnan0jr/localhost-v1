@@ -134,13 +134,7 @@ function ProjectArtwork({ id }: { id: string }) {
   )
 }
 
-interface ProjectCardProps {
-  project: Project
-  index?: number
-  accent?: 'green' | 'blue' | 'white'
-}
-
-export default function ProjectCard({ project }: ProjectCardProps) {
+export default function ProjectCard({ project }: { project: Project }) {
   const categoryDisplay = project.category
     .replace(' & ', ' / ')
     .replace('Open Source Security', 'Open Source / Security')

@@ -1,3 +1,5 @@
+import { CONTACT } from '@/lib/contact'
+
 export default function Footer() {
   return (
     <footer className="bg-background phantom-footer w-full py-10 px-6 md:px-12 mt-auto">
@@ -12,16 +14,16 @@ export default function Footer() {
                 Contact
               </p>
               <a
-                href="mailto:Ch4n1tnan@gmail.com"
+                href={`mailto:${CONTACT.email}`}
                 className="block font-body text-xs tracking-widest uppercase text-neutral-300 hover:text-white transition-colors duration-300 mb-1"
               >
-                Ch4n1tnan@gmail.com
+                {CONTACT.email}
               </a>
               <a
-                href="tel:0613905655"
+                href={`tel:${CONTACT.phone.replaceAll('-', '')}`}
                 className="block font-body text-xs tracking-widest uppercase text-neutral-300 hover:text-white transition-colors duration-300"
               >
-                061-390-5655
+                {CONTACT.phone}
               </a>
             </div>
             <div>
@@ -36,7 +38,7 @@ export default function Footer() {
           <div className="flex flex-wrap gap-8">
             <a
               className="font-body text-xs tracking-widest uppercase text-neutral-300 hover:text-white transition-colors duration-500"
-              href="https://github.com/chanitnan0jr"
+              href={CONTACT.github}
               target="_blank"
               rel="noopener"
             >
@@ -44,7 +46,7 @@ export default function Footer() {
             </a>
             <a
               className="font-body text-xs tracking-widest uppercase text-neutral-300 hover:text-white transition-colors duration-500"
-              href="https://www.linkedin.com/in/chanitnan-kitnantakhun-96a692391/"
+              href={CONTACT.linkedin}
               target="_blank"
               rel="noopener"
             >
@@ -52,7 +54,7 @@ export default function Footer() {
             </a>
             <a
               className="font-body text-xs tracking-widest uppercase text-neutral-300 hover:text-white transition-colors duration-500"
-              href="https://discordapp.com/users/792394993817092126"
+              href={CONTACT.discord}
               target="_blank"
               rel="noopener"
             >

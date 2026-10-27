@@ -4,7 +4,6 @@ import ProjectsContent from '@/components/projects/ProjectsContent'
 import Footer from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
-  title: 'Projects',
   description: 'Selected work and case studies by Chanitnan Kitnantakhun.',
 }
 

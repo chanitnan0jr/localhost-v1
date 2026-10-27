@@ -2,33 +2,23 @@
 
 import Image from 'next/image'
 import CoreStack from '@/components/home/CoreStack'
-import { useState, useEffect, useCallback } from 'react'
+import { useVisitorStats } from '@/context/VisitorContext'
+import { CONTACT } from '@/lib/contact'
+import { useState, useCallback } from 'react'
 
 function VisitorBadge() {
-  const [count, setCount] = useState<number | null>(null)
+  const { total } = useVisitorStats()
 
-  useEffect(() => {
-    const controller = new AbortController()
-    fetch('/api/track', { method: 'POST', signal: controller.signal })
-      .catch(() => {})
-      .then(async () => {
-        if (controller.signal.aborted) return
-        const response = await fetch('/api/visitors', { signal: controller.signal, cache: 'no-store' })
-        if (!response.ok) return
-        const data = await response.json()
-        if (typeof data.total === 'number') setCount(data.total)
-      })
-      .catch(() => {})
-    return () => controller.abort()
-  }, [])
-
-  if (count === null) return null
+  if (total === null) return null
 
   return (
-    <div className="about-visitor-badge" aria-label={`Visitor count: ${count}`}>
-      <span className="material-symbols-outlined text-sm leading-none" aria-hidden="true">visibility</span>
+    <div className="about-visitor-badge" aria-label={`Visitor count: ${total}`}>
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" />
+        <circle cx="12" cy="12" r="2.5" />
+      </svg>
       <span className="about-visitor-text">
-        VISIT ({count.toLocaleString()})
+        VISIT ({total.toLocaleString()})
       </span>
     </div>
   )
@@ -80,8 +70,7 @@ export default function About() {
           {/* Left Column: Identity & Philosophy (Approx 42% width) */}
           <div className="about-left-col">
             <h2 id="about-heading" className="about-hero-title">
-              <span className="about-title-line">THE MIND</span>
-              <span className="about-title-line">BEHIND THE</span>
+              <span className="about-title-line">BEHIND THE</span>{' '}
               <span className="about-title-line about-title-crimson">MASK.</span>
             </h2>
 
@@ -94,7 +83,7 @@ export default function About() {
 
             <div className="about-social-row" aria-label="Social profiles">
               <a
-                href="https://github.com/chanitnan0jr"
+                href={CONTACT.github}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="about-icon-btn about-btn-github"
@@ -105,7 +94,7 @@ export default function About() {
                 </svg>
               </a>
               <a
-                href="https://www.linkedin.com/in/chanitnan-kitnantakhun-96a692391/"
+                href={CONTACT.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="about-icon-btn about-btn-dark"
@@ -116,7 +105,7 @@ export default function About() {
                 </svg>
               </a>
               <a
-                href="https://discordapp.com/users/792394993817092126"
+                href={CONTACT.discord}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="about-icon-btn about-btn-dark"
@@ -205,20 +194,6 @@ export default function About() {
                   </svg>
                 </button>
               </div>
-            </div>
-            <div className="about-thumbnails" role="group" aria-label="Choose a moment">
-              {ABOUT_PHOTOS.map((photo, idx) => (
-                <button
-                  key={photo.src}
-                  type="button"
-                  className="about-thumbnail"
-                  aria-label={`Select photograph ${idx + 1}: ${photo.caption}`}
-                  aria-pressed={idx === currentIndex}
-                  onClick={() => setCurrentIndex(idx)}
-                >
-                  <Image src={photo.src} alt="" fill sizes="(max-width: 960px) 45vw, 24vw" />
-                </button>
-              ))}
             </div>
           </div>
         </div>

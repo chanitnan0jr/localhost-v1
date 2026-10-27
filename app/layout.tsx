@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import { ModalProvider } from '@/context/ModalContext'
+import { VisitorProvider } from '@/context/VisitorContext'
 import Navbar from '@/components/layout/Navbar'
 import ImageModal from '@/components/ui/ImageModal'
 import EvidenceNetworkBackground from '@/components/ui/EvidenceNetworkBackground'
@@ -18,33 +19,8 @@ const display = localFont({
   variable: '--font-display',
   display: 'swap',
 })
-const editorial = localFont({
-  src: [
-    {
-      path: './fonts/Cormorant-Latin.woff2',
-      weight: '300 700',
-      style: 'normal',
-    },
-    {
-      path: './fonts/Cormorant-Latin-Italic.woff2',
-      weight: '300 700',
-      style: 'italic',
-    },
-  ],
-  variable: '--font-editorial',
-  display: 'swap',
-})
-const symbols = localFont({
-  src: './fonts/Material-Symbols.woff2',
-  variable: '--font-symbols',
-  display: 'block',
-})
-
 export const metadata: Metadata = {
-  title: {
-    default: 'Chanitnan — Every card tells a story',
-    template: '%s · Chanitnan',
-  },
+  title: 'Chanitnan Portfolio',
   description: 'Backend & Systems Engineer portfolio',
   icons: {
     icon: '/images/TabPicture.png?v=3',
@@ -57,16 +33,18 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body
-        className={`${inter.className} ${inter.variable} ${display.variable} ${editorial.variable} ${symbols.variable} antialiased selection:bg-primary selection:text-on-primary`}
+        className={`${inter.className} ${inter.variable} ${display.variable} antialiased selection:bg-primary selection:text-on-primary`}
       >
         <EvidenceNetworkBackground />
-        <ModalProvider>
-          <Navbar />
-          {children}
-          <ImageModal />
-        </ModalProvider>
+        <VisitorProvider>
+          <ModalProvider>
+            <Navbar />
+            {children}
+            <ImageModal />
+          </ModalProvider>
+        </VisitorProvider>
       </body>
     </html>
   )

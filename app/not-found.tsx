@@ -140,9 +140,11 @@ export default function NotFound() {
   const inputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pendingStats = useRef(new Set<AbortController>())
 
   // Boot sequence typewriter
   useEffect(() => {
+    const statsRequests = pendingStats.current
     const nav = navigator as BrowserNavigator
     const controller = new AbortController()
     let interval: ReturnType<typeof setInterval> | undefined
@@ -184,6 +186,8 @@ export default function NotFound() {
       controller.abort()
       clearInterval(interval)
       if (navigationTimer.current !== null) clearTimeout(navigationTimer.current)
+      statsRequests.forEach((request) => request.abort())
+      statsRequests.clear()
     }
   }, [])
 
@@ -226,10 +230,13 @@ export default function NotFound() {
 
     if (cmdLower === 'stats') {
       const loadingLine: HistoryLine = { type: 'output', text: 'Fetching visitor stats...' }
+      const controller = new AbortController()
+      pendingStats.current.add(controller)
       setHistory([...newHistory, loadingLine])
-      fetch('/api/visitors', { cache: 'no-store' })
+      fetch('/api/visitors', { cache: 'no-store', signal: controller.signal })
         .then((r) => r.json())
         .then((data) => {
+          if (controller.signal.aborted) return
           if (data.error) {
             setHistory((h) => [...h.filter((line) => line !== loadingLine), { type: 'error', text: `Error: ${data.error}` }])
             return
@@ -248,8 +255,11 @@ export default function NotFound() {
           setHistory((h) => [...h.filter((line) => line !== loadingLine), ...lines])
         })
         .catch(() => {
-          setHistory((h) => [...h.filter((line) => line !== loadingLine), { type: 'error', text: 'Failed to fetch stats.' }])
+          if (!controller.signal.aborted) {
+            setHistory((h) => [...h.filter((line) => line !== loadingLine), { type: 'error', text: 'Failed to fetch stats.' }])
+          }
         })
+        .finally(() => pendingStats.current.delete(controller))
       return
     }
 
