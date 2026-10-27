@@ -260,8 +260,42 @@ async function check() {
   }
   assert.ok(readFileSync(join(__dirname, '..', 'public/images/timeline/evidence-board.webp')).length)
   assert.ok(readFileSync(join(__dirname, '..', 'public/images/timeline/chapter-folder.webp')).length)
-  const story = load('components/detective/PortfolioTimeline.tsx', { '@/lib/portfolioTimeline': timeline, 'next/image': { default: () => null } })
+  const story = load('components/detective/PortfolioTimeline.tsx', {
+    '@/lib/portfolioTimeline': timeline,
+    '@/context/ModalContext': { useModalContext: () => ({ openGallery() {} }) },
+    'next/image': { default: () => null },
+  })
   const storyHTML = renderToStaticMarkup(createElement(story.default))
+  assert.ok(storyHTML.includes('aria-label="Open ICPC Sub Regional gallery, 3 photos"'), 'The Timeline photo opens its chapter gallery')
+
+  let modal = null
+  const modalContext = load('context/ModalContext.tsx', {
+    react: {
+      createContext: () => ({ Provider: 'modal-provider' }),
+      useContext() {},
+      useCallback: (callback) => callback,
+      useState: () => [null, (next) => { modal = typeof next === 'function' ? next(modal) : next }],
+    },
+    'framer-motion': { MotionConfig: 'motion-config' },
+  })
+  const gallery = modalContext.ModalProvider({ children: null }).props.children.props.value
+  const hackathon = timeline.TIMELINE_CHAPTERS.find((chapter) => chapter.id === 'u-hackathon')
+  gallery.openGallery(hackathon.title, hackathon.photos)
+  gallery.showPhoto(-1)
+  assert.equal(modal.index, 6, 'Previous on the first photo wraps to the last')
+  gallery.showPhoto(7)
+  assert.equal(modal.index, 0, 'Next on the last photo wraps to the first')
+  gallery.openModal('/images/Botnoi/BOTNOI-CERT.png')
+  assert.deepEqual(modal, { photos: [{ src: '/images/Botnoi/BOTNOI-CERT.png', alt: 'Expanded image' }], index: 0 })
+
+  const renderModal = (state) => renderToStaticMarkup(createElement(load('components/ui/ImageModal.tsx', {
+    '@/context/ModalContext': { useModalContext: () => ({ modal: state, showPhoto() {}, closeModal() {} }) },
+  }).default))
+  const galleryHTML = renderModal({ title: hackathon.title, photos: hackathon.photos, index: 2 })
+  assert.ok(galleryHTML.includes('aria-label="U-Hackathon gallery"'))
+  assert.ok(galleryHTML.includes('03 / 07') && galleryHTML.includes(`alt="${hackathon.photos[2].alt}"`))
+  assert.ok(galleryHTML.includes('aria-label="Previous photo"') && galleryHTML.includes('aria-label="Next photo"'))
+  assert.ok(!renderModal(modal).includes('Previous photo'), 'A single certificate keeps the plain image preview')
   assert.equal((storyHTML.match(/aria-label="Go to chapter /g) ?? []).length, 6)
   assert.ok(storyHTML.includes('data-chapter="icpc"'))
   assert.equal(timeline.TIMELINE_CHAPTERS[0].timelinePhoto.src, '/images/PRAGMA41/PRAGMA2.jpg', 'PRAGMA Timeline must show the landscape hackathon photo')
@@ -349,7 +383,7 @@ async function check() {
   })
   assert.equal((await (await missingReadme.GET(request)).json()).readme, '')
   await checkVisitorProvider()
-  console.log('Rendering, project/contact data, carousel throttle, Timeline/Evidence, 52-card deck, terminal commands, visitor state/APIs, and failure fallbacks passed.')
+  console.log('Rendering, project/contact data, carousel throttle, Timeline/gallery dialog, 52-card deck, terminal commands, visitor state/APIs, and failure fallbacks passed.')
 }
 
 check().catch((error) => { console.error(error); process.exitCode = 1 })

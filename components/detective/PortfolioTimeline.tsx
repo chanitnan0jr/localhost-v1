@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useRef, useState, type CSSProperties, type KeyboardEvent } from 'react'
+import { useModalContext } from '@/context/ModalContext'
 import { TIMELINE_CHAPTERS } from '@/lib/portfolioTimeline'
 
 const number = (index: number) => String(index + 1).padStart(2, '0')
@@ -11,10 +12,13 @@ function Arrow({ back = false }: { back?: boolean }) {
 }
 
 export default function PortfolioTimeline() {
+  const { openGallery } = useModalContext()
   const [selected, setSelected] = useState(2)
   const swipeStart = useRef<number | null>(null)
+  const swiped = useRef(false)
   const buttons = useRef<(HTMLButtonElement | null)[]>([])
   const chapter = TIMELINE_CHAPTERS[selected]
+  const shown = chapter.timelinePhoto ?? chapter.photos[0]
   const icpcRound = chapter.title.startsWith('ICPC ') ? chapter.title.slice(5) : null
 
   function select(index: number, focus = false) {
@@ -36,15 +40,21 @@ export default function PortfolioTimeline() {
         <p className="story-section-label"><span>02</span> / Competition Timeline</p>
         <header className="timeline-heading"><h2 id="timeline-heading">The story <em>so far.</em></h2></header>
         <p className="timeline-case-count">Case {number(selected)} / {String(TIMELINE_CHAPTERS.length).padStart(2, '0')}</p>
-        <div className="timeline-visual" key={chapter.id} onPointerDown={event => { if (event.pointerType === 'touch') swipeStart.current = event.clientX }}
+        <button type="button" className="timeline-visual" key={chapter.id} aria-label={`Open ${chapter.title} gallery, ${chapter.photos.length} photos`}
+          // A swipe changes chapter; only a tap or click opens the gallery at the photo on screen.
+          onClick={() => { if (!swiped.current) openGallery(chapter.title, chapter.photos, Math.max(0, chapter.photos.findIndex(photo => photo.src === shown.src))) }}
+          onPointerDown={event => { swiped.current = false; if (event.pointerType === 'touch') swipeStart.current = event.clientX }}
           onPointerCancel={() => { swipeStart.current = null }} onPointerUp={event => {
             if (swipeStart.current === null) return
             const distance = event.clientX - swipeStart.current
             swipeStart.current = null
-            if (Math.abs(distance) > 50) select(selected + (distance < 0 ? 1 : -1))
+            if (Math.abs(distance) > 50) {
+              swiped.current = true
+              select(selected + (distance < 0 ? 1 : -1))
+            }
           }}>
-          <Image src={chapter.timelinePhoto?.src ?? chapter.photos[0].src} alt={chapter.timelinePhoto?.alt ?? chapter.photos[0].alt} fill sizes="(max-width: 760px) 100vw, 75vw" />
-        </div>
+          <Image src={shown.src} alt={shown.alt} fill sizes="(max-width: 760px) 100vw, 75vw" />
+        </button>
         <div className="timeline-copy" data-chapter={chapter.id}>
           <p className="timeline-case-label">Case file {number(selected)}</p>
           <h3 className={`timeline-title${icpcRound || chapter.title.length <= 6 ? ' is-short' : ''}`}>{icpcRound ? 'ICPC' : chapter.title}</h3>

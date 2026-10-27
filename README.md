@@ -61,9 +61,9 @@ The timeline and original portfolio sections follow the hero on the home page.
 
 At `/#gallery`, **02 / Timeline** presents **The story so far** as a photographic section with chapter copy on the left, a large event photo, and chapter controls below. Six chapters follow this order: PRAGMA 41, CSTU Spark Camp, ICPC Sub Regional, ICPC National, Sustainovation / DAD, and U-Hackathon. PRAGMA uses the landscape hackathon photo of teammates working around a table; U-Hackathon uses the u-hackathon welcome screen. ICPC Sub Regional is selected initially.
 
-Dots and previous/next arrows preview chapters; Arrow keys and Home/End work on the chapter dots. Touch users can swipe the photo to change chapters. **View evidence** opens the selected board and moves focus to its heading. Without opening Evidence, scrolling continues straight to About Me. **Back to timeline** or Escape closes the board and returns focus to the selected dot.
+Dots and previous/next arrows preview chapters; Arrow keys and Home/End work on the chapter dots. Touch users can swipe the photo to change chapters. Select the large photo to open that event's photos in a pop-up gallery, starting at the photo on screen. In the gallery, the arrow buttons, Left/Right keys, or a swipe move between photos and wrap around; Escape, the close button, or the backdrop closes it and returns focus to the photo. Scrolling continues straight to About Me.
 
-Evidence has a Field Notes sheet, one large photo, and two smaller photos. Photo arrows cycle through all supplied images, including the four National photos. Select a smaller photo to make it the main print; activate the main print to expand it in the existing image viewer.
+The gallery shows every supplied photo for the chapter at its original framing, including the four National and seven U-Hackathon photos, in the shared image viewer used by the certificates.
 Mobile stacks chapter copy and controls below the photo, and stacks evidence images and notes.
 Hero and Timeline use viewport-sized sections with native proximity scroll snapping;
 short screens and long evidence content can still scroll naturally. Reduced motion disables snapping.
