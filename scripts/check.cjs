@@ -388,12 +388,7 @@ async function check() {
   const info = await sysinfo.GET(request)
   assert.equal(info.status, 200)
   assert.equal(info.headers.get('cache-control'), 'no-store')
-  assert.equal((await info.json()).ip, visitor.ip)
-  const missingReadme = load('app/api/sysinfo/route.ts', {
-    '@/lib/visitors': visitors,
-    'node:fs/promises': { async readFile() { throw new Error('missing README') } },
-  })
-  assert.equal((await (await missingReadme.GET(request)).json()).readme, '')
+  assert.deepEqual(await info.json(), { ip: visitor.ip }, 'sysinfo only returns the IP used by the 404 boot sequence')
   await checkVisitorProvider()
   console.log('Rendering, project/contact data, carousel throttle, Timeline/gallery dialog, 52-card deck, shared terminal commands, 404 boot sequence, visitor state/APIs, and failure fallbacks passed.')
 }
