@@ -1,9 +1,13 @@
 import { expect, test } from 'bun:test'
 import { JOKER_DEFAULT, JOKER_LINES, jokerReply, moodFor } from './joker'
-import { START } from './rules'
+import { JOKER_MAX_HP, MAX_SP, PLAYER_MAX_HP, START } from './rules'
 import type { Mood } from './types'
 
 const MOODS: Mood[] = ['idle', 'smug', 'hurt', 'charging']
+// Thresholds follow rules.ts so balance changes do not break the mood tests.
+const lowJokerHp = Math.floor(JOKER_MAX_HP * 0.3)
+const lowPlayerHp = Math.floor(PLAYER_MAX_HP * 0.3)
+const chargingSp = Math.ceil(MAX_SP * 0.8)
 
 test('an unknown command returns the non-empty default for each mood', () => {
   for (const mood of MOODS) {
@@ -74,16 +78,16 @@ test('moodFor(START) with no last move is idle', () => {
 })
 
 test('moodFor is hurt at or below 30% Joker HP, ahead of every other rule', () => {
-  expect(moodFor({ ...START, jhp: 9 })).toBe('hurt')
+  expect(moodFor({ ...START, jhp: lowJokerHp })).toBe('hurt')
   expect(moodFor({ ...START, jhp: 0 })).toBe('hurt')
-  expect(moodFor({ ...START, jhp: 10 })).toBe('idle')
+  expect(moodFor({ ...START, jhp: lowJokerHp + 1 })).toBe('idle')
   expect(moodFor({ ...START, jhp: 5, jsp: 100, hp: 1 }, 'ultimate')).toBe('hurt')
   expect(moodFor({ ...START, jhp: 5 }, 'charge')).toBe('hurt')
 })
 
 test('moodFor is charging at 80% SP or after a charge, ahead of smug', () => {
-  expect(moodFor({ ...START, jsp: 80 })).toBe('charging')
-  expect(moodFor({ ...START, jsp: 79 })).toBe('idle')
+  expect(moodFor({ ...START, jsp: chargingSp })).toBe('charging')
+  expect(moodFor({ ...START, jsp: chargingSp - 1 })).toBe('idle')
   expect(moodFor(START, 'charge')).toBe('charging')
   expect(moodFor({ ...START, jsp: 100 }, 'crit')).toBe('charging')
   expect(moodFor({ ...START, hp: 3 }, 'charge')).toBe('charging')
@@ -92,6 +96,6 @@ test('moodFor is charging at 80% SP or after a charge, ahead of smug', () => {
 test('moodFor is smug after a crit or ultimate, or when the visitor is at or below 30% HP', () => {
   expect(moodFor(START, 'crit')).toBe('smug')
   expect(moodFor(START, 'ultimate')).toBe('smug')
-  expect(moodFor({ ...START, hp: 9 })).toBe('smug')
-  expect(moodFor({ ...START, hp: 10 })).toBe('idle')
+  expect(moodFor({ ...START, hp: lowPlayerHp })).toBe('smug')
+  expect(moodFor({ ...START, hp: lowPlayerHp + 1 })).toBe('idle')
 })
