@@ -26,19 +26,39 @@ function VisitorBadge() {
 
 const ABOUT_PHOTOS = [
   {
-    src: '/images/CSTUSPARK/CSTUSPARK1.jpg',
+    src: '/images/CSTUSPARKCAMPINAI/CSTUSPARK1.jpg',
     alt: 'Chanitnan and team collaborating at CSTU Spark Camp Hackathon',
-    caption: 'CSTU SPARK CAMP',
+    caption: 'CSTU SPARK CAMP IN AI',
   },
   {
-    src: '/images/CSTUSPARK/CSTUSPARK2.jpg',
+    src: '/images/CSTUSPARKCAMPINAI/CSTUSPARK2.jpg',
     alt: 'CSTU Spark Camp cohort at KBTG and KBank event',
-    caption: 'CSTU SPARK CAMP',
+    caption: 'CSTU SPARK CAMP IN AI',
   },
+  ...[
+    ['CSTUSPARKCAMP/1785389210063.jpg', 'CSTU SPARK CAMP IN AI'],
+    ['CSTUSPARKCAMP/20260730_094620.jpg', 'CSTU SPARK CAMP IN AI'],
+  ].map(([file, caption]) => ({ src: `/images/moremoment/${file}`, alt: `${caption} event photograph`, caption })),
+  {
+    src: '/images/moremoment/CSTUSPARKCAMP/VID_20260730_101254_967.mp4',
+    alt: 'CSTU Spark Camp video',
+    caption: 'CSTU SPARK CAMP IN AI',
+  },
+  ...['20261030_121004.jpg', '20261030_121012.jpg', '20261030_121015.jpg'].map((file, index) => ({
+    src: `/images/moremoment/CSTUStaff/${file}`,
+    alt: `Consultant at CSTU Open House, photograph ${index + 1}`,
+    caption: 'CONSULTANT OPENHOUSE CSTU',
+  })),
+  ...[
+    ['KBTG-Techtopia/20260916_102201.jpg', 'KBTG TECHTOPIA'],
+    ['KBTG-Techtopia/IMG_20260916_151901_450.jpg', 'KBTG TECHTOPIA'],
+    ['KBTG-Techtopia/IMG_20260916_151901_046.jpg', 'KBTG TECHTOPIA'],
+    ['ICPC/IMG_20260915_020956_579.jpg', 'ICPC @CSKU 2026'],
+  ].map(([file, caption]) => ({ src: `/images/moremoment/${file}`, alt: `${caption} event photograph`, caption })),
 ]
 
 export default function About() {
-  // Start on index 1 (CSTUSPARK2.jpg - 02 / 02) matching the reference photograph
+  // Start with the CSTU Spark Camp group photograph.
   const [currentIndex, setCurrentIndex] = useState(1)
 
   const handlePrev = useCallback(() => {
@@ -130,48 +150,51 @@ export default function About() {
           </div>
 
           {/* Right Gallery: Persona-Inspired Framing (Approx 58% width) */}
-          <div className="about-right-col" role="group" aria-label="Moments photographs">
-            <div className="about-persona-card">
+          <div className="about-right-col" role="group" aria-label="Moments gallery">
+            <div className="about-gallery-heading">
               <p className="about-moments-label">Moments</p>
+              <div className="about-gallery-meta">
+                <span className="about-gallery-caption">{currentPhoto.caption}</span>
+                <span className="about-gallery-counter">
+                  {String(currentIndex + 1).padStart(2, '0')} / {String(ABOUT_PHOTOS.length).padStart(2, '0')}
+                </span>
+              </div>
+            </div>
+            <div className="about-persona-card">
               {/* Crimson Backing Plate */}
               <div className="about-persona-backing" aria-hidden="true" />
 
               {/* Angular Ivory Silhouette Frame */}
               <div className="about-persona-border">
                 <div className="about-persona-inner">
-                  <Image
+                  {currentPhoto.src.endsWith('.mp4') ? (
+                    <video key={currentPhoto.src} src={currentPhoto.src} aria-label={currentPhoto.alt} controls playsInline preload="metadata" className="about-persona-video" />
+                  ) : <Image
                     src={currentPhoto.src}
                     alt={currentPhoto.alt}
                     fill
                     sizes="(max-width: 960px) 100vw, 58vw"
                     priority={currentIndex === 1}
                     className="about-persona-img"
-                  />
+                  />}
                 </div>
               </div>
             </div>
 
             {/* Gallery Controls */}
             <div className="about-gallery-controls">
-              <div className="about-gallery-meta">
-                <span className="about-gallery-caption">{currentPhoto.caption}</span>
-                <span className="about-gallery-counter">
-                  {String(currentIndex + 1).padStart(2, '0')} / {String(ABOUT_PHOTOS.length).padStart(2, '0')}
-                </span>
-                <div className="about-gallery-dots" role="group" aria-label="Photo pagination">
+                <div className="about-gallery-dots" role="group" aria-label="Moments pagination">
                   {ABOUT_PHOTOS.map((photo, idx) => (
                     <button
                       key={photo.src}
                       type="button"
                       aria-pressed={idx === currentIndex}
-                      aria-label={`Go to photograph ${idx + 1}`}
+                      aria-label={`Go to moment ${idx + 1}: ${photo.alt}`}
                       className={`about-gallery-dot ${idx === currentIndex ? 'is-active' : ''}`}
                       onClick={() => setCurrentIndex(idx)}
                     />
                   ))}
                 </div>
-              </div>
-
               <div className="about-gallery-arrows">
                 <button
                   type="button"

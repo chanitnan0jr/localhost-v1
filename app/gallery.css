@@ -284,7 +284,8 @@
   filter: drop-shadow(10px 14px 0 #000);
   transition: transform 0.3s ease;
 }
-.about-moments-label { position: absolute; left: 10px; top: -36px; z-index: 3; margin: 0; padding: 10px 36px; min-width: 220px; color: #eee9db; background: #0c0b0a; border-top: 2px solid #e12637; font: 800 20px/1 var(--font-display), sans-serif; letter-spacing: .15em; text-transform: uppercase; clip-path: polygon(12px 0, calc(100% - 24px) 0, 100% 100%, 0 100%); }
+.about-gallery-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; }
+.about-moments-label { margin: 0; padding: 10px 36px; color: #eee9db; background: #0c0b0a; border-top: 2px solid #e12637; font: 800 20px/1 var(--font-display), sans-serif; letter-spacing: .15em; text-transform: uppercase; clip-path: polygon(12px 0, calc(100% - 24px) 0, 100% 100%, 0 100%); }
 
 .about-persona-card:hover {
   transform: translateY(-2px);
@@ -325,6 +326,8 @@
   transition: opacity 0.3s ease, transform 0.4s ease;
 }
 
+.about-persona-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #0c0b0a; }
+
 .about-persona-card:hover .about-persona-img {
   transform: scale(1.015);
 }
@@ -333,7 +336,8 @@
 .about-gallery-controls {
   position: relative;
   z-index: 2;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -365,9 +369,13 @@
 }
 
 .about-gallery-dots {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0;
 }
 
 .about-gallery-dot {
@@ -394,10 +402,12 @@
 .about-gallery-dot.is-active::before { background: #e12637; transform: scale(1.2); box-shadow: 0 0 6px rgba(225, 38, 55, .7); }
 
 .about-gallery-arrows {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: contents;
 }
+
+.about-gallery-arrows .about-arrow-btn { grid-row: 1; }
+.about-gallery-arrows .about-arrow-btn:first-child { grid-column: 1; }
+.about-gallery-arrows .about-arrow-btn:last-child { grid-column: 3; }
 
 .about-arrow-btn {
   display: grid;

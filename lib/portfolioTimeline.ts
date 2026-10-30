@@ -32,9 +32,9 @@ export const TIMELINE_CHAPTERS: TimelineChapter[] = [
     summary: 'Built and presented an AI-assisted academic portal for TQF3 workflows with my team.',
     notes: ['With my team.', 'One event. Many memories.'],
     photos: [
-      { src: '/images/CSTUSPARK/AWARD.jpg', alt: 'CSTU Spark Camp team holding the Best Creative and Engaging Pitch Award' },
-      { src: '/images/CSTUSPARK/CSTUSPARK2.jpg', alt: 'CSTU Spark Camp group photo' },
-      { src: '/images/CSTUSPARK/CSTUSPARK1.jpg', alt: 'CSTU Spark Camp team photo' },
+      { src: '/images/CSTUSPARKCAMPINAI/AWARD.jpg', alt: 'CSTU Spark Camp team holding the Best Creative and Engaging Pitch Award' },
+      { src: '/images/CSTUSPARKCAMPINAI/CSTUSPARK2.jpg', alt: 'CSTU Spark Camp group photo' },
+      { src: '/images/CSTUSPARKCAMPINAI/CSTUSPARK1.jpg', alt: 'CSTU Spark Camp team photo' },
     ],
   },
   {
