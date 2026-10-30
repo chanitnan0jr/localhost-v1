@@ -13,14 +13,14 @@
 
 ## Features
 
-- **52-card hero.** An original masked character orbited by 52 unique playing cards. **Play** opens the terminal and types `play` to start the Joker card duel.
+- **Persona 5-inspired hero.** An original masked character orbited by 52 unique playing cards. **Play** opens the terminal and types `play` to start the Joker card duel.
 - **Competition timeline.** Six chapters with event photos. Select the photo to open that event's pop-up gallery.
 - **Projects catalogue.** Open-source, collaborative, and personal work at `/projects`.
 - **Interactive terminal.** `/terminal` and the 404 page share one command set, with history, Tab completion, and navigation.
 - **Live visitor stats (optional).** Unique visitors by OS, stored in Upstash Redis.
 - **Accessible by default.** Keyboard navigation, a native `<dialog>` gallery, and reduced-motion support. Animation pauses when the tab is hidden.
 
-## Stack
+## Tech stack
 
 - **Framework:** [Next.js 14](https://nextjs.org) App Router with [React 18](https://react.dev)
 - **Language:** [TypeScript 5](https://www.typescriptlang.org)
@@ -30,6 +30,41 @@
 - **Fonts:** Inter and Roboto Condensed, bundled locally with their licenses
 - **Package manager:** [Bun](https://bun.sh) (`npm run` works too)
 - **Deployment:** [Vercel](https://vercel.com)
+
+## Architecture
+
+The site is a single Next.js App Router application. Server-rendered pages
+compose the portfolio sections; interactive components use client-side React
+state for the gallery, navigation, terminal, and card duel.
+
+```mermaid
+flowchart TD
+  Browser --> Pages["App Router: /, /projects, /terminal, 404"]
+  Pages --> UI["Portfolio, gallery and terminal components"]
+  UI --> Content["Typed content in lib/"]
+  UI --> Dialog["ModalContext and native dialog"]
+  UI --> Terminal["useTerminal and command parser"]
+  Terminal --> Game["Duel engine and rules"]
+  Browser --> Visitor["VisitorProvider"]
+  Visitor --> Track["POST /api/track"]
+  Visitor --> Stats["GET /api/visitors"]
+  Terminal --> Stats
+  Track --> Redis[("Upstash Redis · optional")]
+  Stats --> Redis
+  Terminal --> Sysinfo["GET /api/sysinfo"]
+  Sysinfo --> Redis
+```
+
+Project, timeline, card, and contact data live in `lib/`; their components
+render the same data without a separate content service. `ModalContext`
+manages the shared image gallery, while `useTerminal` connects the terminal
+UI to its command parser and the local duel engine. Commands use predefined
+destinations and project links rather than executing shell commands.
+
+`VisitorProvider` sends a tracking request and then reads the count for the
+Navbar and About section. The API routes use Redis on the server; visitor
+identity is an approximation based on IP and operating system. If Redis is
+unavailable, the interface falls back to demo or hidden statistics.
 
 ## Getting started
 
@@ -76,19 +111,6 @@ scripts/check.cjs     Regression checks with Node assertions
 ```
 
 Pages stay thin and compose components. Content lives in `lib/`, and client-only state lives in hooks and context.
-
-## Navigation cards
-
-In the terminal, `ls` and `deck` list these six cards and `open <label>` goes to each destination:
-
-| Card | Destination |
-| --- | --- |
-| A♠ Home | `/#home` |
-| K♠ Projects | `/projects` |
-| Q♦ Work | `/#work` |
-| J♣ About | `/#about-detailed` |
-| 10♠ Terminal | `/terminal` |
-| A♥ Contact | `/#contact` |
 
 ## Terminal
 
@@ -145,6 +167,6 @@ bun run build
 
 ## Notes
 
-- Event photos and people are original. The blank folder texture is generated. Timeline chapter order and labels follow the owner's storyboard, and no dates are inferred.
+- Event photos and people are original. Timeline chapter order and labels follow the owner's storyboard, and no dates are inferred.
 - `bun.lock` is committed for reproducible installs. Build output, dependencies, and environment files are ignored.
 - Implementation notes (Thai) and agent rules (`docs/`, `agent.md`, `AGENTS.md`) are kept local and ignored by Git.
