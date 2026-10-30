@@ -1,46 +1,84 @@
-# localhost-v1
+<h1 align="center">localhost-v1</h1>
 
-Personal portfolio of **Chanitnan Kitnantakhun**, Backend / Systems Engineer.
-Built with Next.js 14 App Router, React 18, TypeScript, Tailwind CSS 3, and Framer Motion.
+<p align="center">
+  Personal portfolio of <strong>Chanitnan Kitnantakhun</strong>, Backend / Systems Engineer.<br />
+  A Phantom Thief–themed site built with <a href="https://nextjs.org">Next.js</a> and deployed on <a href="https://vercel.com">Vercel</a>.
+</p>
 
-## Run locally
+<p align="center">
+  <a href="https://chanitnan-kitnantakhun.vercel.app/"><strong>Live site</strong></a> ·
+  <a href="https://chanitnan-kitnantakhun.vercel.app/projects">Projects</a> ·
+  <a href="https://chanitnan-kitnantakhun.vercel.app/terminal">Terminal</a>
+</p>
+
+## Features
+
+- **52-card hero.** An original masked character orbited by 52 unique playing cards. **Deal the cards** reveals six navigation cards that can be shuffled.
+- **Competition timeline.** Six chapters with event photos. Select the photo to open that event's pop-up gallery.
+- **Projects catalogue.** Open-source, collaborative, and personal work at `/projects`.
+- **Interactive terminal.** `/terminal` and the 404 page share one command set, with history, Tab completion, and navigation.
+- **Live visitor stats (optional).** Unique visitors by OS, stored in Upstash Redis.
+- **Accessible by default.** Keyboard navigation, a native `<dialog>` gallery, and reduced-motion support. Animation pauses when the tab is hidden.
+
+## Stack
+
+- **Framework:** [Next.js 14](https://nextjs.org) App Router with [React 18](https://react.dev)
+- **Language:** [TypeScript 5](https://www.typescriptlang.org)
+- **Styling:** [Tailwind CSS 3](https://tailwindcss.com) plus global theme stylesheets
+- **Animation:** [Framer Motion](https://www.framer.com/motion/)
+- **Statistics (optional):** [Upstash Redis](https://upstash.com)
+- **Fonts:** Inter and Roboto Condensed, bundled locally with their licenses
+- **Package manager:** [Bun](https://bun.sh) (`npm run` works too)
+- **Deployment:** [Vercel](https://vercel.com)
+
+## Getting started
 
 ```sh
+git clone https://github.com/chanitnan0jr/localhost-v1.git
+cd localhost-v1
 bun install --frozen-lockfile
 bun run dev
 ```
 
-Development runs at `http://localhost:4000`.
-Production: `bun run build`, then `bun run start`.
+Open [http://localhost:4000](http://localhost:4000).
+For a production build, run `bun run build`, then `bun run start`.
 
-## Code map
+### Visitor statistics (optional)
 
-| Directory | Responsibility |
-| --- | --- |
-| `app/` | Layout, home, projects, interactive terminal 404 |
-| `app/api/` | Visitor tracking, live statistics, terminal system info |
-| `components/` | Home sections, project cards, navigation/footer, image dialog |
-| `components/detective/` | 52-card hero, navigation hand, full-screen terminal, photographic timeline/evidence |
-| `hooks/` | Boolean toggles and stack carousel state |
-| `context/` | Shared image dialog and visitor statistics state |
-| `lib/` | Typed content, Redis client factory, visitor identity/tracking |
-| `public/images/` | Static photos and certificates |
-| `scripts/check.cjs` | Small rendering, photo, card, terminal, and visitor checks using Node assertions |
+Create `.env.local` with these server-only values:
 
-`/` displays the portfolio; `/projects` lists open-source, collaborative, and personal projects.
-`/terminal` is the standalone console.
-Unmatched routes (including `/dev/null`) display a simulated terminal. Commands do
-not execute a shell or make arbitrary network requests.
+```env
+UPSTASH_REDIS_REST_URL=https://your-database.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your-token
+```
 
-## Phantom Thief theme
+Without Redis the site still works: the Navbar shows a demo count, About hides its visitor badge, and the terminal prints demo statistics.
+Visitor identity is approximately IP + OS, using trusted proxy headers. `/api/visitors` responds with caching disabled.
 
-The home page opens directly on the 2.5D Phantom Thief hero with an original masked
-character and 52 unique playing cards, with no opening scene or loading overlay.
-Card animation pauses manually, offscreen, and when the browser tab is hidden. The
-network background also pauses while hidden and draws a static frame for reduced motion.
+## Project structure
 
-Scroll or select **Deal the cards** to reveal six navigation cards. Shuffling changes
-their order while preserving these destinations:
+```
+app/                  Routes: home, /projects, /terminal, 404, plus global styles and fonts
+├── api/              /api/track, /api/visitors, /api/sysinfo
+components/
+├── phantom/          Hero, card orbit, playing cards, timeline, terminal
+├── home/             About, lab research, certifications, contact
+├── projects/         Project header, sections, cards
+├── not-found/        Boot-sequence shell for the 404 page
+├── layout/           Navbar, Footer
+└── ui/               Shared image/gallery dialog, network background
+context/              Image dialog and visitor statistics providers
+hooks/                useTerminal, useToggle, useStackCarousel
+lib/                  Typed content, terminal commands, Redis and visitor helpers
+public/images/        Photos and certificates
+scripts/check.cjs     Regression checks with Node assertions
+```
+
+Pages stay thin and compose components. Content lives in `lib/`, and client-only state lives in hooks and context.
+
+## Navigation cards
+
+Shuffling changes the card order but keeps each destination:
 
 | Card | Destination |
 | --- | --- |
@@ -51,48 +89,40 @@ their order while preserving these destinations:
 | 10♠ Terminal | `/terminal` |
 | A♥ Contact | `/#contact` |
 
-The terminal page at `/terminal` is a DOM console filling the screen below the existing navbar, with only output and a prompt. It has no footer, decorative clock, or shortcut buttons. Type `help` to explore and `exit` to return home. Keyboard history, inline completion, selection/copy, and Control-L clear remain available. It supports `help`, `whoami`, `ls`, `deck`, `history`, `date`, `clear`,
-`cat about|projects|contact`, and `open home|projects|work|about|terminal|contact`.
-`cd` and `goto` are navigation aliases. Up/Down recalls history; Tab cycles
-suggestions or completes a single match. Enter accepts an incomplete suggestion
-and runs a complete command; Right Arrow at the input end also completes it.
-Escape clears input and suggestions. Project output uses `lib/projectsData.ts`.
-The timeline and original portfolio sections follow the hero on the home page.
+## Terminal
 
-At `/#gallery`, **02 / Timeline** presents **The story so far** as a photographic section with chapter copy on the left, a large event photo, and chapter controls below. Six chapters follow this order: PRAGMA 41, CSTU Spark Camp, ICPC Sub Regional, ICPC National, Sustainovation / DAD, and U-Hackathon. PRAGMA uses the landscape hackathon photo of teammates working around a table; U-Hackathon uses the u-hackathon welcome screen. ICPC Sub Regional is selected initially.
+`/terminal` and every unmatched route (including `/dev/null`) run the same commands from `lib/terminalCommands.ts` through the `useTerminal` hook. The 404 page adds a boot sequence and its own bash-style shell.
 
-Dots and previous/next arrows preview chapters; Arrow keys and Home/End work on the chapter dots. Touch users can swipe the photo to change chapters. Select the large photo to open that event's photos in a pop-up gallery, starting at the photo on screen. In the gallery, the arrow buttons, Left/Right keys, or a swipe move between photos and wrap around; Escape, the close button, or the backdrop closes it and returns focus to the photo. Scrolling continues straight to About Me.
+| Command | Result |
+| --- | --- |
+| `help` | List commands |
+| `whoami`, `cat about` | Short introduction |
+| `ls`, `deck` | The six navigation cards |
+| `cat projects`, `cat contact` | Project list and contact details |
+| `open <home\|projects\|work\|about\|terminal\|contact>` | Navigate (`cd` and `goto` are aliases; `exit` goes home) |
+| `skills`, `stack`, `fastfetch`, `neofetch` | Engineering stack |
+| `visitors`, `viewcount`, `stats` | Live visitor statistics |
+| `history`, `date`, `uptime`, `uname`, `echo`, `clear` | Shell basics |
 
-The gallery shows every supplied photo for the chapter at its original framing, including the four National and seven U-Hackathon photos, in the shared image viewer used by the certificates.
-Mobile stacks chapter copy and controls below the photo, and stacks evidence images and notes.
-Hero and Timeline use viewport-sized sections with native proximity scroll snapping;
-short screens and long evidence content can still scroll naturally. Reduced motion disables snapping.
-Evidence photos keep their original framing; the timeline photo uses a cover crop to match the reference; reduced motion disables transitions and smooth
-navigation. Chapter data and verified descriptions live in `lib/portfolioTimeline.ts`.
-Chapter order and emotion labels follow the owner's storyboard; no dates are inferred.
-Sustainovation photos were supplied by the owner; its description is intentionally
-limited to the team photo until more event details are provided. About and Philosophy
-remain separate sections below the timeline. The blank folder texture is generated; people and event photos are originals.
+Keys:
+- **↑ / ↓** recall history.
+- **Tab** cycles suggestions.
+- **Enter** or **→** accepts a suggestion.
+- **Escape** clears the input, and **Ctrl+L** clears the screen.
 
-The palette is black, vivid red, and ivory with angular paper strips, halftone details,
-and offset shadows. Roboto Condensed supplies bold headings and menus; Inter keeps
-longer text readable. Assets are local and no dependencies were added.
+Commands never run a shell or fetch arbitrary URLs.
 
-## Optional visitor statistics
+## Color reference
 
-Set these server-only values in `.env.local`:
+| Color | Hex | Used for |
+| --- | --- | --- |
+| Night black | `#0b0c0f` | Page background |
+| Ink black | `#0c0b0a` | Surfaces (Tailwind `background`) |
+| Ivory | `#eee9db` | Primary text and paper strips |
+| Thief red | `#e12637` | Headlines, badges, borders |
+| Accent red | `#ff5262` | Links, focus, terminal accents |
 
-```env
-UPSTASH_REDIS_REST_URL=https://your-database.upstash.io
-UPSTASH_REDIS_REST_TOKEN=your-token
-```
-
-The root layout shares one visitor request flow between Navbar and About: it records
-the visit, then reads current statistics. With Redis unavailable, Navbar shows its
-demo count and About hides its visitor badge. The terminal refreshes statistics when
-its visitor command runs.
-Visitor identity is approximately IP + OS, using trusted proxy headers.
-`/api/visitors` returns live statistics with caching disabled.
+Roboto Condensed is used for headings and menus, and Inter for body text.
 
 ## Verify changes
 
@@ -103,20 +133,10 @@ bun run check
 bun run build
 ```
 
-The same scripts work with `npm run`. Inter and Roboto Condensed are bundled locally
-with their licenses, so builds do not download fonts. Icons use inline SVG; stack
-icons still load from a CDN.
-No new dependencies are required for the theme.
+`bun run check` runs `scripts/check.cjs`. It uses the installed TypeScript compiler, React server rendering, and Node assertions, with no test framework. It covers content data, the timeline and gallery, the 52-card deck, terminal commands, visitor APIs, and their failure fallbacks.
 
-Thai implementation notes are local in [docs/README.md](docs/README.md).
-Historical reports are in [docs/Report/README.md](docs/Report/README.md).
-Documentation and agent rules (`agent.md`, `AGENTS.md`) are intentionally ignored
-by Git, along with build outputs, dependencies, environment files, and TypeScript
-build info. `bun.lock` is committed for reproducible installation.
+## Notes
 
-### About / Philosophy
-
-The About section pairs a masked identity card with the engineering introduction,
-photo carousel, Philosophy sheet, and GitHub, LinkedIn, and Discord links. Get in
-Touch and the footer share the same email and phone destinations. Links retain their
-visible formatting and keyboard focus styles.
+- Event photos and people are original. The blank folder texture is generated. Timeline chapter order and labels follow the owner's storyboard, and no dates are inferred.
+- `bun.lock` is committed for reproducible installs. Build output, dependencies, and environment files are ignored.
+- Implementation notes (Thai) and agent rules (`docs/`, `agent.md`, `AGENTS.md`) are kept local and ignored by Git.
