@@ -67,7 +67,7 @@ export function jokerLines(input: string, mood: Mood): string[] {
 function outcome(move: Move, jmove: JMove, taken: number, dealt: number): string {
   if (jmove === 'charge') return move === 'attack' ? `free hit for ${dealt}` : `you ${move}, but no hit comes`
   if (move === 'attack') return `you took ${taken}  |  you hit for ${dealt}`
-  if (move === 'defend') return `you took ${taken} (blocked 70%)`
+  if (move === 'defend') return `you took ${taken} (blocked ${JOKER_DAMAGE[jmove] - taken})`
   if (move === 'evade') return taken === 0 ? 'you dodged it' : `you took ${taken}  |  no dodge`
   return `you took ${taken}  |  you hit back for ${dealt}`
 }
@@ -100,10 +100,13 @@ export function duelInput(duel: Duel, input: string, rnd?: Rng): DuelStep {
   const move = command as Move
   const jmove = pickJoker(duel.state, rnd)
   const { next, taken, dealt } = resolve(duel.state, move, jmove, rnd)
-  const lines = [
-    jmove === 'charge' ? '  JOKER is charging up' : `  JOKER used ${jmove.toUpperCase()} (${JOKER_DAMAGE[jmove]})`,
-    `  ${outcome(move, jmove, taken, dealt)}`,
-  ]
+  // The engine cancels the Joker's move when an attack knocks it out, so never name a move that did not happen.
+  const lines = move === 'attack' && next.jhp <= 0
+    ? ['  the Joker card falls before it can act', `  you hit for ${dealt}`]
+    : [
+        jmove === 'charge' ? '  JOKER is charging up' : `  JOKER used ${jmove.toUpperCase()} (${JOKER_DAMAGE[jmove]})`,
+        `  ${outcome(move, jmove, taken, dealt)}`,
+      ]
   const rounds = duel.state.turn
   if (next.hp <= 0) return { duel: null, lines: [...lines, ...endScreen('!! BUSTED !!', rounds, `Joker HP left: ${Math.max(0, next.jhp)}`, 'try again')] }
   if (next.jhp <= 0) return { duel: null, lines: [...lines, ...endScreen('HEIST COMPLETE  -  JOKER IS DOWN', rounds, `HP left: ${next.hp}`, 'run it again')] }

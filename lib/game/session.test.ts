@@ -130,7 +130,12 @@ describe('duelInput', () => {
     fakeEngine('normal', {}, 0, 0)
     expect(duelInput(fresh(), 'evade').lines[1]).toBe('  you dodged it')
     fakeEngine('crit', {}, 6, 0)
-    expect(duelInput(fresh(), 'defend').lines[1]).toBe('  you took 6 (blocked 70%)')
+    expect(duelInput(fresh(), 'defend').lines[1]).toBe('  you took 6 (blocked 14)')
+  })
+
+  test('an attack that knocks the Joker card out never names the move it lost', () => {
+    fakeEngine('ultimate', { jhp: 0 }, 0, 15)
+    expect(duelInput(fresh(), 'attack').lines.slice(0, 2)).toEqual(['  the Joker card falls before it can act', '  you hit for 15'])
   })
 
   test('the Joker card at 0 HP ends the duel with the heist screen', () => {
@@ -184,7 +189,10 @@ describe('terminal commands', () => {
     expect(runTerminalCommand('connect SPEX', []).openUrl).toBe('https://spec-bot-steel.vercel.app/doc')
     // agriscanpro comes first but has no demo, so the prefix picks the one that does.
     expect(runTerminalCommand('connect agriscan', []).openUrl).toBe('https://agriscan-monitor.vercel.app/dashboard/controller')
-    expect(runTerminalCommand('github agriscan', []).openUrl).toBe('https://github.com/GearJP2/agriscan-pro')
+    expect(runTerminalCommand('github agriscan', []).openUrl).toBeUndefined()
+    expect(runTerminalCommand('github agriscan', []).lines[0]).toContain('type the full id')
+    expect(runTerminalCommand('github a', []).openUrl).toBeUndefined()
+    expect(runTerminalCommand('connect s', []).openUrl).toBeUndefined()
     expect(runTerminalCommand('github mini', []).openUrl).toBe('https://github.com/chanitnan0jr/Mini-Redis')
     for (const command of ['connect', 'connect mini-redis', 'github nope', 'connect https://evil.example', 'github javascript:alert(1)']) {
       const result = runTerminalCommand(command, [])

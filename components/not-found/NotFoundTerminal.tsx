@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useTerminal, type TerminalLine } from '@/hooks/useTerminal'
+import { spokenBox, useTerminal, type TerminalLine } from '@/hooks/useTerminal'
 import { buildBootSequence, readClientInfo } from '@/lib/notFoundTerminal'
 
 export default function NotFoundTerminal() {
@@ -88,7 +88,9 @@ export default function NotFoundTerminal() {
                   line.kind === 'error' ? 'text-red-400' : '',
                 ].join(' ')}
               >
-                {line.text || '\u00A0'}
+                {line.kind === 'box'
+                  ? <><span aria-hidden="true">{line.text}</span>{spokenBox(line.text) && <span className="sr-only">{spokenBox(line.text)}</span>}</>
+                  : line.text || '\u00A0'}
               </p>
             </div>
           ))}

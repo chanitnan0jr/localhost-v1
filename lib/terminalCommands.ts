@@ -27,9 +27,6 @@ export const TERMINAL_COMMANDS = [
   'uptime',
   'sudo',
   'ls',
-  'projects',
-  'connect',
-  'github',
   'cat about',
   'cat projects',
   'cat contact',
@@ -40,6 +37,9 @@ export const TERMINAL_COMMANDS = [
   'open terminal',
   'open contact',
   'deck',
+  'projects',
+  'connect',
+  'github',
   'play',
   'history',
   'date',
@@ -151,17 +151,20 @@ export function runTerminalCommand(
     const name = rest.join(' ')
     const urlOf = (p: Project) => (verb === 'connect' ? p.liveUrl : p.repoUrl)
     const matches = (p: Project) => p.id.startsWith(name) || p.name.toLowerCase().startsWith(name)
-    // An exact id wins; otherwise prefer a prefix match that has the link asked for.
-    const project = name
-      ? ALL_PROJECTS.find((p) => p.id === name) ??
-        ALL_PROJECTS.find((p) => matches(p) && urlOf(p)) ??
-        ALL_PROJECTS.find(matches)
-      : undefined
+    // An exact id wins; otherwise a prefix of 3+ characters must point at one project (preferring one with the link),
+    // so a single letter never opens a tab and two matching projects ask for the id instead.
+    const prefixed = name.length >= 3 ? ALL_PROJECTS.filter(matches) : []
+    const linked = prefixed.filter(urlOf)
+    const project = ALL_PROJECTS.find((p) => p.id === name) ??
+      (linked.length === 1 ? linked[0] : prefixed.length === 1 ? prefixed[0] : undefined)
     const url = project && urlOf(project)
     if (project && url) return { lines: [`Opening ${project.name} ${verb === 'connect' ? 'live demo' : 'source'}…`], openUrl: url }
     return {
       lines: [
-        !name ? `Usage: ${verb} <project>` : project ? `${project.name} has no ${verb === 'connect' ? 'live demo' : 'public repo'}.` : `Unknown project: ${name}`,
+        !name ? `Usage: ${verb} <project>`
+          : project ? `${project.name} has no ${verb === 'connect' ? 'live demo' : 'public repo'}.`
+          : linked.length > 1 ? `${name} matches ${linked.map((p) => p.id).join(' and ')}; type the full id.`
+          : `Unknown project: ${name}`,
         `Valid ids: ${ALL_PROJECTS.filter(urlOf).map((p) => p.id).join(', ')}`,
       ],
       kind: 'error',

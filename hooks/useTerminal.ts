@@ -17,6 +17,10 @@ const output = (lines: string[]): TerminalLine[] =>
   lines.map((text) => ({ kind: /^[+|]/.test(text) ? 'box' : 'output', text }))
 const DUEL_LINE_DELAY = 110
 
+// What a screen reader should hear for a box line: the words without borders or bar characters ('' for a border).
+export const spokenBox = (text: string) =>
+  text.replace(/\[[#-]*\]/g, ' ').replace(/[+|]|-{2,}/g, ' ').replace(/\s+/g, ' ').trim()
+
 // Shared by /terminal and the 404 page: one command set, history and completion; each page draws its own shell.
 export function useTerminal(initialLines: TerminalLine[] = []) {
   const router = useRouter()

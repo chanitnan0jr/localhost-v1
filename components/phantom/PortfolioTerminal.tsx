@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useTerminal, type TerminalLine } from '@/hooks/useTerminal'
+import { spokenBox, useTerminal, type TerminalLine } from '@/hooks/useTerminal'
 import { runTerminalCommand } from '@/lib/terminalCommands'
 
 const MASK_ART = String.raw`       /\              /\
@@ -47,7 +47,9 @@ export default function PortfolioTerminal() {
           ) : (
             <div key={index} className={`terminal-line ${line.kind}`} style={line.kind === 'box' ? { whiteSpace: 'pre', overflowWrap: 'normal' } : undefined}>
               {line.kind === 'input' && <span className="terminal-prompt" aria-hidden="true">visitor@{line.duel ? 'duel' : 'localhost'}:~$ </span>}
-              {line.text || '\u00a0'}
+              {line.kind === 'box'
+                ? <><span aria-hidden="true">{line.text}</span>{spokenBox(line.text) && <span className="sr-only">{spokenBox(line.text)}</span>}</>
+                : line.text || '\u00a0'}
             </div>
           ))}
         </div>
