@@ -119,7 +119,7 @@ function ProjectArtwork({ id }: { id: string }) {
             <circle cx="16" cy="16" r="5" fill="#e12637" />
             <circle cx="32" cy="16" r="5" fill="#eee9db" />
             <circle cx="48" cy="16" r="5" fill="#534d47" />
-            <text x="65" y="21" fill="#eee9db" fontFamily="monospace" fontWeight="800" fontSize="12">{id === 'agriscan-monitor' ? 'AWS // GRAFANA OBSERVE' : id === 'sme-costmap' ? 'FINOPS // COSTMAP' : id === 'lms-obe-evidence' ? 'LMS // OBE EVIDENCE' : id === 'ntcir-semantic-retrieval' ? 'VIDEO // SEMANTIC RETRIEVAL' : 'APPLIED AI // S6'}</text>
+            <text x="65" y="21" fill="#eee9db" fontFamily="monospace" fontWeight="800" fontSize="12">{id === 'agriscan-monitor' ? 'AWS // GRAFANA OBSERVE' : id === 'lms-obe-evidence' ? 'LMS // OBE EVIDENCE' : id === 'ntcir-semantic-retrieval' ? 'VIDEO // SEMANTIC RETRIEVAL' : 'SYSTEMS // MONITORING'}</text>
             <path d="M20 140h280M20 90h280" stroke="#d8d1c2" strokeWidth="1.5" strokeDasharray="4 4" />
             <path d="M20 140l50-5 25-35 20 60 25-90 20 110 30-40 40 0 50 0" fill="none" stroke="#e12637" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
             <g transform="translate(250 85)">

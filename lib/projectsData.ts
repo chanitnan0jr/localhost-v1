@@ -79,17 +79,8 @@ export const PERSONAL_PROJECTS: Project[] = [
     badge: 'AWS operations · IAM hardening',
     tags: ['Next.js · TypeScript', 'AWS', 'CloudWatch', 'Cost Explorer', 'IAM · STS'],
     type: 'personal',
+    liveUrl: 'https://agriscan-monitor.vercel.app/dashboard/controller',
     repoUrl: 'https://github.com/chanitnan0jr/agriscan-monitor',
-  },
-  {
-    id: 'super-ai-applied-lab',
-    name: 'Super AI Engineer S6 — Applied AI Lab',
-    category: 'Applied AI & Machine Learning',
-    description: 'Independently developed Super AI Engineer Season 6 solutions across data storytelling, OCR, RAG, and a five-domain final mission.',
-    contribution: 'Implemented all solutions: fire-data analysis, OCR extraction, Thai document retrieval, house recognition, word segmentation, sleep staging, heart-disease prediction, and Thai image captioning.',
-    tags: ['Python · PyTorch', 'OCR · RAG', 'LightGBM · Optuna', 'Qwen2.5-VL'],
-    type: 'personal', badge: 'Solo project · All solutions by me',
-    repoUrl: 'https://github.com/chanitnan0jr/AIAT_Super_AI_Engineer_SS6',
   },
 ]
 
@@ -113,15 +104,5 @@ export const COLLABORATIVE_PROJECTS: Project[] = [
     tags: ['Python', 'PyTorch', 'FastAPI', 'Video Retrieval'],
     type: 'collaborative', badge: 'Team project · Retrieval & robustness',
     repoUrl: 'https://github.com/tewff14/NTCIR-19-CASTLE-TASK',
-  },
-  {
-    id: 'sme-costmap',
-    name: 'SME Observability — Costmap',
-    category: 'FinOps & Observability',
-    description: 'A Costmap proof of concept within the team observability stack, connecting cloud billing with CPU and memory usage.',
-    contribution: 'Built the Costmap dashboard and FastAPI/DuckDB backend, added local ECS task-role simulation, and implemented compressed billing ingestion with CUR-style and FOCUS export data.',
-    tags: ['FastAPI · DuckDB', 'Grafana', 'LocalStack S3', 'CUR · FOCUS'],
-    type: 'collaborative', badge: 'Team project · Costmap / FinOps',
-    repoUrl: 'https://github.com/KLAharris/sme-observability',
   },
 ]

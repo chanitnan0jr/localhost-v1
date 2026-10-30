@@ -179,7 +179,7 @@ async function check() {
   assert.ok(projectHTML.includes('Collaborative Project'))
   assert.ok(projectHTML.includes('Open Source'))
   assert.ok(projectHTML.includes('Personal Projects'))
-  assert.equal(projects.COLLABORATIVE_PROJECTS.length, 3)
+  assert.equal(projects.COLLABORATIVE_PROJECTS.length, 2)
   for (const project of allProjects) {
     if (project.contribution) assert.ok(projectHTML.includes(project.contribution))
     assert.ok(projectHTML.includes(project.name))
