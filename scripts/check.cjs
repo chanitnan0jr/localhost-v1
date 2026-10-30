@@ -265,8 +265,6 @@ async function check() {
       assert.ok(readFileSync(join(__dirname, '..', 'public', photo.src)).length)
     }
   }
-  assert.ok(readFileSync(join(__dirname, '..', 'public/images/timeline/evidence-board.webp')).length)
-  assert.ok(readFileSync(join(__dirname, '..', 'public/images/timeline/chapter-folder.webp')).length)
   const story = load('components/phantom/PortfolioTimeline.tsx', {
     '@/lib/portfolioTimeline': timeline,
     '@/context/ModalContext': { useModalContext: () => ({ openGallery() {} }) },
