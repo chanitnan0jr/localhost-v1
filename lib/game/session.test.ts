@@ -14,7 +14,7 @@ afterEach(() => {
   mock.module('./joker', () => realJoker)
 })
 
-const HINT = '  only attack, defend, evade, counter or quit work mid-duel'
+const HINT = '  only attack, defend, evade, counter, hint, talk or stop work mid-duel'
 const fresh = (): Duel => startDuel(false).duel!
 
 // Forces the engine's next state, taken and dealt for one turn.
@@ -51,6 +51,7 @@ describe('hud', () => {
       '|         SP [######--------------]   30 / 100 |',
       '+----------------------------------------------+',
       '|  attack    defend    evade    counter        |',
+      '|  hint (3 left)    talk    stop               |',
       '+----------------------------------------------+',
     ])
   })
@@ -59,12 +60,13 @@ describe('hud', () => {
 describe('startDuel', () => {
   test('shows the rules table only when asked, then the HUD for round 1', () => {
     const first = startDuel(true)
-    expect(first.duel).toEqual({ state: START, mood: 'idle' })
+    expect(first.duel).toMatchObject({ state: START, mood: 'idle', hints: 3, talks: 0 })
+    expect(first.duel?.next).toBeDefined()
     expect(first.lines.slice(0, RULES_TABLE.length)).toEqual(RULES_TABLE)
-    expect(first.lines.slice(-9)).toEqual(hud(START))
+    expect(first.lines.slice(-10)).toEqual(hud(START))
     const again = startDuel(false)
     expect(again.lines).not.toContain(RULES_TABLE[1])
-    expect(again.lines.slice(-9)).toEqual(hud(START))
+    expect(again.lines.slice(-10)).toEqual(hud(START))
     expect(first.lines.join('')).toMatch(/^[\x20-\x7e]*$/)
   })
 })
@@ -100,7 +102,7 @@ describe('duelInput', () => {
   })
 
   test('play mid-duel does not restart the duel', () => {
-    const duel: Duel = { state: { ...START, hp: 12, turn: 4 }, mood: 'hurt', lastJMove: 'crit' }
+    const duel: Duel = { ...fresh(), state: { ...START, hp: 12, turn: 4 }, mood: 'hurt', lastJMove: 'crit' }
     const step = duelInput(duel, 'play')
     expect(step.duel).toBe(duel)
     expect(step.lines[0]).toBe(HINT)
@@ -111,7 +113,7 @@ describe('duelInput', () => {
     expect(step.duel).not.toBeNull()
     expect(step.lines).not.toContain(HINT)
     expect(step.lines[0]).toStartWith('  JOKER ')
-    expect(step.lines.slice(-9)).toEqual(hud(step.duel!.state))
+    expect(step.lines.slice(-10)).toEqual(hud(step.duel!.state))
   })
 
   test('every DUEL_COMMANDS entry is understood', () => {
@@ -140,7 +142,7 @@ describe('duelInput', () => {
 
   test('the Joker card at 0 HP ends the duel with the heist screen', () => {
     fakeEngine('normal', { hp: 41, jhp: 0 }, 12, 15)
-    const duel: Duel = { state: { ...START, turn: 7 }, mood: 'hurt' }
+    const duel: Duel = { ...fresh(), state: { ...START, turn: 7 }, mood: 'hurt' }
     const { duel: after, lines } = duelInput(duel, 'attack')
     expect(after).toBeNull()
     expect(lines.slice(-5)).toEqual([
@@ -154,7 +156,7 @@ describe('duelInput', () => {
 
   test('the visitor at 0 HP ends the duel as busted', () => {
     fakeEngine('ultimate', { hp: 0, jhp: 30 }, 35, 0)
-    const duel: Duel = { state: { ...START, turn: 5 }, mood: 'charging' }
+    const duel: Duel = { ...fresh(), state: { ...START, turn: 5 }, mood: 'charging' }
     const { duel: after, lines } = duelInput(duel, 'defend')
     expect(after).toBeNull()
     expect(lines.slice(-5)).toEqual([
@@ -164,6 +166,45 @@ describe('duelInput', () => {
       '+----------------------------------------------+',
       ' type "play" to try again',
     ])
+  })
+})
+
+describe('hint, talk and stop', () => {
+  test('hint tells the truth about the move the Joker already picked and uses no round', () => {
+    const duel = startDuel(false, () => 0.85).duel!
+    expect(duel.next).toBe('charge')
+    const step = duelInput(duel, 'hint')
+    expect(step.lines).toEqual([`  JOKER: ${joker.JOKER_HINTS.charge}`, '  (2 hints left)'])
+    expect(step.duel).toMatchObject({ state: duel.state, next: 'charge', hints: 2 })
+  })
+
+  test('the round resolves with the hinted move, then the Joker picks again', () => {
+    const duel = startDuel(false, () => 0.85).duel!
+    const step = duelInput(duel, 'attack', () => 0)
+    expect(step.lines[0]).toBe('  JOKER is charging up')
+    expect(step.duel?.next).toBe('normal')
+    expect(step.lines).toContain('|  hint (3 left)    talk    stop' + ' '.repeat(15) + '|')
+  })
+
+  test('hints run out after three', () => {
+    let duel = fresh()
+    for (let i = 0; i < 3; i++) duel = duelInput(duel, '  HINT ').duel!
+    expect(duel.hints).toBe(0)
+    expect(duelInput(duel, 'hint').lines).toEqual([`  JOKER: ${joker.JOKER_NO_HINT}`])
+  })
+
+  test('talk rotates through mood lines without using the round', () => {
+    const duel = fresh()
+    const first = duelInput(duel, 'talk')
+    expect(first.lines).toEqual([`  JOKER: ${joker.JOKER_TALK.idle[0]}`])
+    expect(first.duel).toMatchObject({ state: duel.state, next: duel.next, talks: 1 })
+    expect(duelInput(first.duel!, 'talk').lines).toEqual([`  JOKER: ${joker.JOKER_TALK.idle[1]}`])
+  })
+
+  test('stop ends the duel like quit', () => {
+    const step = duelInput(fresh(), ' STOP ')
+    expect(step.duel).toBeNull()
+    expect(step.lines[1]).toBe(' type "play" to duel again')
   })
 })
 

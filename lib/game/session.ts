@@ -1,6 +1,6 @@
 import { pickJoker, resolve } from './engine'
-import { jokerReply, moodFor } from './joker'
-import { JOKER_DAMAGE, JOKER_MAX_HP, MAX_SP, PLAYER_MAX_HP, START } from './rules'
+import { jokerHint, jokerReply, jokerTalk, JOKER_NO_HINT, moodFor } from './joker'
+import { HINTS_PER_DUEL, JOKER_DAMAGE, JOKER_MAX_HP, MAX_SP, PLAYER_MAX_HP, START } from './rules'
 import type { JMove, Mood, Move, Rng, State } from './types'
 
 // Pure text layer for the terminal duel: the engine does the math, this turns its result into lines.
@@ -8,6 +8,10 @@ export interface Duel {
   state: State
   mood: Mood
   lastJMove?: JMove
+  // The Joker picks its move when the round starts, so a hint can tell the truth about it.
+  next: JMove
+  hints: number
+  talks: number
 }
 
 export interface DuelStep {
@@ -15,7 +19,7 @@ export interface DuelStep {
   lines: string[]
 }
 
-export const DUEL_COMMANDS = ['attack', 'defend', 'evade', 'counter', 'quit']
+export const DUEL_COMMANDS = ['attack', 'defend', 'evade', 'counter', 'hint', 'talk', 'stop', 'quit']
 const MOVES: string[] = ['attack', 'defend', 'evade', 'counter']
 
 const RULE = `+${'-'.repeat(46)}+`
@@ -31,6 +35,8 @@ export const RULES_TABLE = [
   '| counter | any hit (hits back)| you take full dmg   |',
   '+---------+--------------------+---------------------+',
   ' ultimate: evade is a 50/50 gamble',
+ ' hint: the Joker tips its next move (3 per duel, no turn used)',
+ ' talk: chat with the Joker (no turn used)    stop: end the duel',
 ]
 
 const normalize = (input: string) => input.trim().replace(/\s+/g, ' ').toLowerCase()
@@ -44,7 +50,7 @@ export function bar(value: number, max: number): string {
 const stat = (label: string, value: number, max: number) =>
   row(`${label}${bar(value, max)}${String(Math.min(max, Math.max(0, value))).padStart(5)} / ${max} `)
 
-export function hud(s: State): string[] {
+export function hud(s: State, hints = HINTS_PER_DUEL): string[] {
   return [
     RULE,
     row(`  ROUND ${s.turn}`),
@@ -54,6 +60,7 @@ export function hud(s: State): string[] {
     stat('         SP ', s.jsp, MAX_SP),
     RULE,
     row('  attack    defend    evade    counter'),
+    row(`  hint (${hints} left)    talk    stop`),
     RULE,
   ]
 }
@@ -80,25 +87,34 @@ const endScreen = (title: string, rounds: number, left: string, replay: string) 
   ` type "play" to ${replay}`,
 ]
 
-export function startDuel(showRules: boolean): DuelStep {
+export function startDuel(showRules: boolean, rnd?: Rng): DuelStep {
   const state = { ...START }
   return {
-    duel: { state, mood: 'idle' },
+    duel: { state, mood: 'idle', next: pickJoker(state, rnd), hints: HINTS_PER_DUEL, talks: 0 },
     lines: [...(showRules ? RULES_TABLE : []), ' the Joker deals you in. type quit to fold.', ...hud(state)],
   }
 }
 
 export function duelInput(duel: Duel, input: string, rnd?: Rng): DuelStep {
   const command = normalize(input)
-  if (command === 'quit') {
+  if (command === 'quit' || command === 'stop') {
     return { duel: null, lines: ['  you fold. the Joker card slips back into the deck.', ' type "play" to duel again'] }
   }
+  // Hint and talk are free: they never use the round or change the Joker's chosen move.
+  if (command === 'hint') {
+    if (duel.hints === 0) return { duel, lines: [`  JOKER: ${JOKER_NO_HINT}`] }
+    const hints = duel.hints - 1
+    return { duel: { ...duel, hints }, lines: [`  JOKER: ${jokerHint(duel.next)}`, `  (${hints} ${hints === 1 ? 'hint' : 'hints'} left)`] }
+  }
+  if (command === 'talk') {
+    return { duel: { ...duel, talks: duel.talks + 1 }, lines: [`  JOKER: ${jokerTalk(duel.mood, duel.talks)}`] }
+  }
   if (!MOVES.includes(command)) {
-    return { duel, lines: ['  only attack, defend, evade, counter or quit work mid-duel', ...jokerLines(command, duel.mood)] }
+    return { duel, lines: ['  only attack, defend, evade, counter, hint, talk or stop work mid-duel', ...jokerLines(command, duel.mood)] }
   }
 
   const move = command as Move
-  const jmove = pickJoker(duel.state, rnd)
+  const jmove = duel.next
   const { next, taken, dealt } = resolve(duel.state, move, jmove, rnd)
   // The engine cancels the Joker's move when an attack knocks it out, so never name a move that did not happen.
   const lines = move === 'attack' && next.jhp <= 0
@@ -110,5 +126,6 @@ export function duelInput(duel: Duel, input: string, rnd?: Rng): DuelStep {
   const rounds = duel.state.turn
   if (next.hp <= 0) return { duel: null, lines: [...lines, ...endScreen('!! BUSTED !!', rounds, `Joker HP left: ${Math.max(0, next.jhp)}`, 'try again')] }
   if (next.jhp <= 0) return { duel: null, lines: [...lines, ...endScreen('HEIST COMPLETE  -  JOKER IS DOWN', rounds, `HP left: ${next.hp}`, 'run it again')] }
-  return { duel: { state: next, mood: moodFor(next, jmove), lastJMove: jmove }, lines: [...lines, ...hud(next)] }
+  const after: Duel = { ...duel, state: next, mood: moodFor(next, jmove), lastJMove: jmove, next: pickJoker(next, rnd) }
+  return { duel: after, lines: [...lines, ...hud(next, after.hints)] }
 }

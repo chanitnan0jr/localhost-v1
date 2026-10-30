@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test'
-import { JOKER_DEFAULT, JOKER_LINES, jokerReply, moodFor } from './joker'
+import { JOKER_DEFAULT, JOKER_HINTS, JOKER_LINES, JOKER_NO_HINT, JOKER_TALK, jokerHint, jokerReply, jokerTalk, moodFor } from './joker'
 import { JOKER_MAX_HP, MAX_SP, PLAYER_MAX_HP, START } from './rules'
 import type { Mood } from './types'
 
@@ -98,4 +98,25 @@ test('moodFor is smug after a crit or ultimate, or when the visitor is at or bel
   expect(moodFor(START, 'ultimate')).toBe('smug')
   expect(moodFor({ ...START, hp: lowPlayerHp })).toBe('smug')
   expect(moodFor({ ...START, hp: lowPlayerHp + 1 })).toBe('idle')
+})
+
+test('every Joker move has a short plain-text hint', () => {
+  for (const move of ['normal', 'crit', 'precise', 'charge', 'ultimate'] as const) {
+    expect(jokerHint(move)).toBe(JOKER_HINTS[move])
+    expect(JOKER_HINTS[move].length).toBeLessThanOrEqual(90)
+    expect(JOKER_HINTS[move]).toMatch(/^[\x20-\x7e]+$/)
+  }
+  expect(JOKER_HINTS.crit).toContain('dodge')
+  expect(JOKER_HINTS.charge).toContain('attack')
+  expect(JOKER_NO_HINT).toMatch(/^[\x20-\x7e]+$/)
+})
+
+test('talk rotates through each mood without running out', () => {
+  for (const mood of MOODS) {
+    const lines = JOKER_TALK[mood]
+    expect(lines.length).toBeGreaterThan(0)
+    expect(jokerTalk(mood, 0)).toBe(lines[0])
+    expect(jokerTalk(mood, lines.length)).toBe(lines[0])
+    for (const line of lines) expect(line).toMatch(/^[\x20-\x7e]{1,90}$/)
+  }
 })

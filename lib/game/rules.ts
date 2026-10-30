@@ -22,4 +22,7 @@ export const JOKER_WEIGHTS: Record<Exclude<JMove, 'ultimate'>, number> = { norma
 // Evade dodges an ultimate when rnd() is below this value.
 export const EVADE_ULTIMATE_CHANCE = 0.5
 
+// Free hints per duel; each one tells the truth about the Joker's next move.
+export const HINTS_PER_DUEL = 3
+
 export const START: State = { hp: PLAYER_MAX_HP, jhp: JOKER_MAX_HP, jsp: 0, turn: 1 }

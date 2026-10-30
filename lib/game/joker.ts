@@ -112,6 +112,50 @@ export function jokerReply(input: string, mood: Mood): string {
 }
 
 // Exact for whole numbers, so 9 of 30 is 30% rather than a float on either side of it.
+// What the Joker card lets slip about the move it has already chosen; each line points at the best answer.
+export const JOKER_HINTS: Readonly<Record<JMove, string>> = {
+  normal: 'Just a plain flourish next. A nimble guest could simply step aside.',
+  crit: 'Something sharp is coming. You should prepare to dodge.',
+  precise: 'My aim is flawless this round. Dodging won\'t help; brace yourself.',
+  charge: 'I need a moment to gather myself. You should attack me next turn.',
+  ultimate: 'The grand finale is next. Guard well, or gamble on a dodge.',
+}
+
+export const JOKER_NO_HINT = 'No more tips, dear guest. From here you read the cards yourself.'
+
+// Small talk with no game information; the mood picks the set and the count rotates through it.
+export const JOKER_TALK: Readonly<Record<Mood, readonly string[]>> = {
+  idle: [
+    'Fifty-two cards in a deck, and somehow nobody remembers to count me.',
+    'I collect stories, not wallets. Yours is shaping up to be a good one.',
+    'Every portfolio hides one extra card. You found this one.',
+  ],
+  smug: [
+    'You are doing well. Not as well as me, of course, but well.',
+    'Was that your plan, or did the cards decide for you?',
+    'I do enjoy a guest who keeps trying.',
+  ],
+  hurt: [
+    'A crease here, a bent corner there. Nothing a good shuffle cannot fix.',
+    'You are better at this than the last guest. Much better, sadly.',
+    'Give me a moment. Even a trick card needs to catch its breath.',
+  ],
+  charging: [
+    'Can you feel it? The deck is about to turn in my favor.',
+    'Hush. I am concentrating on something rather spectacular.',
+    'Keep watching my hands. Or don\'t. It won\'t matter in a moment.',
+  ],
+}
+
+export function jokerHint(next: JMove): string {
+  return JOKER_HINTS[next]
+}
+
+export function jokerTalk(mood: Mood, count: number): string {
+  const lines = JOKER_TALK[mood]
+  return lines[count % lines.length]
+}
+
 const percent = (value: number, max: number) => (value * 100) / max
 
 export function moodFor(s: State, lastJMove?: JMove): Mood {

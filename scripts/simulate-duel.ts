@@ -1,15 +1,18 @@
 // Balance check for the terminal duel: plays many games per visitor strategy and prints win rates.
 // Run with: bun scripts/simulate-duel.ts
 import { pickJoker, resolve } from '../lib/game/engine'
-import { ATTACK_DAMAGE, JOKER_MAX_HP, MAX_SP, START } from '../lib/game/rules'
-import type { Move, State } from '../lib/game/types'
+import { ATTACK_DAMAGE, HINTS_PER_DUEL, JOKER_MAX_HP, MAX_SP, START } from '../lib/game/rules'
+import type { JMove, Move, State } from '../lib/game/types'
 
 const GAMES = 10_000
 const TURN_CAP = 100 // a game still running after this many turns is a draw
 const WIN_LIMIT = 0.7 // warn when a strategy wins more often than this
 const MOVES: Move[] = ['attack', 'defend', 'evade', 'counter']
 
-type Strategy = (s: State) => Move
+// hint() reveals the Joker's chosen move while the duel's hints last, like the terminal's hint command.
+type Strategy = (s: State, hint: () => JMove | undefined) => Move
+// The answer a visitor would pick once a hint names the move.
+const ANSWER: Record<JMove, Move> = { normal: 'attack', crit: 'evade', precise: 'defend', charge: 'attack', ultimate: 'defend' }
 type Outcome = 'win' | 'loss' | 'draw'
 
 const STRATEGIES: [string, Strategy][] = [
@@ -20,12 +23,17 @@ const STRATEGIES: [string, Strategy][] = [
   ['counter only', () => 'counter'],
   // Uses only what the visitor can see: a full SP bar means an ultimate is coming.
   ['smart', (s) => (s.jsp >= MAX_SP ? 'defend' : 'attack')],
+  // Smart, plus the three hints spent on the first rounds where the SP bar does not already give the move away.
+  ['smart + hints', (s, hint) => (s.jsp >= MAX_SP ? 'defend' : ANSWER[hint() ?? 'normal'])],
 ]
 
 function play(strategy: Strategy): { outcome: Outcome; turns: number } {
   let s = START
+  let hints = HINTS_PER_DUEL
   for (let turn = 1; turn <= TURN_CAP; turn++) {
-    const result = resolve(s, strategy(s), pickJoker(s))
+    const j = pickJoker(s)
+    const hint = () => (hints > 0 ? (hints--, j) : undefined)
+    const result = resolve(s, strategy(s, hint), j)
     s = result.next
     if (result.over) return { outcome: s.jhp === 0 ? 'win' : 'loss', turns: turn }
   }
