@@ -273,7 +273,7 @@ async function check() {
     'next/image': { default: () => null },
   })
   const storyHTML = renderToStaticMarkup(createElement(story.default))
-  assert.ok(storyHTML.includes('aria-label="Open ICPC Sub Regional gallery, 3 photos"'), 'The Timeline photo opens its chapter gallery')
+  assert.ok(storyHTML.includes(`aria-label="Open ${timeline.TIMELINE_CHAPTERS[0].title} gallery, ${timeline.TIMELINE_CHAPTERS[0].photos.length} photos"`), 'The Timeline photo opens its chapter gallery')
 
   let modal = null
   const modalContext = load('context/ModalContext.tsx', {
@@ -304,7 +304,7 @@ async function check() {
   assert.ok(galleryHTML.includes('aria-label="Previous photo"') && galleryHTML.includes('aria-label="Next photo"'))
   assert.ok(!renderModal(modal).includes('Previous photo'), 'A single certificate keeps the plain image preview')
   assert.equal((storyHTML.match(/aria-label="Go to chapter /g) ?? []).length, 6)
-  assert.ok(storyHTML.includes('data-chapter="icpc"'))
+  assert.ok(storyHTML.includes('data-chapter="pragma"'))
   assert.equal(timeline.TIMELINE_CHAPTERS[0].timelinePhoto.src, '/images/PRAGMA41/PRAGMA2.jpg', 'PRAGMA Timeline must show the landscape hackathon photo')
   assert.equal(timeline.TIMELINE_CHAPTERS[5].photos[0].src, '/images/U-Hackathon/20261015_094657.jpg', 'U-Hackathon Timeline must show the welcome screen photo')
   assert.ok(storyHTML.includes('id="gallery"'), 'Existing gallery hashes must keep their target')

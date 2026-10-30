@@ -13,7 +13,7 @@ function Arrow({ back = false }: { back?: boolean }) {
 
 export default function PortfolioTimeline() {
   const { openGallery } = useModalContext()
-  const [selected, setSelected] = useState(2)
+  const [selected, setSelected] = useState(0)
   const swipeStart = useRef<number | null>(null)
   const swiped = useRef(false)
   const buttons = useRef<(HTMLButtonElement | null)[]>([])

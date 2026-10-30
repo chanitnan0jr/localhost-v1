@@ -56,6 +56,7 @@ export const PERSONAL_PROJECTS: Project[] = [
     badge: 'Research workflows · Backend reliability',
     tags: ['Django · DRF', 'React · TypeScript', 'PostgreSQL', 'AWS · S3', 'RBAC'],
     type: 'personal',
+    liveUrl: 'https://d3s961c8cl4lgn.cloudfront.net/dashboard',
     repoUrl: 'https://github.com/GearJP2/agriscan-pro',
   },
   {
