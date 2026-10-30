@@ -32,6 +32,10 @@ test('evade vs ultimate is a gamble decided by rnd', () => {
   const hit = resolve(ready, 'evade', 'ultimate', high)
   expect(hit.taken).toBe(JOKER_DAMAGE.ultimate)
   expect(hit.next.hp).toBe(START.hp - JOKER_DAMAGE.ultimate)
+
+  // The rule is a strict rnd() < 0.5, so exactly 0.5 is a hit; a dodged ultimate still spends the SP.
+  expect(resolve(ready, 'evade', 'ultimate', () => 0.5).taken).toBe(JOKER_DAMAGE.ultimate)
+  expect(dodged.next.jsp).toBe(0)
 })
 
 test('defend vs crit takes 6', () => {
@@ -171,6 +175,7 @@ test('a finished state is returned unchanged', () => {
   for (const done of [at({ hp: 0, turn: 9 }), at({ jhp: 0, turn: 9 })]) {
     const r = resolve(done, 'attack', 'crit', low)
     expect(r.next).toEqual(done)
+    expect(r.next).not.toBe(done)
     expect(r.taken).toBe(0)
     expect(r.dealt).toBe(0)
     expect(r.over).toBe(true)
