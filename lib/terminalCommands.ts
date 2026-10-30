@@ -199,3 +199,27 @@ export function runTerminalCommand(
     kind: 'error',
   }
 }
+
+const VISITOR_DEMO = [
+  'Total Unique Visitors: 1,337 (Local Demo · Redis offline)',
+  'Breakdown by OS:',
+  '  Linux            842 visitors',
+  '  macOS            310 visitors',
+  '  Windows          185 visitors',
+]
+
+// Formats a /api/visitors response; anything without a numeric total shows the demo.
+export function visitorStatsLines(data: unknown): string[] {
+  const stats = data as { total?: unknown; byOs?: unknown } | null
+  if (!stats || typeof stats.total !== 'number') return VISITOR_DEMO
+  const byOs = stats.byOs && typeof stats.byOs === 'object' && !Array.isArray(stats.byOs)
+    ? stats.byOs as Record<string, number>
+    : {}
+  const osEntries = Object.entries(byOs)
+    .sort(([, a], [, b]) => b - a)
+    .map(([os, count]) => `  ${os.padEnd(16)} ${count} visitor${count !== 1 ? 's' : ''}`)
+  return [
+    `Total Unique Visitors: ${stats.total}`,
+    ...(osEntries.length > 0 ? ['Breakdown by OS:', ...osEntries] : []),
+  ]
+}

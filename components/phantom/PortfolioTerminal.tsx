@@ -1,12 +1,9 @@
 'use client'
 
-import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { runTerminalCommand, TERMINAL_COMMANDS } from '@/lib/terminalCommands'
-interface Line {
-  kind: 'output' | 'error' | 'input' | 'art'
-  text: string
-}
+import { useEffect, useRef } from 'react'
+import { useTerminal, type TerminalLine } from '@/hooks/useTerminal'
+import { runTerminalCommand } from '@/lib/terminalCommands'
+
 const MASK_ART = String.raw`       /\              /\
       /##\            /##\
      /####\__________/####\
@@ -21,203 +18,24 @@ const MASK_ART = String.raw`       /\              /\
        \/            \##/
                       \/`
 
-const INITIAL_LINES: Line[] = [
+const INITIAL_LINES: TerminalLine[] = [
   { kind: 'art', text: MASK_ART },
   ...runTerminalCommand('whoami', []).lines.map(text => ({ kind: 'output' as const, text })),
   { kind: 'output', text: '' },
   { kind: 'output', text: 'Type help for commands. Type exit to return home.' },
 ]
-const VISITOR_DEMO: Line[] = [
-  { kind: 'output', text: 'Total Unique Visitors: 1,337 (Local Demo · Redis offline)' },
-  { kind: 'output', text: 'Breakdown by OS:' },
-  { kind: 'output', text: '  Linux            842 visitors' },
-  { kind: 'output', text: '  macOS            310 visitors' },
-  { kind: 'output', text: '  Windows          185 visitors' },
-]
 
 export default function PortfolioTerminal() {
-  const router = useRouter()
-  const [lines, setLines] = useState<Line[]>(INITIAL_LINES)
-  const [input, setInput] = useState('')
-  const [history, setHistory] = useState<string[]>([])
-  const [historyIndex, setHistoryIndex] = useState(-1)
-  const [candidateIndex, setCandidateIndex] = useState(0)
-  const draft = useRef('')
+  const { lines, input, ghostSuffix, field, submit, inputProps } = useTerminal(INITIAL_LINES)
   const output = useRef<HTMLDivElement>(null)
-  const field = useRef<HTMLInputElement>(null)
-  const composing = useRef(false)
-  const visitorController = useRef<AbortController | null>(null)
-
-  // Candidate filtering matching current input
-  const query = input.trim().toLowerCase()
-  const candidates = query
-    ? TERMINAL_COMMANDS.filter((cmd) => cmd.toLowerCase().startsWith(query))
-    : []
-
-  const activeCandidate = candidates[candidateIndex] || candidates[0] || ''
-  const ghostSuffix =
-    activeCandidate &&
-    input &&
-    activeCandidate.toLowerCase().startsWith(input.toLowerCase())
-      ? activeCandidate.slice(input.length)
-      : ''
 
   useEffect(() => {
-    const controller = new AbortController()
-    visitorController.current = controller
     if (window.matchMedia('(pointer: fine)').matches) field.current?.focus({ preventScroll: true })
-    return () => {
-      controller.abort()
-      visitorController.current = null
-    }
-  }, [])
+  }, [field])
 
   useEffect(() => {
     if (output.current) output.current.scrollTop = output.current.scrollHeight
   }, [lines])
-
-  const executeCommand = (cmd: string) => {
-    const nextHistory = [...history, cmd].slice(-50)
-    const result = runTerminalCommand(cmd, nextHistory)
-    setHistory(nextHistory)
-    setHistoryIndex(-1)
-    setCandidateIndex(0)
-    setInput('')
-    draft.current = ''
-    setLines((previous) =>
-      result.clear
-        ? []
-        : [
-            ...previous,
-            { kind: 'input', text: cmd } as Line,
-            ...result.lines.map(
-              (text) => ({ kind: result.kind ?? 'output', text }) as Line,
-            ),
-          ].slice(-160),
-    )
-    if (result.navigate) router.push(result.navigate)
-    if (result.asyncAction === 'visitors') {
-      const signal = visitorController.current?.signal
-      const appendStats = (stats: Line[]) => {
-        if (signal?.aborted) return
-        setLines((previous) => [...previous, ...stats].slice(-160))
-      }
-      fetch('/api/visitors', { cache: 'no-store', signal })
-        .then((res) => res.ok ? res.json() : null)
-        .then((data) => {
-          if (signal?.aborted) return
-          if (data && typeof data.total === 'number') {
-            const byOs = data.byOs && typeof data.byOs === 'object' && !Array.isArray(data.byOs)
-              ? data.byOs as Record<string, number>
-              : {}
-            const osEntries = Object.entries(byOs)
-              .sort(([, a], [, b]) => b - a)
-              .map(
-                ([os, count]) =>
-                  `  ${os.padEnd(16)} ${count} visitor${count !== 1 ? 's' : ''}`,
-              )
-            appendStats([
-              { kind: 'output', text: `Total Unique Visitors: ${data.total}` },
-              ...(osEntries.length > 0
-                ? [
-                    { kind: 'output', text: 'Breakdown by OS:' } as Line,
-                    ...osEntries.map(
-                      (t) => ({ kind: 'output', text: t } as Line),
-                    ),
-                  ]
-                : []),
-            ])
-          } else {
-            appendStats(VISITOR_DEMO)
-          }
-        })
-        .catch(() => {
-          appendStats(VISITOR_DEMO)
-        })
-    }
-    field.current?.focus()
-  }
-
-  const submit = (event: FormEvent) => {
-    event.preventDefault()
-    if (composing.current) return
-    // Accept autocomplete on Enter if a suggestion is active
-    if (
-      activeCandidate &&
-      input.trim().toLowerCase() !== activeCandidate.toLowerCase()
-    ) {
-      setInput(activeCandidate)
-      setCandidateIndex(0)
-      return
-    }
-    const command = input.trim()
-    if (!command) return
-    executeCommand(command)
-  }
-
-  const handleInputChange = (value: string) => {
-    setInput(value)
-    setHistoryIndex(-1)
-    setCandidateIndex(0)
-  }
-
-  const keydown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.nativeEvent.isComposing) return
-    if (event.ctrlKey && event.key.toLowerCase() === 'l') {
-      event.preventDefault()
-      executeCommand('clear')
-      return
-    }
-    // Tab cycles candidates if multiple exist, or autocompletes if single
-    if (event.key === 'Tab' && !event.shiftKey && candidates.length > 0) {
-      event.preventDefault()
-      if (candidates.length > 1) {
-        setCandidateIndex((prev) => (prev + 1) % candidates.length)
-      } else {
-        setInput(candidates[0])
-        setCandidateIndex(0)
-      }
-      return
-    }
-    // Shift+Tab cycles backwards
-    if (event.key === 'Tab' && event.shiftKey && candidates.length > 1) {
-      event.preventDefault()
-      setCandidateIndex(
-        (prev) => (prev - 1 + candidates.length) % candidates.length,
-      )
-      return
-    }
-    // ArrowRight accepts suggestion when at end of input
-    if (
-      event.key === 'ArrowRight' &&
-      field.current?.selectionStart === input.length &&
-      activeCandidate &&
-      ghostSuffix
-    ) {
-      event.preventDefault()
-      setInput(activeCandidate)
-      setCandidateIndex(0)
-      return
-    }
-    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-      event.preventDefault()
-      if (!history.length) return
-      if (historyIndex === -1) draft.current = input
-      const next =
-        event.key === 'ArrowUp'
-          ? Math.min(historyIndex + 1, history.length - 1)
-          : Math.max(historyIndex - 1, -1)
-      setHistoryIndex(next)
-      const nextVal =
-        next === -1 ? draft.current : history[history.length - 1 - next]
-      setInput(nextVal)
-      setCandidateIndex(0)
-    } else if (event.key === 'Escape') {
-      setInput('')
-      setHistoryIndex(-1)
-      setCandidateIndex(0)
-    }
-  }
 
   return (
     <section id="terminal" className="terminal-section" aria-label="Portfolio terminal">
@@ -237,9 +55,7 @@ export default function PortfolioTerminal() {
           <label className="terminal-prompt" htmlFor="portfolio-command" aria-hidden="true">visitor@localhost:<span>~$</span></label>
           <div className="terminal-input-wrapper">
             {ghostSuffix && <div className="terminal-ghost-overlay" aria-hidden="true"><span className="terminal-ghost-typed">{input}</span><span className="terminal-ghost-suffix">{ghostSuffix}</span></div>}
-            <input id="portfolio-command" ref={field} type="text" aria-label="Terminal command" aria-describedby="terminal-instructions" value={input}
-              onChange={event => handleInputChange(event.target.value)} onKeyDown={keydown}
-              onCompositionStart={() => { composing.current = true }} onCompositionEnd={() => { composing.current = false }}
+            <input id="portfolio-command" ref={field} type="text" aria-label="Terminal command" aria-describedby="terminal-instructions" {...inputProps}
               maxLength={500} autoComplete="off" autoCapitalize="off" spellCheck={false} enterKeyHint="send" />
           </div>
         </form>

@@ -168,6 +168,18 @@ async function check() {
     assert.ok(projectOutput.includes(project.name))
     assert.ok(projectOutput.includes(project.description))
   }
+  const notFound = load('lib/notFoundTerminal.ts', {})
+  const client = { os: 'Linux x86_64', browser: 'Firefox', cores: 8, ram: '8 GB', screen: '1920x1080', tz: 'Asia/Bangkok', connection: '4g' }
+  assert.equal(notFound.detectOS('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'), 'macOS 10.15.7 arm64')
+  assert.equal(notFound.detectBrowser('Mozilla/5.0 Chrome/120 Edg/120'), 'Microsoft Edge')
+  const boot = notFound.buildBootSequence('203.0.113.7', client)
+  assert.ok(boot.includes('systemd[1]: Source IP: 203.0.113.7'))
+  assert.equal(boot.at(-2), '404: PAGE_NOT_FOUND — The address you requested does not exist.')
+  assert.deepEqual(terminal.visitorStatsLines({ total: 3, byOs: { Linux: 1, macOS: 2 } }), ['Total Unique Visitors: 3', 'Breakdown by OS:', '  macOS            2 visitors', '  Linux            1 visitor'])
+  assert.deepEqual(terminal.visitorStatsLines({ total: 0, byOs: {} }), ['Total Unique Visitors: 0'])
+  for (const failed of [null, { error: 'Redis offline' }, { total: '3' }]) {
+    assert.match(terminal.visitorStatsLines(failed)[0], /Local Demo/, 'Missing statistics fall back to the demo')
+  }
   const card = load('components/projects/ProjectCard.tsx', {})
   const sections = load('components/projects/ProjectsContent.tsx', {
     '@/lib/projectsData': projects, '@/components/projects/ProjectCard': card,
@@ -383,7 +395,7 @@ async function check() {
   })
   assert.equal((await (await missingReadme.GET(request)).json()).readme, '')
   await checkVisitorProvider()
-  console.log('Rendering, project/contact data, carousel throttle, Timeline/gallery dialog, 52-card deck, terminal commands, visitor state/APIs, and failure fallbacks passed.')
+  console.log('Rendering, project/contact data, carousel throttle, Timeline/gallery dialog, 52-card deck, shared terminal commands, 404 boot sequence, visitor state/APIs, and failure fallbacks passed.')
 }
 
 check().catch((error) => { console.error(error); process.exitCode = 1 })
