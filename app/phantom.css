@@ -652,15 +652,6 @@ html:has(.home-portfolio) { scroll-snap-type: y proximity; scroll-padding-top: v
   color: #eeeadf;
 }
 
-.contact-status-dot {
-  flex-shrink: 0;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #e21f39;
-  box-shadow: 0 0 10px rgba(226, 31, 57, 0.65);
-}
-
 .contact-headline {
   display: flex;
   flex-direction: column;

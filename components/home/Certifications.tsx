@@ -22,7 +22,7 @@ export default function Certifications() {
         <header className="certifications-header stack-title-group">
           <h2 id="certifications-heading" className="certifications-title">
             <span className="stack-title-slash" aria-hidden="true">/</span>
-            <span>CERTIFICATIONS</span>
+            <span className="stack-title-badge">CERTIFICATIONS</span>
           </h2>
           <p className="stack-subtitle">ONGOING LEARNING</p>
         </header>

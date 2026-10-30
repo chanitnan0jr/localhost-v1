@@ -9,7 +9,6 @@ export default function GetInTouch() {
           {/* Left Column: Invitation */}
           <div className="contact-copy">
             <p className="contact-status">
-              <span className="contact-status-dot" aria-hidden="true" />
               <span>OPEN FOR INTERNSHIP 2026</span>
             </p>
 
