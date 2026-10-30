@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import PortfolioTerminal from '@/components/detective/PortfolioTerminal'
+import PortfolioTerminal from '@/components/phantom/PortfolioTerminal'
 
 export const metadata: Metadata = {
   description: 'Interactive system console and runtime terminal by Chanitnan Kitnantakhun.',

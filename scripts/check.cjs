@@ -117,8 +117,8 @@ async function check() {
   })
   assert.equal(deck.FULL_DECK.length, 52)
   assert.equal(new Set(deck.FULL_DECK.map((card) => card.id)).size, 52)
-  const playingCard = load('components/detective/PlayingCard.tsx', { '@/lib/cardDeck': deck })
-  const orbit = load('components/detective/CardOrbit.tsx', { '@/lib/cardDeck': deck, './PlayingCard': playingCard, 'next/image': { default: () => null } })
+  const playingCard = load('components/phantom/PlayingCard.tsx', { '@/lib/cardDeck': deck })
+  const orbit = load('components/phantom/CardOrbit.tsx', { '@/lib/cardDeck': deck, './PlayingCard': playingCard, 'next/image': { default: () => null } })
   const orbitHTML = renderToStaticMarkup(createElement(orbit.default, { reducedMotion: true }))
   assert.equal((orbitHTML.match(/data-orbit-card=/g) ?? []).length, 52)
   const initialPositions = [...orbitHTML.matchAll(/class="orbit-card" style="left:([^;]+);top:([^;]+)/g)].map((match) => `${match[1]}:${match[2]}`)
@@ -260,7 +260,7 @@ async function check() {
   }
   assert.ok(readFileSync(join(__dirname, '..', 'public/images/timeline/evidence-board.webp')).length)
   assert.ok(readFileSync(join(__dirname, '..', 'public/images/timeline/chapter-folder.webp')).length)
-  const story = load('components/detective/PortfolioTimeline.tsx', {
+  const story = load('components/phantom/PortfolioTimeline.tsx', {
     '@/lib/portfolioTimeline': timeline,
     '@/context/ModalContext': { useModalContext: () => ({ openGallery() {} }) },
     'next/image': { default: () => null },

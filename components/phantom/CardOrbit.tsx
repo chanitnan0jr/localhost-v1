@@ -120,9 +120,9 @@ export default function CardOrbit({
       role="img"
       aria-label="Fifty-two playing cards orbit an original masked phantom thief in a black cape"
     >
-      <div className="detective-ground" />
+      <div className="phantom-ground" />
       <Image
-        className="detective-figure"
+        className="phantom-figure"
         src="/images/phantom/cardsharp-hero.webp"
         width={1536}
         height={1024}

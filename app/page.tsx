@@ -1,5 +1,5 @@
-import Hero from '@/components/detective/DetectiveHero'
-import PortfolioTimeline from '@/components/detective/PortfolioTimeline'
+import Hero from '@/components/phantom/PhantomHero'
+import PortfolioTimeline from '@/components/phantom/PortfolioTimeline'
 import About from '@/components/home/About'
 import LabResearch from '@/components/home/LabResearch'
 import Certifications from '@/components/home/Certifications'

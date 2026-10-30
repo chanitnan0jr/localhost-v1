@@ -10,7 +10,7 @@ import {
 import CardOrbit from './CardOrbit'
 import PlayingCard from './PlayingCard'
 
-export default function DetectiveHero() {
+export default function PhantomHero() {
   const section = useRef<HTMLElement>(null)
   const [hand, setHand] = useState<Destination[]>(DESTINATIONS)
   const [dealt, setDealt] = useState(false)
@@ -68,17 +68,17 @@ export default function DetectiveHero() {
   }, [reducedMotion, dealt])
   return (
     <section
-      className={`detective-hero ${dealt ? 'has-hand' : ''}`}
+      className={`phantom-hero ${dealt ? 'has-hand' : ''}`}
       id="home"
       ref={section}
-      aria-labelledby="detective-heading"
+      aria-labelledby="phantom-heading"
       data-motion="paused"
     >
       <div className="hero-backdrop" aria-hidden="true" />
       <div className="hero-composition">
         <span className="hero-identity">A curious mind. Always one move ahead.</span>
         <div className="hero-copy">
-          <h1 id="detective-heading" tabIndex={-1}>
+          <h1 id="phantom-heading" tabIndex={-1}>
             <span>Every detail</span>
             <br />
             <span>Tells your</span>
