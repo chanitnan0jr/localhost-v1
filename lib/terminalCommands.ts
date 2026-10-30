@@ -1,5 +1,5 @@
 import { DESTINATIONS, SUIT_SYMBOLS } from './cardDeck'
-import { OPENSOURCE_PROJECTS, PERSONAL_PROJECTS, COLLABORATIVE_PROJECTS } from './projectsData'
+import { OPENSOURCE_PROJECTS, PERSONAL_PROJECTS, COLLABORATIVE_PROJECTS, type Project } from './projectsData'
 import { CONTACT } from './contact'
 export interface TerminalResult {
   lines: string[]
@@ -7,7 +7,13 @@ export interface TerminalResult {
   navigate?: string
   clear?: boolean
   asyncAction?: 'visitors'
+  // Flags for the hook, which owns the duel and the Joker; this module stays free of game imports.
+  startDuel?: true
+  notFound?: true
+  // Opened in a new tab by the hook; always a URL from lib/projectsData.ts, never from the input.
+  openUrl?: string
 }
+const ALL_PROJECTS = [...OPENSOURCE_PROJECTS, ...COLLABORATIVE_PROJECTS, ...PERSONAL_PROJECTS]
 export const TERMINAL_COMMANDS = [
   'help',
   'fastfetch',
@@ -21,6 +27,9 @@ export const TERMINAL_COMMANDS = [
   'uptime',
   'sudo',
   'ls',
+  'projects',
+  'connect',
+  'github',
   'cat about',
   'cat projects',
   'cat contact',
@@ -31,6 +40,7 @@ export const TERMINAL_COMMANDS = [
   'open terminal',
   'open contact',
   'deck',
+  'play',
   'history',
   'date',
   'clear',
@@ -41,6 +51,7 @@ export function runTerminalCommand(
 ): TerminalResult {
   const command = input.trim().replace(/\s+/g, ' ').toLowerCase()
   if (command === 'clear') return { lines: [], clear: true }
+  if (command === 'play') return { lines: [], startDuel: true }
 
   if (command === 'fastfetch' || command === 'neofetch' || command === 'fetch') {
     return {
@@ -111,24 +122,51 @@ export function runTerminalCommand(
   if (command === 'help')
     return {
       lines: [
-        'Available commands:',
-        '  fastfetch / neofetch  Show system & portfolio architecture',
-        '  viewcount / visitors  Display visitor telemetry & statistics',
-        '  whoami                Meet the engineer',
-        '  skills / stack        List backend & engineering capabilities',
-        '  ls                    List portfolio destinations',
-        '  cat about             Read personal background',
-        '  cat projects          Browse projects directory',
-        '  cat contact           Get contact info',
-        '  open <destination>    Navigate to a section or page',
-        '  deck                  Read the 52-card directory',
-        '  history / date        Command history / local time',
-        '  uptime / uname        Check system metrics & kernel',
-        '  clear                 Clear the console screen',
+        '+------------+--------------------------------+',
+        '| COMMAND    | WHAT IT DOES                   |',
+        '+------------+--------------------------------+',
+        '| projects   | list my projects               |',
+        '| connect X  | open live demo of project X    |',
+        '| github X   | open source code of project X  |',
+        '| play       | duel the Joker                 |',
+        '| whoami     | who is this                    |',
+        '| exit       | return home                    |',
+        '| more       | ls, deck, open <page>          |',
+        '|            | cat about / projects / contact |',
+        '|            | fastfetch, skills, visitors    |',
+        '|            | history, date, uptime, clear   |',
+        '+------------+--------------------------------+',
         '',
         'Use ↑ / ↓ for history. Tab cycles hints; Enter or → accepts. Escape clears input.',
       ],
     }
+  if (command === 'projects')
+    return {
+      lines: ALL_PROJECTS.map(
+        (project) => `${project.id.padEnd(26)} ${project.liveUrl ? 'live' : '    '} ${project.repoUrl ? 'repo' : '    '}  ${project.name}`,
+      ).concat('', 'connect <id> opens a live demo; github <id> opens the source.'),
+    }
+  if (/^(connect|github)( |$)/.test(command)) {
+    const [verb, ...rest] = command.split(' ')
+    const name = rest.join(' ')
+    const urlOf = (p: Project) => (verb === 'connect' ? p.liveUrl : p.repoUrl)
+    const matches = (p: Project) => p.id.startsWith(name) || p.name.toLowerCase().startsWith(name)
+    // An exact id wins; otherwise prefer a prefix match that has the link asked for.
+    const project = name
+      ? ALL_PROJECTS.find((p) => p.id === name) ??
+        ALL_PROJECTS.find((p) => matches(p) && urlOf(p)) ??
+        ALL_PROJECTS.find(matches)
+      : undefined
+    const url = project && urlOf(project)
+    if (project && url) return { lines: [`Opening ${project.name} ${verb === 'connect' ? 'live demo' : 'source'}…`], openUrl: url }
+    return {
+      lines: [
+        !name ? `Usage: ${verb} <project>` : project ? `${project.name} has no ${verb === 'connect' ? 'live demo' : 'public repo'}.` : `Unknown project: ${name}`,
+        `Valid ids: ${ALL_PROJECTS.filter(urlOf).map((p) => p.id).join(', ')}`,
+      ],
+      kind: 'error',
+    }
+  }
   if (
     command === 'whoami' ||
     command === 'cat about' ||
@@ -150,7 +188,7 @@ export function runTerminalCommand(
     }
   if (command === 'cat projects')
     return {
-      lines: [...OPENSOURCE_PROJECTS, ...COLLABORATIVE_PROJECTS, ...PERSONAL_PROJECTS].flatMap(
+      lines: ALL_PROJECTS.flatMap(
         (project) => [
           `${project.name} — ${project.category}`,
           project.description,
@@ -197,6 +235,7 @@ export function runTerminalCommand(
       'Type help to see available commands.',
     ],
     kind: 'error',
+    notFound: true,
   }
 }
 

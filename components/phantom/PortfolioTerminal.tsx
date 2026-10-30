@@ -26,7 +26,7 @@ const INITIAL_LINES: TerminalLine[] = [
 ]
 
 export default function PortfolioTerminal() {
-  const { lines, input, ghostSuffix, field, submit, inputProps } = useTerminal(INITIAL_LINES)
+  const { lines, dueling, input, ghostSuffix, field, submit, inputProps } = useTerminal(INITIAL_LINES)
   const output = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -45,14 +45,14 @@ export default function PortfolioTerminal() {
           {lines.map((line, index) => line.kind === 'art' ? (
             <pre key={index} className="terminal-mask-art" aria-hidden="true">{line.text}</pre>
           ) : (
-            <div key={index} className={`terminal-line ${line.kind}`}>
-              {line.kind === 'input' && <span className="terminal-prompt" aria-hidden="true">visitor@localhost:~$ </span>}
+            <div key={index} className={`terminal-line ${line.kind}`} style={line.kind === 'box' ? { whiteSpace: 'pre', overflowWrap: 'normal' } : undefined}>
+              {line.kind === 'input' && <span className="terminal-prompt" aria-hidden="true">visitor@{line.duel ? 'duel' : 'localhost'}:~$ </span>}
               {line.text || '\u00a0'}
             </div>
           ))}
         </div>
         <form onSubmit={submit} className="terminal-command">
-          <label className="terminal-prompt" htmlFor="portfolio-command" aria-hidden="true">visitor@localhost:<span>~$</span></label>
+          <label className="terminal-prompt" htmlFor="portfolio-command" aria-hidden="true">visitor@{dueling ? 'duel' : 'localhost'}:<span>~$</span></label>
           <div className="terminal-input-wrapper">
             {ghostSuffix && <div className="terminal-ghost-overlay" aria-hidden="true"><span className="terminal-ghost-typed">{input}</span><span className="terminal-ghost-suffix">{ghostSuffix}</span></div>}
             <input id="portfolio-command" ref={field} type="text" aria-label="Terminal command" aria-describedby="terminal-instructions" {...inputProps}

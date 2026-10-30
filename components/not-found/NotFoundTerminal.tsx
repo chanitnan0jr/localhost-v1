@@ -73,7 +73,7 @@ export default function NotFoundTerminal() {
         </div>
 
         {/* History */}
-        <div className="space-y-1">
+        <div className="space-y-1 overflow-x-auto">
           {lines.map((line, i) => (
             <div key={i} className="flex items-start gap-2">
               {line.kind === 'input' && (
@@ -81,9 +81,10 @@ export default function NotFoundTerminal() {
               )}
               <p
                 className={[
-                  'text-sm leading-relaxed tracking-wide whitespace-pre-wrap break-all',
+                  'text-sm leading-relaxed tracking-wide',
+                  line.kind === 'box' ? 'whitespace-pre' : 'whitespace-pre-wrap break-all',
                   line.kind === 'input' ? 'text-white font-bold' : '',
-                  line.kind === 'output' || line.kind === 'art' ? 'text-accent-green/70' : '',
+                  line.kind === 'output' || line.kind === 'art' || line.kind === 'box' ? 'text-accent-green/70' : '',
                   line.kind === 'error' ? 'text-red-400' : '',
                 ].join(' ')}
               >
