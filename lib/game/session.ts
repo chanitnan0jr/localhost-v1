@@ -1,4 +1,4 @@
-import { pickJoker, resolve } from './engine'
+import { dodgeChance, pickJoker, resolve } from './engine'
 import { jokerHint, jokerReply, jokerTalk, JOKER_NO_HINT, moodFor } from './joker'
 import { HINTS_PER_DUEL, JOKER_DAMAGE, JOKER_MAX_HP, MAX_SP, PLAYER_MAX_HP, START } from './rules'
 import type { JMove, Mood, Move, Rng, State } from './types'
@@ -35,10 +35,13 @@ export const RULES_TABLE = [
   '| counter | any hit (hits back)| you take full dmg   |',
   '+---------+--------------------+---------------------+',
   ' ultimate: evade is a 50/50 gamble',
- ' hint: the Joker tips its next move (3 per duel, no turn used)',
- ' talk: chat with the Joker (no turn used)    stop: end the duel',
+  ' streak: each attack in a row gives the Joker +15% to dodge (max 60%);',
+  ' after a dodge it counters at the same chance',
+  ' hint: the Joker tips its next move (3 per duel, no turn used)',
+  ' talk: chat with the Joker (no turn used)    stop: end the duel',
 ]
 
+const percent = (chance: number) => `${Math.round(chance * 100)}%`
 const normalize = (input: string) => input.trim().replace(/\s+/g, ' ').toLowerCase()
 
 // e.g. "[##########----------]" for 52 of 100; the value is clamped to 0..max.
@@ -59,7 +62,8 @@ export function hud(s: State, hints = HINTS_PER_DUEL): string[] {
     stat('  JOKER  HP ', s.jhp, JOKER_MAX_HP),
     stat('         SP ', s.jsp, MAX_SP),
     RULE,
-    row('  attack    defend    evade    counter'),
+    // The mock's row while the Joker cannot dodge; during a streak the attack cell shows the dodge chance.
+    row(dodgeChance(s.streak) > 0 ? `  attack (${percent(dodgeChance(s.streak))} dodge)  defend  evade  counter` : '  attack    defend    evade    counter'),
     row(`  hint (${hints} left)    talk    stop`),
     RULE,
   ]
@@ -71,7 +75,8 @@ export function jokerLines(input: string, mood: Mood): string[] {
   return reply ? [`  JOKER: ${reply}`] : []
 }
 
-function outcome(move: Move, jmove: JMove, taken: number, dealt: number): string {
+function outcome(move: Move, jmove: JMove, taken: number, dealt: number, dodged: boolean): string {
+  if (dodged) return `you took ${taken}  |  your attack missed`
   if (jmove === 'charge') return move === 'attack' ? `free hit for ${dealt}` : `you ${move}, but no hit comes`
   if (move === 'attack') return `you took ${taken}  |  you hit for ${dealt}`
   if (move === 'defend') return `you took ${taken} (blocked ${JOKER_DAMAGE[jmove] - taken})`
@@ -115,13 +120,15 @@ export function duelInput(duel: Duel, input: string, rnd?: Rng): DuelStep {
 
   const move = command as Move
   const jmove = duel.next
-  const { next, taken, dealt } = resolve(duel.state, move, jmove, rnd)
+  const { next, taken, dealt, dodged, countered } = resolve(duel.state, move, jmove, rnd)
+  const chance = percent(dodgeChance(duel.state.streak))
   // The engine cancels the Joker's move when an attack knocks it out, so never name a move that did not happen.
   const lines = move === 'attack' && next.jhp <= 0
     ? ['  the Joker card falls before it can act', `  you hit for ${dealt}`]
     : [
+        ...(dodged ? [`  JOKER dodged your attack (${chance})${countered ? ` and countered for ${countered}` : ''}`] : []),
         jmove === 'charge' ? '  JOKER is charging up' : `  JOKER used ${jmove.toUpperCase()} (${JOKER_DAMAGE[jmove]})`,
-        `  ${outcome(move, jmove, taken, dealt)}`,
+        `  ${outcome(move, jmove, taken, dealt, dodged)}`,
       ]
   const rounds = duel.state.turn
   if (next.hp <= 0) return { duel: null, lines: [...lines, ...endScreen('!! BUSTED !!', rounds, `Joker HP left: ${Math.max(0, next.jhp)}`, 'try again')] }

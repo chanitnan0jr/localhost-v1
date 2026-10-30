@@ -22,7 +22,13 @@ export const JOKER_WEIGHTS: Record<Exclude<JMove, 'ultimate'>, number> = { norma
 // Evade dodges an ultimate when rnd() is below this value.
 export const EVADE_ULTIMATE_CHANCE = 0.5
 
+// The Joker's chance to dodge an attack grows by this much for each attack already in the visitor's
+// streak (any other move resets it), up to the cap. After a dodge it counters at the same chance,
+// returning COUNTER_RETURN of the dodged attack.
+export const JOKER_DODGE_STEP = 0.15
+export const JOKER_DODGE_CAP = 0.6
+
 // Free hints per duel; each one tells the truth about the Joker's next move.
 export const HINTS_PER_DUEL = 3
 
-export const START: State = { hp: PLAYER_MAX_HP, jhp: JOKER_MAX_HP, jsp: 0, turn: 1 }
+export const START: State = { hp: PLAYER_MAX_HP, jhp: JOKER_MAX_HP, jsp: 0, turn: 1, streak: 0 }

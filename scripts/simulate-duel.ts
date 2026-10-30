@@ -1,6 +1,6 @@
 // Balance check for the terminal duel: plays many games per visitor strategy and prints win rates.
 // Run with: bun scripts/simulate-duel.ts
-import { pickJoker, resolve } from '../lib/game/engine'
+import { dodgeChance, pickJoker, resolve } from '../lib/game/engine'
 import { ATTACK_DAMAGE, HINTS_PER_DUEL, JOKER_MAX_HP, MAX_SP, START } from '../lib/game/rules'
 import type { JMove, Move, State } from '../lib/game/types'
 
@@ -25,6 +25,15 @@ const STRATEGIES: [string, Strategy][] = [
   ['smart', (s) => (s.jsp >= MAX_SP ? 'defend' : 'attack')],
   // Smart, plus the three hints spent on the first rounds where the SP bar does not already give the move away.
   ['smart + hints', (s, hint) => (s.jsp >= MAX_SP ? 'defend' : ANSWER[hint() ?? 'normal'])],
+  // Smart, but breaks the attack streak with an evade once the Joker's dodge chance reaches 30%.
+  ['streak-aware', (s) => (s.jsp >= MAX_SP ? 'defend' : dodgeChance(s.streak) >= 0.3 ? 'evade' : 'attack')],
+  // Streak-aware, spending the hints on the rounds where it breaks the streak.
+  ['streak + hints', (s, hint) => {
+    if (s.jsp >= MAX_SP) return 'defend'
+    if (dodgeChance(s.streak) < 0.3) return 'attack'
+    const j = hint()
+    return j === 'precise' ? 'defend' : j === 'charge' ? 'counter' : 'evade'
+  }],
 ]
 
 function play(strategy: Strategy): { outcome: Outcome; turns: number } {

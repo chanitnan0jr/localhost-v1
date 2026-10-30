@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
-import { pickJoker, resolve, share } from './engine'
-import { ATTACK_DAMAGE, DEFEND_TAKEN, JOKER_DAMAGE, MAX_SP, SP_GAIN, START } from './rules'
+import { dodgeChance, pickJoker, resolve, share } from './engine'
+import { ATTACK_DAMAGE, COUNTER_RETURN, DEFEND_TAKEN, JOKER_DAMAGE, JOKER_DODGE_CAP, JOKER_DODGE_STEP, MAX_SP, SP_GAIN, START } from './rules'
 import type { Move, State } from './types'
 
 const at = (change: Partial<State>): State => ({ ...START, ...change })
@@ -190,5 +190,55 @@ test('the input state is never mutated', () => {
       pickJoker(s, high)
     }
   }
-  expect(s).toEqual({ hp: 50, jhp: 50, jsp: 60, turn: 4 })
+  expect(s).toEqual({ hp: 50, jhp: 50, jsp: 60, turn: 4, streak: 0 })
+})
+
+test('the dodge chance grows with the attack streak up to the cap', () => {
+  expect(dodgeChance(0)).toBe(0)
+  expect(dodgeChance(1)).toBeCloseTo(JOKER_DODGE_STEP)
+  expect(dodgeChance(2)).toBeCloseTo(JOKER_DODGE_STEP * 2)
+  expect(dodgeChance(100)).toBe(JOKER_DODGE_CAP)
+})
+
+test('attacks build the streak and any other move resets it', () => {
+  const once = resolve(START, 'attack', 'charge', low).next
+  expect(once.streak).toBe(1)
+  expect(resolve(once, 'attack', 'charge', high).next.streak).toBe(2)
+  for (const p of ['defend', 'evade', 'counter'] as Move[]) expect(resolve(once, p, 'charge', high).next.streak).toBe(0)
+})
+
+test('the first attack can never be dodged', () => {
+  const r = resolve(START, 'attack', 'charge', () => 0)
+  expect(r.dodged).toBe(false)
+  expect(r.dealt).toBe(ATTACK_DAMAGE)
+})
+
+test('a dodged attack deals nothing; the counter at the same chance returns a share of it', () => {
+  const streak = at({ streak: 2 }) // 30% chance
+  const missed = resolve(streak, 'attack', 'charge', () => 0.2) // dodges, then counters (0.2 < 0.3)
+  expect(missed.dodged).toBe(true)
+  expect(missed.dealt).toBe(0)
+  expect(missed.countered).toBe(share(ATTACK_DAMAGE, COUNTER_RETURN))
+  expect(missed.taken).toBe(missed.countered)
+  expect(missed.next.hp).toBe(START.hp - missed.countered)
+  expect(missed.next.streak).toBe(3)
+
+  let roll = 0
+  const noCounter = resolve(streak, 'attack', 'charge', () => [0.2, 0.9][roll++]) // dodges, no counter
+  expect(noCounter.dodged).toBe(true)
+  expect(noCounter.countered).toBe(0)
+  expect(noCounter.taken).toBe(0)
+
+  const lands = resolve(streak, 'attack', 'charge', () => 0.3) // exactly the chance is not a dodge
+  expect(lands.dodged).toBe(false)
+  expect(lands.dealt).toBe(ATTACK_DAMAGE)
+})
+
+test('a counter that knocks the visitor out stops the Joker move', () => {
+  const r = resolve(at({ hp: 5, streak: 4 }), 'attack', 'ultimate', () => 0)
+  expect(r.dodged).toBe(true)
+  expect(r.countered).toBe(5)
+  expect(r.next.hp).toBe(0)
+  expect(r.next.jsp).toBe(START.jsp) // the ultimate never fired
+  expect(r.over).toBe(true)
 })

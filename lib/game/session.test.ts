@@ -169,6 +169,23 @@ describe('duelInput', () => {
   })
 })
 
+describe('attack streak', () => {
+  test('the HUD shows the dodge chance once a streak starts', () => {
+    expect(hud({ ...START, streak: 2 })).toContain('|  attack (30% dodge)  defend  evade  counter  |')
+    expect(hud(START)).toContain('|  attack    defend    evade    counter        |')
+  })
+
+  test('a dodge and counter are printed before the Joker move', () => {
+    const duel = { ...startDuel(false, () => 0.85).duel!, state: { ...START, streak: 2 } }
+    const step = duelInput(duel, 'attack', () => 0.2)
+    expect(step.lines.slice(0, 3)).toEqual([
+      '  JOKER dodged your attack (30%) and countered for 13',
+      '  JOKER is charging up',
+      '  you took 13  |  your attack missed',
+    ])
+  })
+})
+
 describe('hint, talk and stop', () => {
   test('hint tells the truth about the move the Joker already picked and uses no round', () => {
     const duel = startDuel(false, () => 0.85).duel!
