@@ -30,7 +30,6 @@ export interface Card {
 export interface Destination extends Card {
   label: string
   href: string
-  description: string
 }
 export const FULL_DECK: Card[] = SUITS.flatMap((suit) =>
   RANKS.map((rank) => ({ id: `${rank}-${suit}`, rank, suit })),
@@ -42,7 +41,6 @@ export const DESTINATIONS: Destination[] = [
     suit: 'spades',
     label: 'Home',
     href: '/#home',
-    description: 'Back to the beginning',
   },
   {
     id: 'K-spades',
@@ -50,7 +48,6 @@ export const DESTINATIONS: Destination[] = [
     suit: 'spades',
     label: 'Projects',
     href: '/projects',
-    description: 'See what I have built',
   },
   {
     id: 'Q-diamonds',
@@ -58,7 +55,6 @@ export const DESTINATIONS: Destination[] = [
     suit: 'diamonds',
     label: 'Work',
     href: '/#work',
-    description: 'Research & experience',
   },
   {
     id: 'J-clubs',
@@ -66,7 +62,6 @@ export const DESTINATIONS: Destination[] = [
     suit: 'clubs',
     label: 'About',
     href: '/#about-detailed',
-    description: 'Meet the curious mind',
   },
   {
     id: '10-spades',
@@ -74,7 +69,6 @@ export const DESTINATIONS: Destination[] = [
     suit: 'spades',
     label: 'Terminal',
     href: '/terminal',
-    description: 'Take the command line',
   },
   {
     id: 'A-hearts',
@@ -82,15 +76,5 @@ export const DESTINATIONS: Destination[] = [
     suit: 'hearts',
     label: 'Contact',
     href: '/#contact',
-    description: 'Leave a message',
   },
 ]
-/** Shuffle on interaction to keep server and initial client markup identical. */
-export function shuffleHand(): Destination[] {
-  const hand = [...DESTINATIONS]
-  for (let index = hand.length - 1; index > 0; index--) {
-    const next = Math.floor(Math.random() * (index + 1))
-    ;[hand[index], hand[next]] = [hand[next], hand[index]]
-  }
-  return hand
-}

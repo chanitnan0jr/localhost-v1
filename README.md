@@ -13,7 +13,7 @@
 
 ## Features
 
-- **52-card hero.** An original masked character orbited by 52 unique playing cards. **Deal the cards** reveals six navigation cards that can be shuffled.
+- **52-card hero.** An original masked character orbited by 52 unique playing cards. **Play** opens the terminal and types `play` to start the Joker card duel.
 - **Competition timeline.** Six chapters with event photos. Select the photo to open that event's pop-up gallery.
 - **Projects catalogue.** Open-source, collaborative, and personal work at `/projects`.
 - **Interactive terminal.** `/terminal` and the 404 page share one command set, with history, Tab completion, and navigation.
@@ -79,7 +79,7 @@ Pages stay thin and compose components. Content lives in `lib/`, and client-only
 
 ## Navigation cards
 
-Shuffling changes the card order but keeps each destination:
+In the terminal, `ls` and `deck` list these six cards and `open <label>` goes to each destination:
 
 | Card | Destination |
 | --- | --- |
@@ -97,7 +97,7 @@ Shuffling changes the card order but keeps each destination:
 | Command | Result |
 | --- | --- |
 | `help` | Command table |
-| `play` | Duel the Joker card: `attack`, `defend`, `evade` or `counter` each round; `hint` (3 per duel) and `talk` use no round; `stop` or `quit` ends it |
+| `play` | Duel the Joker card (the hero's **Play** button opens `/terminal?run=play`, which types it for you): `attack`, `defend`, `evade` or `counter` each round; `hint` (3 per duel) and `talk` use no round; `stop` or `quit` ends it |
 | `projects` | List projects with their ids |
 | `connect <project>`, `github <project>` | Open a project's live demo or source code in a new tab |
 | `whoami`, `cat about` | Short introduction |

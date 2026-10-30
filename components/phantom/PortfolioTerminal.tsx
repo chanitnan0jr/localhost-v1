@@ -26,12 +26,21 @@ const INITIAL_LINES: TerminalLine[] = [
 ]
 
 export default function PortfolioTerminal() {
-  const { lines, dueling, input, ghostSuffix, field, submit, inputProps } = useTerminal(INITIAL_LINES)
+  const { lines, dueling, input, ghostSuffix, field, autoRun, submit, inputProps } = useTerminal(INITIAL_LINES)
   const output = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (window.matchMedia('(pointer: fine)').matches) field.current?.focus({ preventScroll: true })
   }, [field])
+
+  // The hero's Play button opens /terminal?run=play. Only play is accepted from the URL, and the
+  // query is dropped once it runs (not before, so a Strict Mode remount still types it).
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('run') !== 'play') return
+    return autoRun('play', () => window.history.replaceState(null, '', window.location.pathname))
+    // Runs once on arrival; autoRun is recreated every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (output.current) output.current.scrollTop = output.current.scrollHeight

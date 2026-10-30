@@ -144,6 +144,23 @@ export function useTerminal(initialLines: TerminalLine[] = []) {
     }
   }
 
+  // Types a command into the prompt one key at a time, then runs it; returns a cancel for effect cleanup.
+  function autoRun(command: string, onRun?: () => void) {
+    let typed = 0
+    const step = () => {
+      if (typed < command.length) {
+        setInput(command.slice(0, ++typed))
+        return
+      }
+      clearInterval(timer)
+      onRun?.()
+      execute(command)
+    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) typed = command.length
+    const timer = setInterval(step, 90)
+    return () => clearInterval(timer)
+  }
+
   function submit(event: FormEvent) {
     event.preventDefault()
     if (composing.current) return
@@ -226,6 +243,7 @@ export function useTerminal(initialLines: TerminalLine[] = []) {
     ghostSuffix,
     field,
     choose,
+    autoRun,
     submit,
     // Spread onto the <input>: value, change, keys and IME composition.
     inputProps: {

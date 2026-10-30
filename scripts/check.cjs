@@ -143,13 +143,8 @@ async function check() {
     Home: '/#home', Projects: '/projects', Work: '/#work',
     About: '/#about-detailed', Terminal: '/terminal', Contact: '/#contact',
   }
-  const originalHand = deck.DESTINATIONS.map((card) => card.id)
-  for (let index = 0; index < 10; index++) {
-    const hand = deck.shuffleHand()
-    assert.deepEqual(hand.map((card) => card.id).sort(), [...originalHand].sort())
-    for (const card of hand) assert.equal(card.href, destinations[card.label])
-  }
-  assert.deepEqual(deck.DESTINATIONS.map((card) => card.id), originalHand)
+  assert.equal(deck.DESTINATIONS.length, 6)
+  for (const card of deck.DESTINATIONS) assert.equal(card.href, destinations[card.label])
   for (const [label, href] of Object.entries(destinations)) {
     for (const verb of ['open', 'cd', 'goto']) {
       assert.equal(terminal.runTerminalCommand(`  ${verb.toUpperCase()}   /${label}  `, []).navigate, href)
