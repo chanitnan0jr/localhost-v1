@@ -114,7 +114,7 @@ Keys:
 - **Enter** or **→** accepts a suggestion.
 - **Escape** clears the input, and **Ctrl+L** clears the screen.
 
-During a duel the prompt becomes `visitor@duel:~$`, each round prints a HUD with both HP bars and the Joker's SP, and only the four moves, `hint`, `talk`, `stop` and `quit` are accepted. The Joker picks its move when the round starts, so a hint ("You should prepare to dodge", "You should attack me next turn") always tells the truth.
+During a duel the prompt becomes `visitor@duel:~$`, each round prints a HUD with both HP bars and the Joker's SP, and only the four moves, `hint`, `talk`, `stop` and `quit` are accepted. The Joker picks its move when the round starts, so a hint ("You should prepare to dodge", "You should attack me next turn") always tells the truth. Attacking again and again is risky: each attack in a row gives the Joker another 15% to dodge (up to 60%, shown in the HUD as `attack (30% dodge)`), and after a dodge it counters at the same chance. Any other move resets the streak.
 Game rules and balance numbers live in `lib/game/` (`rules.ts`, `engine.ts`); `bun run test` covers them and `bun scripts/simulate-duel.ts` reports win rates per strategy.
 
 Commands never run a shell or fetch arbitrary URLs: `connect` and `github` only open links listed in `lib/projectsData.ts`.
