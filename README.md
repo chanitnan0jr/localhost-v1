@@ -70,6 +70,7 @@ components/
 context/              Image dialog and visitor statistics providers
 hooks/                useTerminal, useToggle, useStackCarousel
 lib/                  Typed content, terminal commands, Redis and visitor helpers
+├── game/             Duel rules, engine, Joker replies and terminal session text
 public/images/        Photos and certificates
 scripts/check.cjs     Regression checks with Node assertions
 ```
@@ -95,7 +96,10 @@ Shuffling changes the card order but keeps each destination:
 
 | Command | Result |
 | --- | --- |
-| `help` | List commands |
+| `help` | Command table |
+| `play` | Duel the Joker card: `attack`, `defend`, `evade` or `counter` each round, `quit` to fold |
+| `projects` | List projects with their ids |
+| `connect <project>`, `github <project>` | Open a project's live demo or source code in a new tab |
 | `whoami`, `cat about` | Short introduction |
 | `ls`, `deck` | The six navigation cards |
 | `cat projects`, `cat contact` | Project list and contact details |
@@ -110,7 +114,10 @@ Keys:
 - **Enter** or **→** accepts a suggestion.
 - **Escape** clears the input, and **Ctrl+L** clears the screen.
 
-Commands never run a shell or fetch arbitrary URLs.
+During a duel the prompt becomes `visitor@duel:~$`, each round prints a HUD with both HP bars and the Joker's SP, and only the four moves and `quit` are accepted.
+Game rules and balance numbers live in `lib/game/` (`rules.ts`, `engine.ts`); `bun run test` covers them and `bun scripts/simulate-duel.ts` reports win rates per strategy.
+
+Commands never run a shell or fetch arbitrary URLs: `connect` and `github` only open links listed in `lib/projectsData.ts`.
 
 ## Color reference
 
@@ -130,6 +137,7 @@ Roboto Condensed is used for headings and menus, and Inter for body text.
 bun run lint
 bun run typecheck
 bun run check
+bun run test
 bun run build
 ```
 
